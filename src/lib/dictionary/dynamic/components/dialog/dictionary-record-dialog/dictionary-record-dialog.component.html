@@ -1,0 +1,40 @@
+<p-dialog
+    [header]="heading"
+    [modal]="true"
+    [closable]="!saving"
+    [draggable]="false"
+    [resizable]="false"
+    [style]="{ width: 'min(760px, 96vw)' }"
+    [visible]="visible"
+    (visibleChange)="!$event && close()"
+>
+    <div class="argent-record-dialog">
+        @if (loading) {
+            <div class="argent-record-dialog__status" role="status">Загрузка свежих данных…</div>
+        } @else if (loadingFailed) {
+            <p class="argent-record-dialog__error" role="alert">{{ error }}</p>
+        } @else if (schema) {
+            @if (error) {
+                <p class="argent-record-dialog__error" role="alert">{{ error }}</p>
+            }
+            <argent-dictionary-dynamic-form
+                [schema]="schema"
+                [form]="form"
+            ></argent-dictionary-dynamic-form>
+        }
+    </div>
+    <ng-template #footer>
+        <button pButton
+            type="button"
+            severity="secondary"
+            [disabled]="saving"
+            (click)="close()"
+        >Отмена</button>
+        <button pButton
+            type="button"
+            [disabled]="!canSave"
+            [loading]="saving"
+            (click)="save()"
+        >{{ recordId ? 'Сохранить' : 'Создать' }}</button>
+    </ng-template>
+</p-dialog>

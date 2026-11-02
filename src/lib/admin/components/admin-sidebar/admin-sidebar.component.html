@@ -1,0 +1,26 @@
+<aside class="argent-admin-sidebar"
+    [class.argent-admin-sidebar--collapsed]="collapsed"
+    [class.argent-admin-sidebar--mobile-open]="mobileOpen"
+>
+    <div class="argent-admin-sidebar__brand">
+        <span class="argent-admin-sidebar__brand-mark" aria-hidden="true">A</span>
+        <span class="argent-admin-sidebar__brand-name">Argent</span>
+    </div>
+
+    <nav class="argent-admin-sidebar__navigation" aria-label="Администрирование">
+        <p class="argent-admin-sidebar__caption">Управление</p>
+
+        @for (item of navigation; track item.id) {
+            <argent-admin-nav-item
+                [item]="item"
+                [collapsed]="collapsed && !mobileOpen"
+                (navigated)="navigated.emit()"
+            ></argent-admin-nav-item>
+        }
+    </nav>
+
+    <div class="argent-admin-sidebar__footer">
+        <span class="argent-admin-sidebar__footer-mark" aria-hidden="true">✦</span>
+        <span class="argent-admin-sidebar__footer-text">Общие инструменты Argent</span>
+    </div>
+</aside>

@@ -1,0 +1,7 @@
+<input pInputText
+    class="argent-field__control"
+    [type]="inputType"
+    [attr.step]="inputType === 'datetime-local' || inputType === 'time' ? '1' : null"
+    [readonly]="field.readOnly"
+    [formControl]="control"
+/>

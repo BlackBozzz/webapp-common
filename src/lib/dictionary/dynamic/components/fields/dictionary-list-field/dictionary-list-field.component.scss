@@ -1,0 +1,6 @@
+:host { display: block; }
+.argent-list-field__entry { display: flex; gap: .55rem; flex-wrap: wrap; }
+.argent-list-field__entry input { flex: 1; min-width: 10rem; }
+.argent-list-field__chips { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .65rem; }
+.argent-list-field__item { display: flex; align-items: center; gap: .15rem; }
+.argent-list-field__remove { border: 0; background: transparent; cursor: pointer; color: #b42318; font-size: 1.3rem; }

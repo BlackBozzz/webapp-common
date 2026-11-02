@@ -1,0 +1,117 @@
+<form class="argent-dynamic-form" [formGroup]="form">
+    @for (field of fields; track field.name) {
+        <ng-container *ngTemplateOutlet="fieldTemplate; context: { $implicit: field, parent: form }"></ng-container>
+    }
+</form>
+
+<ng-template #fieldTemplate let-field let-parent="parent">
+    @if (field.visible && field.control !== 'hidden') {
+        <div class="argent-dynamic-form__field">
+            <label class="argent-dynamic-form__label">
+                {{ field.label }}
+                @if (field.required) { <span class="argent-dynamic-form__required">*</span> }
+                @if (field.readOnly) { <span class="argent-dynamic-form__readonly">Только чтение</span> }
+            </label>
+
+            @if (field.reference) {
+                @if (field.reference.multiple) {
+                    <argent-dictionary-multi-reference-field
+                        [field]="field"
+                        [control]="scalar(child(parent, field))"
+                    ></argent-dictionary-multi-reference-field>
+                } @else {
+                    <argent-dictionary-reference-field
+                        [field]="field"
+                        [control]="scalar(child(parent, field))"
+                    ></argent-dictionary-reference-field>
+                }
+            } @else if (field.type === 'object') {
+                <fieldset class="argent-dynamic-form__nested">
+                    @for (nestedField of field.fields; track nestedField.name) {
+                        <ng-container *ngTemplateOutlet="fieldTemplate; context: {
+                            $implicit: nestedField, parent: group(child(parent, field))
+                        }"></ng-container>
+                    }
+                </fieldset>
+            } @else if (isArray(field)) {
+                @if (field.fields.length) {
+                    <div class="argent-dynamic-form__collection">
+                        @for (item of array(child(parent, field)).controls; track item; let index = $index) {
+                            <fieldset class="argent-dynamic-form__nested">
+                                <legend>Элемент {{ index + 1 }}</legend>
+                                @for (nestedField of field.fields; track nestedField.name) {
+                                    <ng-container *ngTemplateOutlet="fieldTemplate; context: {
+                                        $implicit: nestedField, parent: item
+                                    }"></ng-container>
+                                }
+                                @if (!field.readOnly) {
+                                    <button pButton
+                                        type="button"
+                                        severity="danger"
+                                        (click)="removeItem(child(parent, field), index)"
+                                    >Удалить элемент</button>
+                                }
+                            </fieldset>
+                        }
+                        @if (!field.readOnly) {
+                            <button pButton
+                                type="button"
+                                severity="secondary"
+                                (click)="addItem(field, child(parent, field))"
+                            >Добавить элемент</button>
+                        }
+                    </div>
+                } @else {
+                    <argent-dictionary-list-field
+                        [field]="field"
+                        [control]="array(child(parent, field))"
+                    ></argent-dictionary-list-field>
+                }
+            } @else if (field.control === 'textarea') {
+                <argent-dictionary-textarea-field
+                    [field]="field"
+                    [control]="scalar(child(parent, field))"
+                ></argent-dictionary-textarea-field>
+            } @else if (field.control === 'checkbox' || field.type === 'boolean') {
+                <argent-dictionary-boolean-field
+                    [field]="field"
+                    [control]="scalar(child(parent, field))"
+                ></argent-dictionary-boolean-field>
+            } @else if (field.control === 'date' || field.control === 'time' || field.control === 'datetime'
+                || field.type === 'date' || field.type === 'time' || field.type === 'datetime') {
+                <argent-dictionary-date-field
+                    [field]="field"
+                    [control]="scalar(child(parent, field))"
+                ></argent-dictionary-date-field>
+            } @else if (field.control === 'select' || field.type === 'enum') {
+                <argent-dictionary-enum-field
+                    [field]="field"
+                    [control]="scalar(child(parent, field))"
+                ></argent-dictionary-enum-field>
+            } @else if (field.type === 'binary' || field.type === 'bytes') {
+                <argent-dictionary-binary-field
+                    [field]="field"
+                    [control]="scalar(child(parent, field))"
+                ></argent-dictionary-binary-field>
+            } @else if (field.control === 'number' || field.type === 'integer'
+                || field.type === 'decimal' || field.type === 'number') {
+                <argent-dictionary-number-field
+                    [field]="field"
+                    [control]="scalar(child(parent, field))"
+                ></argent-dictionary-number-field>
+            } @else {
+                <argent-dictionary-text-field
+                    [field]="field"
+                    [control]="scalar(child(parent, field))"
+                ></argent-dictionary-text-field>
+            }
+
+            @if (field.help || field.description) {
+                <small class="argent-dynamic-form__help">{{ field.help || field.description }}</small>
+            }
+            @if (message(child(parent, field)); as error) {
+                <small class="argent-dynamic-form__error">{{ error }}</small>
+            }
+        </div>
+    }
+</ng-template>

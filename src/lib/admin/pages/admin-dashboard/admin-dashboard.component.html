@@ -1,0 +1,26 @@
+<section class="argent-admin-dashboard" aria-labelledby="argent-admin-dashboard-title">
+    <header class="argent-admin-dashboard__intro">
+        <span class="argent-admin-dashboard__eyebrow">ARGENT / ADMIN</span>
+        <h1 class="argent-admin-dashboard__title" id="argent-admin-dashboard-title">Обзор системы</h1>
+        <p class="argent-admin-dashboard__lead">
+            Единая точка управления общими данными и настройками приложений Argent.
+        </p>
+    </header>
+
+    <section class="argent-admin-dashboard__section" aria-labelledby="argent-admin-dashboard-sections">
+        <div class="argent-admin-dashboard__section-heading">
+            <div>
+                <h2 id="argent-admin-dashboard-sections">Разделы администрирования</h2>
+                <p>Выберите раздел для работы. Дополнительные возможности появятся позже.</p>
+            </div>
+        </div>
+
+        <div class="argent-admin-dashboard__grid">
+            @for (item of sections; track item.id) {
+                <argent-admin-section-card
+                    [item]="item"
+                ></argent-admin-section-card>
+            }
+        </div>
+    </section>
+</section>

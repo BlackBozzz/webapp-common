@@ -1,0 +1,39 @@
+<section class="argent-catalog">
+    <div class="argent-catalog__header">
+        <div>
+            <span class="argent-catalog__eyebrow">Управление данными</span>
+            <h1>Справочники</h1>
+            <p>Выберите справочник для просмотра и изменения его записей.</p>
+        </div>
+        <button pButton
+            type="button"
+            severity="secondary"
+            [disabled]="loading()"
+            (click)="refresh()"
+        >Обновить список</button>
+    </div>
+    @if (error()) {
+        <div class="argent-catalog__error" role="alert">{{ error() }}</div>
+    }
+    @if (loading()) {
+        <p>Загрузка справочников…</p>
+    } @else if (!dictionaries().length) {
+        <p>Зарегистрированных справочников пока нет.</p>
+    } @else {
+        <div class="argent-catalog__grid">
+            @for (dictionary of dictionaries(); track dictionary.code) {
+                <a class="argent-catalog__link"
+                    [routerLink]="[dictionary.code]"
+                >
+                    <p-card>
+                        <div class="argent-catalog__card">
+                            <span class="argent-catalog__code">{{ dictionary.code }}</span>
+                            <h2>{{ dictionary.name }}</h2>
+                            <span class="argent-catalog__open">Открыть →</span>
+                        </div>
+                    </p-card>
+                </a>
+            }
+        </div>
+    }
+</section>

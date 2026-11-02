@@ -1,0 +1,69 @@
+:host {
+    display: block;
+    min-height: 100dvh;
+}
+
+.argent-admin-layout {
+    display: grid;
+    grid-template-columns: 17rem minmax(0, 1fr);
+    min-height: 100dvh;
+    background: var(--p-surface-50, #f8fafc);
+    color: var(--p-text-color, #202531);
+    transition: grid-template-columns 180ms ease;
+
+    &--collapsed {
+        grid-template-columns: 5.25rem minmax(0, 1fr);
+    }
+
+    &__sidebar {
+        min-width: 0;
+        z-index: 30;
+    }
+
+    &__workspace {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+    }
+
+    &__content {
+        width: min(100%, 94rem);
+        flex: 1;
+        margin: 0 auto;
+        padding: clamp(1.2rem, 2.5vw, 2.5rem);
+    }
+
+    &__backdrop {
+        display: none;
+    }
+}
+
+@media (max-width: 880px) {
+    .argent-admin-layout,
+    .argent-admin-layout--collapsed {
+        display: block;
+    }
+
+    .argent-admin-layout__sidebar {
+        position: fixed;
+        inset: 0 auto 0 0;
+        width: min(18rem, 88vw);
+        transform: translateX(-110%);
+        transition: transform 180ms ease;
+    }
+
+    .argent-admin-layout--mobile-open .argent-admin-layout__sidebar {
+        transform: translateX(0);
+    }
+
+    .argent-admin-layout__backdrop {
+        position: fixed;
+        inset: 0;
+        display: block;
+        z-index: 20;
+        border: 0;
+        padding: 0;
+        background: rgb(15 23 42 / 55%);
+        cursor: pointer;
+    }
+}

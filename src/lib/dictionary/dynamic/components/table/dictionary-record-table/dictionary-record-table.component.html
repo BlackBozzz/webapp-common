@@ -1,0 +1,70 @@
+<p-table
+    selectionMode="single"
+    sortMode="single"
+    [value]="page?.items ?? []"
+    [paginator]="true"
+    [lazy]="true"
+    [lazyLoadOnInit]="false"
+    [rows]="page?.size ?? 20"
+    [first]="(page?.page ?? 0) * (page?.size ?? 20)"
+    [rowsPerPageOptions]="[10, 20, 50, 100]"
+    [totalRecords]="page?.totalElements ?? 0"
+    [loading]="loading"
+    [dataKey]="schema?.idField || 'id'"
+    [selection]="selected"
+    [scrollable]="true"
+    (onLazyLoad)="queryChange.emit($event)"
+    (selectionChange)="selectedChange.emit($event)"
+>
+    <ng-template #header>
+        <tr>
+            @for (field of columns; track field.name) {
+                @if (sortable(field)) {
+                    <th
+                        [pSortableColumn]="field.name"
+                    >
+                      {{ field.label }}
+                      <p-sort-icon
+                        [field]="field.name"
+                      ></p-sort-icon>
+                    </th>
+                } @else {
+                    <th>{{ field.label }}</th>
+                }
+            }
+        </tr>
+        <tr>
+            @for (field of columns; track field.name) {
+                <th>
+                    @if (filterable(field)) {
+                        <input pInputText
+                            class="argent-record-table__filter"
+                            type="text"
+                            [attr.aria-label]="'Фильтр: ' + field.label"
+                            [value]="filters[field.name] || ''"
+                            (input)="changeFilter(field.name, $event)"
+                        />
+                    }
+                </th>
+            }
+        </tr>
+    </ng-template>
+    <ng-template #body let-record>
+        <tr
+            [pSelectableRow]="record"
+        >
+            @for (field of columns; track field.name) {
+                <td [title]="show(record[field.name], field)">
+                    {{ show(record[field.name], field) }}
+                </td>
+            }
+        </tr>
+    </ng-template>
+    <ng-template #emptymessage>
+        <tr>
+            <td class="argent-record-table__empty" [attr.colspan]="columns.length || 1">
+                Записей не найдено.
+            </td>
+        </tr>
+    </ng-template>
+</p-table>

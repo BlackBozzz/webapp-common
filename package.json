@@ -1,0 +1,35 @@
+{
+  "name": "@argent/webapp-common",
+  "version": "0.3.0",
+  "description": "Библиотека Argent: администрирование, динамические таблицы и формы справочников (Angular 22 / PrimeNG)",
+  "scripts": {
+    "ng": "ng",
+    "build": "ng build webapp-common",
+    "build:dev": "ng build webapp-common --configuration development",
+    "watch": "ng build webapp-common --watch --configuration development"
+  },
+  "peerDependencies": {
+    "@angular/common": "^22.0.0",
+    "@angular/core": "^22.0.0",
+    "@angular/forms": "^22.0.0",
+    "@angular/router": "^22.0.0",
+    "rxjs": "^7.8.0",
+    "@angular/cdk": "^22.0.0",
+    "primeng": "^22.0.0",
+    "@primeuix/themes": "^3.0.0"
+  },
+  "dependencies": {
+    "tslib": "^2.3.0"
+  },
+  "devDependencies": {
+    "@angular/build": "^22.2.5",
+    "@angular/cli": "^22.2.5",
+    "@angular/compiler-cli": "^22.2.0",
+    "ng-packagr": "^22.2.5",
+    "typescript": "~6.0.2",
+    "@angular/cdk": "^22.0.0",
+    "primeng": "^22.0.0",
+    "@primeuix/themes": "^3.0.0"
+  },
+  "sideEffects": false
+}

@@ -1,0 +1,20 @@
+<div class="argent-binary-field">
+    <input
+        type="file"
+        [disabled]="field.readOnly"
+        (change)="onFileChange($event)"
+    />
+    @if (fileName) {
+        <span>{{ fileName }}</span>
+    } @else if (control.value) {
+        <span>Файл загружен</span>
+    }
+    @if (control.value && !field.readOnly) {
+        <button pButton
+            type="button"
+            severity="secondary"
+            (click)="clear()"
+        >Очистить</button>
+    }
+    @if (error) { <small class="argent-binary-field__error">{{ error }}</small> }
+</div>

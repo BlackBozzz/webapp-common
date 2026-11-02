@@ -1,0 +1,15 @@
+<p-autocomplete
+    class="argent-reference-field"
+    optionLabel="label"
+    [dropdown]="true"
+    [forceSelection]="true"
+    [disabled]="field.readOnly || loading"
+    [placeholder]="field.placeholder || 'Найдите запись справочника'"
+    [suggestions]="suggestions"
+    [ngModel]="selected"
+    [ngModelOptions]="{ standalone: true }"
+    (completeMethod)="search($event)"
+    (ngModelChange)="choose($event)"
+></p-autocomplete>
+@if (loading) { <small>Загрузка выбранной записи…</small> }
+@if (error) { <small class="argent-reference-field__error">{{ error }}</small> }

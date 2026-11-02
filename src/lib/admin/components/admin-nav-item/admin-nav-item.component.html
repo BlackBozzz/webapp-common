@@ -1,0 +1,26 @@
+@if (item.enabled) {
+    <a class="argent-admin-nav-item"
+        routerLinkActive="argent-admin-nav-item--active"
+        [routerLink]="item.path"
+        [routerLinkActiveOptions]="{ exact: true }"
+        [attr.title]="collapsed ? item.title : null"
+        [attr.aria-label]="item.title"
+        (click)="navigated.emit()"
+    >
+        <span class="argent-admin-nav-item__glyph" aria-hidden="true">{{ item.glyph }}</span>
+        @if (!collapsed) {
+            <span class="argent-admin-nav-item__name">{{ item.title }}</span>
+        }
+    </a>
+} @else {
+    <span class="argent-admin-nav-item argent-admin-nav-item--disabled"
+        aria-disabled="true"
+        [attr.title]="collapsed ? item.title + ' — скоро' : null"
+    >
+        <span class="argent-admin-nav-item__glyph" aria-hidden="true">{{ item.glyph }}</span>
+        @if (!collapsed) {
+            <span class="argent-admin-nav-item__name">{{ item.title }}</span>
+            <span class="argent-admin-nav-item__soon">скоро</span>
+        }
+    </span>
+}

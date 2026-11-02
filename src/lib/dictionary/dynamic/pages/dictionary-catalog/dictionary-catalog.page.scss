@@ -1,0 +1,14 @@
+:host { display: block; }
+.argent-catalog { display: grid; gap: 1.5rem; }
+.argent-catalog__header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+.argent-catalog__header h1 { font-size: clamp(1.5rem, 3vw, 2rem); margin: .3rem 0; }
+.argent-catalog__header p { color: var(--p-text-muted-color); margin: 0; }
+.argent-catalog__eyebrow { font-size: .78rem; color: var(--p-text-muted-color); }
+.argent-catalog__grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1rem; }
+.argent-catalog__link { display: block; text-decoration: none; color: inherit; border-radius: .75rem; }
+.argent-catalog__link:focus-visible { outline: 2px solid var(--p-primary-color); outline-offset: 3px; }
+.argent-catalog__card { display: grid; gap: .8rem; min-height: 7rem; }
+.argent-catalog__card h2 { font-size: 1.15rem; margin: 0; }
+.argent-catalog__code { color: var(--p-text-muted-color); font-size: .8rem; }
+.argent-catalog__open { color: var(--p-primary-color); font-weight: 600; font-size: .85rem; }
+.argent-catalog__error { padding: 1rem; background: #fff1f2; color: #b42318; border-radius: .6rem; }

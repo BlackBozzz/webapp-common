@@ -1,0 +1,76 @@
+<section class="argent-records">
+    <div class="argent-records__back">
+        <a
+            routerLink="../"
+        >← Все справочники</a>
+    </div>
+    <div class="argent-records__heading">
+        <div>
+            <span class="argent-records__eyebrow">Справочник · {{ code() }}</span>
+            <h1>{{ title() }}</h1>
+        </div>
+        <div class="argent-records__actions">
+            <button pButton
+                type="button"
+                severity="secondary"
+                [disabled]="loading() || !schema()"
+                (click)="refresh()"
+            >Обновить</button>
+            <button pButton
+                type="button"
+                [disabled]="!schema()"
+                (click)="add()"
+            >Добавить</button>
+            <button pButton
+                type="button"
+                severity="secondary"
+                [disabled]="!selected() || loading()"
+                (click)="edit()"
+            >Редактировать</button>
+            <button pButton
+                type="button"
+                severity="danger"
+                [disabled]="!selected() || deleting() || loading()"
+                (click)="remove()"
+            >Удалить</button>
+        </div>
+    </div>
+
+    @if (error()) {
+        <div class="argent-records__error" role="alert">{{ error() }}</div>
+    }
+    @if (schema()) {
+        <div class="argent-records__search">
+            <input pInputText
+                type="search"
+                placeholder="Поиск по справочнику"
+                [value]="searchText()"
+                (input)="search($event)"
+            />
+            <span>Выберите запись для редактирования или удаления</span>
+        </div>
+        <argent-dictionary-record-table
+            [schema]="schema()"
+            [page]="page()"
+            [loading]="loading()"
+            [selected]="selected()"
+            [filters]="filters()"
+            (selectedChange)="selected.set($event)"
+            (queryChange)="paginate($event)"
+            (filterChange)="filter($event)"
+        ></argent-dictionary-record-table>
+    } @else if (loading()) {
+        <p class="argent-records__loading">Загрузка описания справочника…</p>
+    }
+
+    <argent-dictionary-record-dialog
+        [code]="code()"
+        [schema]="schema()"
+        [recordId]="editingId()"
+        [visible]="dialogVisible()"
+        (visibleChange)="dialogVisible.set($event)"
+        (saved)="onSaved()"
+    ></argent-dictionary-record-dialog>
+    <p-confirmdialog></p-confirmdialog>
+    <p-toast></p-toast>
+</section>

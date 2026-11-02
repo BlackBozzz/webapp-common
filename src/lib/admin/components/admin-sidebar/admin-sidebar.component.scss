@@ -1,0 +1,103 @@
+:host {
+    display: block;
+    height: 100%;
+}
+
+.argent-admin-sidebar {
+    display: flex;
+    flex-direction: column;
+    min-height: 100dvh;
+    height: 100%;
+    padding: 1.2rem 0.75rem;
+    border-right: 1px solid var(--p-content-border-color, #e5e7eb);
+    background: var(--p-content-background, #fff);
+
+    &__brand {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        min-height: 3.5rem;
+        padding: 0 0.55rem;
+    }
+
+    &__brand-mark {
+        display: grid;
+        flex: 0 0 auto;
+        place-items: center;
+        width: 2.55rem;
+        height: 2.55rem;
+        border-radius: 0.8rem;
+        background: var(--p-primary-color, #4f46e5);
+        color: var(--p-primary-contrast-color, #fff);
+        font-size: 1.4rem;
+        font-weight: 800;
+        letter-spacing: -0.06em;
+    }
+
+    &__brand-name {
+        font-size: 1.35rem;
+        font-weight: 800;
+        letter-spacing: -0.05em;
+    }
+
+    &__navigation {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+        margin-top: 2.25rem;
+    }
+
+    &__caption {
+        padding: 0 0.75rem;
+        margin-bottom: 0.6rem;
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--p-text-muted-color, #64748b);
+    }
+
+    &__footer {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        margin-top: auto;
+        padding: 1rem 0.6rem 0.2rem;
+        border-top: 1px solid var(--p-content-border-color, #e5e7eb);
+        color: var(--p-text-muted-color, #64748b);
+    }
+
+    &__footer-mark {
+        font-size: 1.2rem;
+        color: var(--p-primary-color, #4f46e5);
+    }
+
+    &__footer-text {
+        font-size: 0.75rem;
+    }
+
+    &--collapsed:not(.argent-admin-sidebar--mobile-open) {
+        .argent-admin-sidebar__brand-name,
+        .argent-admin-sidebar__caption,
+        .argent-admin-sidebar__footer-text {
+            display: none;
+        }
+
+        .argent-admin-sidebar__brand {
+            justify-content: center;
+            padding: 0;
+        }
+    }
+}
+
+@media (max-width: 880px) {
+    .argent-admin-sidebar {
+        min-height: 100dvh;
+    }
+
+    .argent-admin-sidebar__brand-name,
+    .argent-admin-sidebar__caption,
+    .argent-admin-sidebar__footer-text {
+        display: initial;
+    }
+}

@@ -1,0 +1,20 @@
+:host {
+    display: block;
+}
+
+.argent-dictionary-form {
+    &__eyebrow {
+        color: var(--p-primary-color, #4f46e5);
+        font-size: 0.75rem;
+        font-weight: 700;
+    }
+
+    h1 {
+        margin: 0.7rem 0;
+    }
+
+    p {
+        color: var(--p-text-muted-color, #64748b);
+        line-height: 1.6;
+    }
+}

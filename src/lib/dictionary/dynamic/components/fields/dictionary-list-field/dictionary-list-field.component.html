@@ -1,0 +1,32 @@
+<div class="argent-list-field">
+    @if (!field.readOnly) {
+        <div class="argent-list-field__entry">
+            <input pInputText
+                type="text"
+                [placeholder]="field.placeholder || 'Новое значение'"
+                [value]="draft"
+                (input)="draft = $any($event.target).value"
+                (keydown.enter)="$event.preventDefault(); add()"
+            />
+            <button pButton
+                type="button"
+                (click)="add()"
+            >Добавить</button>
+        </div>
+    }
+    <div class="argent-list-field__chips">
+        @for (item of values; track $index) {
+            <div class="argent-list-field__item">
+                <p-chip [label]="'' + item"></p-chip>
+                @if (!field.readOnly) {
+                    <button
+                        class="argent-list-field__remove"
+                        type="button"
+                        aria-label="Убрать значение"
+                        (click)="remove($index)"
+                    >×</button>
+                }
+            </div>
+        }
+    </div>
+</div>

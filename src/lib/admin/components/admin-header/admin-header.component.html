@@ -1,0 +1,30 @@
+<header class="argent-admin-header">
+    <div class="argent-admin-header__start">
+        <button pButton
+            class="argent-admin-header__toggle argent-admin-header__toggle--desktop"
+            type="button"
+            [attr.aria-label]="collapsed ? 'Развернуть меню' : 'Свернуть меню'"
+            [attr.aria-expanded]="!collapsed"
+            (click)="toggleCollapsed.emit()"
+        >☰</button>
+
+        <button pButton
+            class="argent-admin-header__toggle argent-admin-header__toggle--mobile"
+            type="button"
+            aria-label="Открыть меню"
+            (click)="toggleMobile.emit()"
+        >☰</button>
+
+        <div class="argent-admin-header__heading">
+            <span class="argent-admin-header__eyebrow">Управление системой</span>
+            <strong class="argent-admin-header__title">Панель администратора</strong>
+        </div>
+    </div>
+
+    <div class="argent-admin-header__account"
+        aria-label="Авторизация будет подключена позже"
+    >
+        <span class="argent-admin-header__avatar" aria-hidden="true">A</span>
+        <span class="argent-admin-header__account-caption">Argent</span>
+    </div>
+</header>

@@ -1,0 +1,23 @@
+<p-card class="argent-admin-section-card"
+    [class.argent-admin-section-card--disabled]="!item.enabled"
+>
+    <div class="argent-admin-section-card__body">
+        <div class="argent-admin-section-card__head">
+            <span class="argent-admin-section-card__glyph" aria-hidden="true">{{ item.glyph }}</span>
+            @if (!item.enabled) {
+                <span class="argent-admin-section-card__pending">Позже</span>
+            }
+        </div>
+
+        <h3 class="argent-admin-section-card__title">{{ item.title }}</h3>
+        <p class="argent-admin-section-card__description">{{ item.description }}</p>
+
+        @if (item.enabled) {
+            <a class="argent-admin-section-card__link"
+                [routerLink]="item.path"
+            >Перейти в раздел <span aria-hidden="true">→</span></a>
+        } @else {
+            <span class="argent-admin-section-card__not-ready">Раздел в разработке</span>
+        }
+    </div>
+</p-card>

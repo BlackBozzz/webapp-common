@@ -1,0 +1,16 @@
+<p-autocomplete
+    class="argent-multi-reference-field"
+    optionLabel="label"
+    [dropdown]="true"
+    [forceSelection]="true"
+    [multiple]="true"
+    [disabled]="field.readOnly || loading"
+    [placeholder]="field.placeholder || 'Поиск связанных записей'"
+    [suggestions]="suggestions"
+    [ngModel]="selected"
+    [ngModelOptions]="{ standalone: true }"
+    (completeMethod)="search($event)"
+    (ngModelChange)="choose($event)"
+></p-autocomplete>
+@if (loading) { <small>Загрузка выбранных записей…</small> }
+@if (error) { <small class="argent-multi-reference-field__error">{{ error }}</small> }

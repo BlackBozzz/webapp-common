@@ -1,0 +1,12 @@
+:host { display: block; }
+.argent-records { display: grid; gap: 1.3rem; min-width: 0; }
+.argent-records__back a { text-decoration: none; color: var(--p-primary-color, #3b5bdb); font-size: .87rem; }
+.argent-records__heading { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 1.1rem; }
+.argent-records__heading h1 { margin: .25rem 0 0; font-size: clamp(1.4rem, 3vw, 1.9rem); }
+.argent-records__eyebrow { font-size: .77rem; color: var(--p-text-muted-color); }
+.argent-records__actions { display: flex; gap: .5rem; flex-wrap: wrap; }
+.argent-records__search { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+.argent-records__search input { min-width: 16rem; flex: 1; max-width: 24rem; }
+.argent-records__search span { color: var(--p-text-muted-color); font-size: .8rem; }
+.argent-records__error { padding: 1rem; background: #fff1f2; color: #b42318; border-radius: .6rem; }
+.argent-records__loading { color: var(--p-text-muted-color); }

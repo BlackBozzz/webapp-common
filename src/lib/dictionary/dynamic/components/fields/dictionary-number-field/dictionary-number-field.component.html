@@ -1,0 +1,8 @@
+<input pInputText
+    class="argent-field__control"
+    type="text"
+    [attr.inputmode]="field.type === 'integer' ? 'numeric' : 'decimal'"
+    [attr.placeholder]="field.placeholder || (field.type === 'integer' ? 'Целое число' : 'Число')"
+    [readonly]="field.readOnly"
+    [formControl]="control"
+/>

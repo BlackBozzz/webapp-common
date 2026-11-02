@@ -1,0 +1,84 @@
+:host {
+    display: block;
+}
+
+.argent-admin-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    min-height: 5.25rem;
+    padding: 0 clamp(1.2rem, 2.5vw, 2.5rem);
+    border-bottom: 1px solid var(--p-content-border-color, #e5e7eb);
+    background: var(--p-content-background, #fff);
+
+    &__start,
+    &__account {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    &__toggle {
+        display: grid;
+        place-items: center;
+        width: 2.5rem;
+        height: 2.5rem;
+        border-radius: 0.7rem;
+        font-size: 1.2rem;
+    }
+
+    &__toggle--mobile {
+        display: none;
+    }
+
+    &__heading {
+        display: grid;
+        gap: 0.15rem;
+    }
+
+    &__eyebrow {
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--p-text-muted-color, #64748b);
+    }
+
+    &__title {
+        font-size: 1.02rem;
+    }
+
+    &__avatar {
+        display: grid;
+        place-items: center;
+        width: 2.2rem;
+        height: 2.2rem;
+        border-radius: 50%;
+        font-weight: 700;
+        color: #fff;
+        background: var(--p-primary-color, #4f46e5);
+    }
+
+    &__account-caption {
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+}
+
+@media (max-width: 880px) {
+    .argent-admin-header__toggle--desktop {
+        display: none;
+    }
+
+    .argent-admin-header__toggle--mobile {
+        display: grid;
+    }
+}
+
+@media (max-width: 520px) {
+    .argent-admin-header__eyebrow,
+    .argent-admin-header__account-caption {
+        display: none;
+    }
+}

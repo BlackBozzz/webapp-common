@@ -1,0 +1,72 @@
+:host {
+    display: block;
+    min-width: 0;
+}
+
+.argent-admin-section-card {
+    display: block;
+    height: 100%;
+
+    &__body {
+        display: flex;
+        flex-direction: column;
+        min-height: 12rem;
+    }
+
+    &__head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 0.8rem;
+    }
+
+    &__glyph {
+        display: grid;
+        place-items: center;
+        width: 2.6rem;
+        height: 2.6rem;
+        border-radius: 0.7rem;
+        font-size: 1.35rem;
+        color: var(--p-primary-color, #4f46e5);
+        background: var(--p-primary-50, #eef2ff);
+    }
+
+    &__pending {
+        color: var(--p-text-muted-color, #64748b);
+        font-size: 0.75rem;
+    }
+
+    &__title {
+        margin: 0 0 0.5rem;
+        font-size: 1.1rem;
+    }
+
+    &__description {
+        flex: 1;
+        margin: 0 0 1.2rem;
+        color: var(--p-text-muted-color, #64748b);
+        font-size: 0.9rem;
+        line-height: 1.5;
+    }
+
+    &__link {
+        align-self: flex-start;
+        color: var(--p-primary-color, #4f46e5);
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 0.87rem;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+
+    &__not-ready {
+        color: var(--p-text-muted-color, #64748b);
+        font-size: 0.84rem;
+    }
+
+    &--disabled {
+        opacity: 0.78;
+    }
+}

@@ -1,0 +1,30 @@
+<div class="argent-admin-layout"
+    [class.argent-admin-layout--collapsed]="collapsed"
+    [class.argent-admin-layout--mobile-open]="mobileOpen"
+>
+    <argent-admin-sidebar class="argent-admin-layout__sidebar"
+        [collapsed]="collapsed"
+        [mobileOpen]="mobileOpen"
+        (navigated)="closeMobile()"
+    ></argent-admin-sidebar>
+
+    @if (mobileOpen) {
+        <button class="argent-admin-layout__backdrop"
+            type="button"
+            aria-label="Закрыть меню"
+            (click)="closeMobile()"
+        ></button>
+    }
+
+    <div class="argent-admin-layout__workspace">
+        <argent-admin-header
+            [collapsed]="collapsed"
+            (toggleCollapsed)="toggleCollapsed()"
+            (toggleMobile)="toggleMobile()"
+        ></argent-admin-header>
+
+        <main class="argent-admin-layout__content" id="argent-admin-content">
+            <router-outlet></router-outlet>
+        </main>
+    </div>
+</div>

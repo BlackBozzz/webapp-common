@@ -1,3 +1,5 @@
+
+/* Навигация в графитовом цвете, как в целевом макете. */
 :host {
     display: block;
     height: 100%;
@@ -8,72 +10,72 @@
     flex-direction: column;
     min-height: 100dvh;
     height: 100%;
-    padding: 1.2rem 0.75rem;
-    border-right: 1px solid var(--p-content-border-color, #e5e7eb);
-    background: var(--p-content-background, #fff);
+    padding: 1.35rem .8rem;
+    background: linear-gradient(180deg, #222a35 0%, #1f2731 100%);
+    color: #e8edf2;
 
     &__brand {
         display: flex;
         align-items: center;
-        gap: 0.8rem;
-        min-height: 3.5rem;
-        padding: 0 0.55rem;
+        gap: .85rem;
+        min-height: 3.6rem;
+        padding: 0 .65rem;
     }
 
     &__brand-mark {
         display: grid;
         flex: 0 0 auto;
         place-items: center;
-        width: 2.55rem;
-        height: 2.55rem;
-        border-radius: 0.8rem;
-        background: var(--p-primary-color, #4f46e5);
-        color: var(--p-primary-contrast-color, #fff);
-        font-size: 1.4rem;
-        font-weight: 800;
-        letter-spacing: -0.06em;
+        width: 2.15rem;
+        height: 2.15rem;
+        background: linear-gradient(180deg, #3dc1cf 0%, #229fb3 100%);
+        border-radius: 8px;
+        color: #fff;
+        font-size: 1rem;
+        font-weight: 750;
+        box-shadow: 0 10px 22px rgb(34 159 179 / 28%);
     }
 
     &__brand-name {
-        font-size: 1.35rem;
-        font-weight: 800;
-        letter-spacing: -0.05em;
+        color: #fff;
+        font-size: 1.08rem;
+        font-weight: 700;
+        letter-spacing: -.025em;
     }
 
     &__navigation {
         display: flex;
         flex-direction: column;
-        gap: 0.35rem;
-        margin-top: 2.25rem;
+        gap: .18rem;
+        margin-top: 2.2rem;
     }
 
     &__caption {
-        padding: 0 0.75rem;
-        margin-bottom: 0.6rem;
-        font-size: 0.7rem;
+        padding: 0 .85rem;
+        margin-bottom: .72rem;
+        font-size: .66rem;
         font-weight: 700;
-        letter-spacing: 0.1em;
+        letter-spacing: .14em;
         text-transform: uppercase;
-        color: var(--p-text-muted-color, #64748b);
+        color: #8390a2;
     }
 
     &__footer {
         display: flex;
         align-items: center;
-        gap: 0.8rem;
+        gap: .6rem;
         margin-top: auto;
-        padding: 1rem 0.6rem 0.2rem;
-        border-top: 1px solid var(--p-content-border-color, #e5e7eb);
-        color: var(--p-text-muted-color, #64748b);
+        padding: 1rem .8rem .15rem;
+        border-top: 1px solid rgb(255 255 255 / 8%);
+        color: #8d99ab;
     }
 
     &__footer-mark {
-        font-size: 1.2rem;
-        color: var(--p-primary-color, #4f46e5);
+        color: #7bd7e2;
     }
 
     &__footer-text {
-        font-size: 0.75rem;
+        font-size: .74rem;
     }
 
     &--collapsed:not(.argent-admin-sidebar--mobile-open) {
@@ -87,17 +89,5 @@
             justify-content: center;
             padding: 0;
         }
-    }
-}
-
-@media (max-width: 880px) {
-    .argent-admin-sidebar {
-        min-height: 100dvh;
-    }
-
-    .argent-admin-sidebar__brand-name,
-    .argent-admin-sidebar__caption,
-    .argent-admin-sidebar__footer-text {
-        display: initial;
     }
 }

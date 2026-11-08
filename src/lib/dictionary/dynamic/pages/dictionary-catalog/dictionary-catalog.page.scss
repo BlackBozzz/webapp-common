@@ -1,14 +1,106 @@
-:host { display: block; }
-.argent-catalog { display: grid; gap: 1.5rem; }
-.argent-catalog__header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
-.argent-catalog__header h1 { font-size: clamp(1.5rem, 3vw, 2rem); margin: .3rem 0; }
-.argent-catalog__header p { color: var(--p-text-muted-color); margin: 0; }
-.argent-catalog__eyebrow { font-size: .78rem; color: var(--p-text-muted-color); }
-.argent-catalog__grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1rem; }
-.argent-catalog__link { display: block; text-decoration: none; color: inherit; border-radius: .75rem; }
-.argent-catalog__link:focus-visible { outline: 2px solid var(--p-primary-color); outline-offset: 3px; }
-.argent-catalog__card { display: grid; gap: .8rem; min-height: 7rem; }
-.argent-catalog__card h2 { font-size: 1.15rem; margin: 0; }
-.argent-catalog__code { color: var(--p-text-muted-color); font-size: .8rem; }
-.argent-catalog__open { color: var(--p-primary-color); font-weight: 600; font-size: .85rem; }
-.argent-catalog__error { padding: 1rem; background: #fff1f2; color: #b42318; border-radius: .6rem; }
+
+:host {
+    display: block;
+}
+
+.argent-catalog {
+    display: grid;
+    gap: 1.6rem;
+}
+
+.argent-catalog__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.argent-catalog__header h1 {
+    margin: .32rem 0 .2rem;
+    font-size: clamp(1.85rem, 3vw, 2.4rem);
+    font-weight: 720;
+    letter-spacing: -.045em;
+}
+
+.argent-catalog__header p {
+    color: var(--p-text-muted-color);
+    margin: 0;
+    font-size: .95rem;
+}
+
+.argent-catalog__eyebrow {
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--p-text-muted-color);
+}
+
+.argent-catalog__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1rem;
+}
+
+.argent-catalog__link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    border-radius: 18px;
+}
+
+.argent-catalog__link:focus-visible {
+    outline: 2px solid var(--p-primary-color);
+    outline-offset: 3px;
+}
+
+.argent-catalog__card {
+    display: grid;
+    gap: .85rem;
+    min-height: 8.2rem;
+}
+
+.argent-catalog__card h2 {
+    font-size: 1.14rem;
+    font-weight: 680;
+    margin: 0;
+}
+
+.argent-catalog__code {
+    justify-self: start;
+    padding: .3rem .55rem;
+    border-radius: 999px;
+    background: #f1f5f9;
+    color: #64748b;
+    font-size: .76rem;
+    font-weight: 600;
+}
+
+.argent-catalog__open {
+    color: var(--p-primary-color);
+    font-weight: 650;
+    font-size: .86rem;
+}
+
+.argent-catalog__error {
+    padding: 1rem;
+    background: #fff1f2;
+    color: #b42318;
+    border-radius: .8rem;
+}
+
+:host ::ng-deep .p-card {
+    height: 100%;
+    border: 1px solid var(--argent-border, #e4eaf1);
+    background: linear-gradient(180deg, #ffffff 0%, #fbfcfe 100%);
+    border-radius: 18px;
+    box-shadow: 0 18px 40px rgb(15 23 42 / 5%);
+    transition: transform 140ms ease, box-shadow 140ms ease, border-color 140ms ease;
+}
+
+.argent-catalog__link:hover ::ng-deep .p-card {
+    transform: translateY(-2px);
+    border-color: #d9e6ef;
+    box-shadow: 0 20px 46px rgb(15 23 42 / 8%);
+}

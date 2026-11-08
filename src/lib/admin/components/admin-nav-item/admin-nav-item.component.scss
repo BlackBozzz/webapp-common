@@ -1,3 +1,4 @@
+
 :host {
     display: block;
 }
@@ -5,52 +6,46 @@
 .argent-admin-nav-item {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    min-height: 2.9rem;
-    padding: 0.55rem 0.75rem;
-    border-radius: 0.7rem;
-    color: var(--p-text-color, #334155);
+    gap: .8rem;
+    width: 100%;
+    padding: .78rem .9rem;
+    border-radius: 12px;
+    color: #d9e2ec;
     text-decoration: none;
-    font-weight: 550;
-    transition: background 140ms ease, color 140ms ease;
+    transition: background-color 140ms ease, color 140ms ease, transform 140ms ease;
 
     &:hover:not(&--disabled) {
-        background: var(--p-surface-100, #f1f5f9);
-    }
-
-    &:focus-visible {
-        outline: 2px solid var(--p-primary-color, #6366f1);
-        outline-offset: 2px;
+        background: rgb(255 255 255 / 8%);
+        color: #fff;
     }
 
     &--active {
-        background: var(--p-primary-50, #eef2ff);
-        color: var(--p-primary-color, #4f46e5);
-        font-weight: 700;
+        background: rgb(88 121 155 / 22%);
+        color: #fff;
+        font-weight: 650;
+        box-shadow: inset 0 0 0 1px rgb(106 202 220 / 22%);
     }
 
     &--disabled {
-        cursor: not-allowed;
-        opacity: 0.52;
+        opacity: .55;
+        cursor: default;
     }
 
-    &__glyph {
-        display: grid;
-        flex: 0 0 1.65rem;
-        place-items: center;
-        font-size: 1.3rem;
-        line-height: 1;
+    &__icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 1rem;
+        color: inherit;
+        font-size: .92rem;
     }
 
-    &__name {
-        overflow: hidden;
+    &__label {
+        flex: 1;
+        min-width: 0;
+        font-size: .92rem;
         white-space: nowrap;
+        overflow: hidden;
         text-overflow: ellipsis;
-    }
-
-    &__soon {
-        margin-left: auto;
-        font-size: 0.65rem;
-        font-weight: 500;
     }
 }

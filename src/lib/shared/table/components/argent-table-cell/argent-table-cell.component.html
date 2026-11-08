@@ -1,0 +1,29 @@
+@if (customTemplate) {
+    <ng-container *ngTemplateOutlet="customTemplate; context: { $implicit: row }"></ng-container>
+} @else {
+    @switch (column.type) {
+        @case ('status') {
+            <argent-table-status-cell [column]="column" [value]="value"></argent-table-status-cell>
+        }
+        @case ('badge') {
+            <argent-table-status-cell [column]="column" [value]="value"></argent-table-status-cell>
+        }
+        @case ('relation') {
+            <argent-table-relation-cell [column]="column" [value]="value"></argent-table-relation-cell>
+        }
+        @case ('relation-list') {
+            <argent-table-relation-cell [column]="column" [value]="value"></argent-table-relation-cell>
+        }
+        @case ('file') {
+            <argent-table-file-cell [column]="column" [value]="value"></argent-table-file-cell>
+        }
+        @case ('actions') {}
+        @case ('custom') {}
+        @default {
+            <span class="argent-table-cell__text"
+                [class.argent-table-cell__text--truncate]="column.truncate !== false"
+                [title]="text"
+            >{{ text }}</span>
+        }
+    }
+}

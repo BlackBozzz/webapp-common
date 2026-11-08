@@ -19,7 +19,8 @@ import { DictionaryRecord } from '../../service/dynamic-dictionary-form.service'
 import { DynamicDictionaryApiService } from '../../service/dynamic-dictionary-api.service';
 import { DynamicDictionaryErrorService } from '../../service/dynamic-dictionary-error.service';
 import { DictionaryRecordDialogComponent } from '../../components/dialog/dictionary-record-dialog/dictionary-record-dialog.component';
-import { DictionaryRecordTableComponent } from '../../components/table/dictionary-record-table/dictionary-record-table.component';
+import { ArgentTableComponent, ArgentTableColumnComponent, ArgentTableToolbarEndDirective, ArgentTableQuery, ArgentTableExportRequest, ArgentTableColumnType } from '../../../../shared/table';
+import { DynamicFieldDefinition } from '../../dto/dynamic-dictionary.dto';
 import { DictionaryImportDialogComponent } from '../../components/dialog/dictionary-import-dialog/dictionary-import-dialog.component';
 
 /** Универсальная страница справочника: серверные данные и операции над выбранной строкой. */
@@ -28,7 +29,8 @@ import { DictionaryImportDialogComponent } from '../../components/dialog/diction
     standalone: true,
     imports: [
         RouterLink, ButtonDirective, InputTextModule, ConfirmDialogModule, ToastModule,
-        DictionaryRecordTableComponent, DictionaryRecordDialogComponent, DictionaryImportDialogComponent,
+        ArgentTableComponent, ArgentTableColumnComponent, ArgentTableToolbarEndDirective,
+        DictionaryRecordDialogComponent, DictionaryImportDialogComponent,
     ],
     providers: [ConfirmationService, MessageService],
     templateUrl: './dictionary-records.page.html',
@@ -63,6 +65,13 @@ export class DictionaryRecordsPage implements OnDestroy {
     readonly pageSize = signal(20);
     readonly sort = signal('');
     readonly title = computed(() => this.schema()?.name || this.code());
+    readonly tableColumns = computed(() => [...(this.schema()?.fields ?? [])]
+        .filter(field => field.visible && field.control !== 'hidden')
+        .sort((left, right) => left.order - right.order));
+    readonly sortQuery = computed<ArgentTableQuery['sort']>(() => {
+        const [field, direction] = this.sort().split(',');
+        return field ? { field, direction: direction === 'desc' ? 'desc' : 'asc' } : null;
+    });
     /** Можно ли изменять записи: грант `write` на справочник (только для UI, права проверяет backend). */
     readonly canWrite = computed(() => {
         // Явно читаем пользователя, чтобы кнопки появлялись после загрузки грантов.
@@ -125,6 +134,57 @@ export class DictionaryRecordsPage implements OnDestroy {
             this.sort.set(`${this.schema()?.idField || 'id'},asc`);
         }
         this.loadRecords();
+    }
+
+    /** Преобразует настройки общей таблицы в существующий контракт API справочников. */
+    changeQuery(query: ArgentTableQuery): void {
+        this.pageIndex.set(query.page);
+        this.pageSize.set(query.size);
+        this.searchText.set(query.search);
+        this.filters.set(Object.fromEntries(Object.entries(query.filters).map(([field, value]) =>
+            [field, value === null ? '' : String(value)])));
+        this.sort.set(query.sort ? `${query.sort.field},${query.sort.direction}`
+            : `${this.schema()?.idField || 'id'},asc`);
+        this.loadRecords();
+    }
+
+    changeSelection(value: unknown): void {
+        this.selected.set(value as DictionaryRecord | null);
+    }
+
+    openRow(value: unknown): void {
+        this.changeSelection(value);
+        this.edit();
+    }
+
+    exportTable(request: ArgentTableExportRequest): void {
+        this.exportRecords(request.format);
+    }
+
+    columnType(field: DynamicFieldDefinition): ArgentTableColumnType {
+        if (field.reference) return field.reference.multiple ? 'relation-list' : 'relation';
+        switch (field.type) {
+            case 'boolean': return 'boolean';
+            case 'date': return 'date';
+            case 'time': return 'time';
+            case 'datetime': case 'instant': case 'offsetdatetime': return 'datetime';
+            case 'number': case 'integer': case 'long': case 'short': case 'byte': return 'number';
+            case 'decimal': case 'bigdecimal': case 'float': case 'double': return 'decimal';
+            case 'uuid': return 'uuid';
+            case 'enum': return 'enum';
+            case 'binary': case 'bytes': return 'file';
+            case 'array': return 'relation-list';
+            case 'object': return 'relation';
+            default: return field.control === 'textarea' ? 'text' : 'string';
+        }
+    }
+
+    sortableColumn(field: DynamicFieldDefinition): boolean {
+        return !field.reference && !['object', 'array', 'binary', 'bytes'].includes(field.type);
+    }
+
+    filterableColumn(field: DynamicFieldDefinition): boolean {
+        return this.sortableColumn(field) && field.type !== 'boolean';
     }
 
     add(): void {

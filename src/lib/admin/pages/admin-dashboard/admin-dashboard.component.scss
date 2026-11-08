@@ -1,53 +1,12 @@
-:host {
-    display: block;
-}
-
+:host { display: block; }
 .argent-admin-dashboard {
-    &__intro {
-        padding: 1.5rem 0 2.4rem;
+    &__intro { padding: 1rem 0 2rem; }
+    &__eyebrow { font-size: .67rem; font-weight: 700; letter-spacing: .12em; color: var(--argent-accent, #2799b5); }
+    &__title { margin: .7rem 0; font-size: clamp(1.65rem,2.7vw,2.4rem); font-weight: 700; letter-spacing: -.045em; }
+    &__lead { max-width: 42rem; margin: 0; color: var(--argent-muted, #89919d); font-size: .93rem; line-height: 1.65; }
+    &__section-heading { display: flex; justify-content: space-between; margin-bottom: 1.1rem;
+        h2 { margin: 0 0 .3rem; font-size: 1rem; font-weight: 650; }
+        p { margin: 0; color: var(--argent-muted, #89919d); font-size: .8rem; }
     }
-
-    &__eyebrow {
-        font-size: 0.75rem;
-        font-weight: 700;
-        letter-spacing: 0.14em;
-        color: var(--p-primary-color, #4f46e5);
-    }
-
-    &__title {
-        margin: 0.8rem 0;
-        font-size: clamp(2rem, 3vw, 2.8rem);
-        letter-spacing: -0.055em;
-        line-height: 1.14;
-    }
-
-    &__lead {
-        max-width: 42rem;
-        margin: 0;
-        color: var(--p-text-muted-color, #64748b);
-        line-height: 1.6;
-    }
-
-    &__section-heading {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 1.35rem;
-
-        h2 {
-            margin: 0 0 0.35rem;
-            font-size: 1.25rem;
-        }
-
-        p {
-            margin: 0;
-            font-size: 0.88rem;
-            color: var(--p-text-muted-color, #64748b);
-        }
-    }
-
-    &__grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr));
-        gap: 1.2rem;
-    }
+    &__grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(min(100%,16rem),1fr)); gap: 1rem; }
 }

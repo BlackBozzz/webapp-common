@@ -4,88 +4,97 @@
             <span class="argent-roles__eyebrow">Администрирование</span>
             <h1>Роли</h1>
         </div>
-        <div class="argent-roles__actions">
-            <button pButton
-                type="button"
-                severity="secondary"
-                [disabled]="loading()"
-                (click)="refresh()"
-            >Обновить</button>
-            <button pButton
-                type="button"
-                (click)="openCreate()"
-            >Добавить</button>
-        </div>
+
     </div>
 
     @if (error()) {
         <div class="argent-roles__error" role="alert">{{ error() }}</div>
     }
 
-    <p-table
-        dataKey="code"
-        [value]="roles()"
+    <argent-table title="Роли"
+        rowKey="code"
+        selectionMode="none"
+        [rows]="roles()"
+        [lazy]="false"
         [loading]="loading()"
-        [scrollable]="true"
+        [totalRecords]="roles().length"
+        (refreshRequested)="refresh()"
     >
-        <ng-template #header>
-            <tr>
-                <th>Код</th>
-                <th>Название</th>
-                <th>Таблицы</th>
-                <th>Действия</th>
-                <th class="argent-roles__row-actions-col"></th>
-            </tr>
+        <ng-template argentTableToolbarEnd>
+            <button pButton
+                type="button"
+                icon="pi pi-plus"
+                (click)="openCreate()"
+            >Добавить</button>
         </ng-template>
-        <ng-template #body let-role>
-            <tr>
-                <td class="argent-roles__code">
-                    {{ role.code }}
-                    @if (role.system) {
-                        <p-tag severity="info" value="Системная"></p-tag>
-                    }
-                </td>
-                <td>
-                    <div>{{ role.name }}</div>
-                    @if (role.description) {
-                        <div class="argent-roles__description">{{ role.description }}</div>
-                    }
-                </td>
-                <td class="argent-roles__count">{{ tableCount(role) }}</td>
-                <td class="argent-roles__count">{{ actionCount(role) }}</td>
-                <td class="argent-roles__row-actions-col">
-                    <div class="argent-roles__row-actions">
+        <argent-table-column field="code"
+            header="Код"
+            width="180px"
+            [sortable]="true"
+        >
+            <ng-template argentTableCell let-role>
+                <span class="argent-roles__code">{{ role.code }}</span>
+                @if (role.system) {
+                    <p-tag severity="info" value="Системная"></p-tag>
+                }
+            </ng-template>
+        </argent-table-column>
+        <argent-table-column field="name"
+            header="Название"
+            [sortable]="true"
+        >
+            <ng-template argentTableCell let-role>
+                <div>{{ role.name }}</div>
+                @if (role.description) {
+                    <div class="argent-roles__description">{{ role.description }}</div>
+                }
+            </ng-template>
+        </argent-table-column>
+        <argent-table-column field="grants"
+            header="Таблицы"
+            type="custom"
+            width="110px"
+        >
+            <ng-template argentTableCell let-role>{{ tableCount(role) }}</ng-template>
+        </argent-table-column>
+        <argent-table-column field="system"
+            header="Действия"
+            type="custom"
+            width="110px"
+        >
+            <ng-template argentTableCell let-role>{{ actionCount(role) }}</ng-template>
+        </argent-table-column>
+        <argent-table-column field="code"
+            header="Операции"
+            type="actions"
+            minWidth="190px"
+        >
+            <ng-template argentTableCell let-role>
+                <div class="argent-roles__row-actions">
+                    <button pButton
+                        type="button"
+                        size="small"
+                        severity="secondary"
+                        [outlined]="true"
+                        [disabled]="isDeleting(role)"
+                        (click)="openEdit(role)"
+                    >{{ role.system ? 'Просмотр' : 'Изменить' }}</button>
+                    @if (!role.system) {
                         <button pButton
                             type="button"
                             size="small"
-                            severity="secondary"
+                            severity="danger"
                             [outlined]="true"
-                            [disabled]="isDeleting(role)"
-                            (click)="openEdit(role)"
-                        >{{ role.system ? 'Просмотр' : 'Изменить' }}</button>
-                        @if (!role.system) {
-                            <button pButton
-                                type="button"
-                                size="small"
-                                severity="danger"
-                                [outlined]="true"
-                                [loading]="isDeleting(role)"
-                                (click)="confirmDelete(role)"
-                            >Удалить</button>
-                        }
-                    </div>
-                </td>
-            </tr>
-        </ng-template>
-        <ng-template #emptymessage>
-            <tr>
-                <td class="argent-roles__empty" colspan="5">Ролей пока нет.</td>
-            </tr>
-        </ng-template>
-    </p-table>
+                            [loading]="isDeleting(role)"
+                            (click)="confirmDelete(role)"
+                        >Удалить</button>
+                    }
+                </div>
+            </ng-template>
+        </argent-table-column>
+    </argent-table>
 
-    <p-dialog
-        [header]="isCreate() ? 'Новая роль' : 'Роль ' + (editedRole()?.code ?? '')"
+    <p-dialog [header]="isCreate() ? 'Новая роль' : 'Роль ' + (editedRole()?.code ?? '')"
         [modal]="true"
         [closable]="!saving()"
         [draggable]="false"

@@ -1,0 +1,223 @@
+
+:host {
+    display: block;
+    min-width: 0;
+}
+
+.argent-table {
+    overflow: hidden;
+    border: 1px solid var(--argent-border, #e6ebf2);
+    border-radius: var(--argent-radius-lg, 18px);
+    background: #fff;
+    box-shadow: 0 18px 40px rgb(15 23 42 / 5%);
+
+    &__search {
+        display: flex;
+        align-items: center;
+        gap: .85rem;
+        padding: 1rem 1.35rem;
+        border-bottom: 1px solid var(--argent-border, #e6ebf2);
+        color: var(--argent-muted, #94a3b8);
+        background: linear-gradient(180deg, #fff 0%, #fcfdff 100%);
+
+        input {
+            width: 100%;
+            max-width: 28rem;
+            padding: 0;
+            border: 0;
+            box-shadow: none;
+            background: transparent;
+            font-size: .93rem;
+            color: var(--argent-text, #0f172a);
+        }
+
+        input:focus {
+            outline: none;
+        }
+    }
+
+    &__error {
+        margin: .9rem 1.35rem 0;
+        padding: .9rem 1rem;
+        color: #b42318;
+        font-size: .86rem;
+        border: 1px solid #f3d0d5;
+        border-radius: 12px;
+        background: #fff7f8;
+    }
+
+    &__sort {
+        font-size: .72rem;
+        margin-left: .35rem;
+        color: #b0b8c5;
+    }
+
+    &__filters input {
+        width: 100%;
+        padding: .62rem .72rem;
+        font-size: .8rem;
+        border-radius: 10px;
+    }
+
+    &__definitions {
+        display: none;
+    }
+
+    &__frozen {
+        position: sticky;
+        z-index: 2;
+        background: #fff;
+    }
+}
+
+:host ::ng-deep {
+    .p-inputtext,
+    .p-select,
+    .p-multiselect,
+    .p-autocomplete-input,
+    .p-datepicker-input {
+        border-color: #d9e1ea;
+        box-shadow: none;
+    }
+
+    .p-inputtext:enabled:focus,
+    .p-select:not(.p-disabled).p-focus,
+    .p-multiselect:not(.p-disabled).p-focus,
+    .p-autocomplete-input:enabled:focus,
+    .p-datepicker-input:enabled:focus {
+        border-color: #bfd4e7;
+        box-shadow: 0 0 0 3px rgb(39 153 181 / 10%);
+    }
+
+    .p-datatable {
+        border: 0;
+        background: #fff;
+    }
+
+    .p-datatable-table {
+        font-size: .89rem;
+        color: var(--argent-text, #0f172a);
+    }
+
+    .p-datatable-thead > tr > th {
+        padding: 1rem 1rem;
+        border-color: #eef2f6;
+        background: #fbfcfe;
+        color: #64748b;
+        font-size: .78rem;
+        font-weight: 700;
+        letter-spacing: .01em;
+        white-space: nowrap;
+    }
+
+    .p-datatable-thead > tr:nth-child(2) > th {
+        padding-top: .8rem;
+        padding-bottom: .9rem;
+        background: #fff;
+    }
+
+    .p-datatable-tbody > tr {
+        background: #fff;
+        transition: background-color 140ms ease;
+    }
+
+    .p-datatable-tbody > tr > td {
+        padding: .95rem 1rem;
+        color: var(--argent-text, #1e293b);
+        border-color: #eef2f6;
+        vertical-align: middle;
+        background: #fff;
+    }
+
+    .p-datatable-tbody > tr:hover > td {
+        background: #f8fbfd;
+    }
+
+    .p-datatable-tbody > tr.p-datatable-row-selected > td {
+        background: #eef8fb;
+    }
+
+    .p-datatable-tbody > tr.p-datatable-row-selected:hover > td {
+        background: #e8f4f8;
+    }
+
+    .p-paginator {
+        padding: .8rem 1rem;
+        border-top: 1px solid #eef2f6;
+        background: #fff;
+        color: #64748b;
+        justify-content: flex-end;
+        gap: .45rem;
+    }
+
+    .p-paginator .p-paginator-pages .p-paginator-page,
+    .p-paginator .p-paginator-first,
+    .p-paginator .p-paginator-prev,
+    .p-paginator .p-paginator-next,
+    .p-paginator .p-paginator-last {
+        min-width: 2.25rem;
+        height: 2.25rem;
+        color: #64748b;
+        border-radius: 999px;
+    }
+
+    .p-paginator .p-paginator-pages .p-paginator-page.p-highlight {
+        color: #16748a;
+        background: #e8f6f8;
+    }
+
+    .p-paginator .p-select {
+        min-width: 5.75rem;
+        border-radius: 12px;
+        background: #fff;
+    }
+
+    .p-select-overlay,
+    .p-multiselect-overlay,
+    .p-autocomplete-overlay,
+    .p-datepicker-panel,
+    .p-menu {
+        border: 1px solid #dfe7ef;
+        border-radius: 14px;
+        background: #fff;
+        box-shadow: 0 20px 44px rgb(15 23 42 / 12%);
+        color: #0f172a;
+    }
+
+    .p-select-option,
+    .p-multiselect-option,
+    .p-autocomplete-option {
+        color: #0f172a;
+    }
+
+    .p-select-option:hover,
+    .p-multiselect-option:hover,
+    .p-autocomplete-option:hover,
+    .p-menu-item-content:hover {
+        background: #f5f8fb;
+    }
+
+    .p-select-option.p-select-option-selected,
+    .p-multiselect-option.p-multiselect-option-selected,
+    .p-autocomplete-option-selected {
+        background: #e8f6f8;
+        color: #11677a;
+    }
+
+    .p-select-list-container,
+    .p-multiselect-list-container {
+        padding: .35rem;
+    }
+
+    .p-menu-list {
+        padding: .35rem;
+    }
+
+    .p-menu-item-link {
+        border-radius: 10px;
+    }
+
+    .p-datatable-loading-overlay {
+        background: rgb(255 255 255 / 72%);
+    }
+}

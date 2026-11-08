@@ -1,7 +1,6 @@
 <section class="argent-records">
     <div class="argent-records__back">
-        <a
-            routerLink="../"
+        <a routerLink="../"
         >← Все справочники</a>
     </div>
     <div class="argent-records__heading">
@@ -9,103 +8,80 @@
             <span class="argent-records__eyebrow">Справочник · {{ code() }}</span>
             <h1>{{ title() }}</h1>
         </div>
-        <div class="argent-records__actions">
-            <button pButton
-                type="button"
-                severity="secondary"
-                [disabled]="loading() || !schema()"
-                (click)="refresh()"
-            >Обновить</button>
-            @if (canRead()) {
-                <div class="argent-records__export" role="group" aria-label="Экспорт">
-                    <span class="argent-records__export-label">Экспорт</span>
-                    <button pButton
-                        type="button"
-                        severity="secondary"
-                        class="argent-records__export-xlsx"
-                        icon="pi pi-file-excel"
-                        [disabled]="!schema() || exporting()"
-                        (click)="exportRecords('xlsx')"
-                    >XLSX</button>
-                    <button pButton
-                        type="button"
-                        severity="secondary"
-                        class="argent-records__export-csv"
-                        icon="pi pi-file"
-                        [disabled]="!schema() || exporting()"
-                        (click)="exportRecords('csv')"
-                    >CSV</button>
-                </div>
-            }
-            @if (canImport()) {
-                <button pButton
-                    type="button"
-                    severity="secondary"
-                    class="argent-records__import"
-                    icon="pi pi-upload"
-                    [disabled]="!schema()"
-                    (click)="openImport()"
-                >Импорт</button>
-            }
-            @if (canWrite()) {
-                <button pButton
-                    type="button"
-                    [disabled]="!schema()"
-                    (click)="add()"
-                >Добавить</button>
-                <button pButton
-                    type="button"
-                    severity="secondary"
-                    [disabled]="!selected() || loading()"
-                    (click)="edit()"
-                >Редактировать</button>
-                <button pButton
-                    type="button"
-                    severity="danger"
-                    [disabled]="!selected() || deleting() || loading()"
-                    (click)="remove()"
-                >Удалить</button>
-            } @else if (canRead()) {
-                <button pButton
-                    type="button"
-                    severity="secondary"
-                    class="argent-records__open"
-                    [disabled]="!selected() || loading()"
-                    (click)="edit()"
-                >Открыть</button>
-            }
-        </div>
     </div>
 
     @if (error()) {
         <div class="argent-records__error" role="alert">{{ error() }}</div>
     }
     @if (schema()) {
-        <div class="argent-records__search">
-            <input pInputText
-                type="search"
-                placeholder="Поиск по справочнику"
-                [value]="searchText()"
-                (input)="search($event)"
-            />
-            <span>Выберите запись для редактирования или удаления</span>
-        </div>
-        <argent-dictionary-record-table
-            [schema]="schema()"
-            [page]="page()"
+        <argent-table [title]="title()"
+            [rows]="page()?.items ?? []"
+            [rowKey]="schema()?.idField || 'id'"
             [loading]="loading()"
+            [pageIndex]="pageIndex()"
+            [pageSize]="pageSize()"
+            [totalRecords]="page()?.totalElements ?? 0"
             [selected]="selected()"
+            [search]="searchText()"
             [filters]="filters()"
-            (selectedChange)="selected.set($event)"
-            (queryChange)="paginate($event)"
-            (filterChange)="filter($event)"
-        ></argent-dictionary-record-table>
+            [sort]="sortQuery()"
+            [showExport]="canRead()"
+            [showImport]="canImport()"
+            [exportDisabled]="exporting()"
+            exportMode="external"
+            (queryChange)="changeQuery($event)"
+            (selectionChange)="changeSelection($event)"
+            (refreshRequested)="refresh()"
+            (exportRequested)="exportTable($event)"
+            (importRequested)="openImport()"
+            (rowDoubleClick)="openRow($event)"
+        >
+            <ng-template argentTableToolbarEnd>
+                @if (canWrite()) {
+                    <button pButton
+                        type="button"
+                        icon="pi pi-plus"
+                        (click)="add()"
+                    >Добавить</button>
+                    <button pButton
+                        type="button"
+                        icon="pi pi-pencil"
+                        severity="secondary"
+                        [disabled]="!selected() || loading()"
+                        (click)="edit()"
+                    >Редактировать</button>
+                    <button pButton
+                        type="button"
+                        icon="pi pi-trash"
+                        severity="danger"
+                        [outlined]="true"
+                        [disabled]="!selected() || deleting() || loading()"
+                        (click)="remove()"
+                    >Удалить</button>
+                } @else if (canRead()) {
+                    <button pButton
+                        type="button"
+                        severity="secondary"
+                        [disabled]="!selected() || loading()"
+                        (click)="edit()"
+                    >Открыть</button>
+                }
+            </ng-template>
+            @for (field of tableColumns(); track field.name) {
+                <argent-table-column [field]="field.name"
+                    [header]="field.label"
+                    [type]="columnType(field)"
+                    [sortable]="sortableColumn(field)"
+                    [filterable]="filterableColumn(field)"
+                    [displayField]="field.reference?.displayField ?? undefined"
+                ></argent-table-column>
+            }
+        </argent-table>
     } @else if (loading()) {
         <p class="argent-records__loading">Загрузка описания справочника…</p>
     }
 
-    <argent-dictionary-record-dialog
-        [code]="code()"
+    <argent-dictionary-record-dialog [code]="code()"
         [schema]="schema()"
         [recordId]="editingId()"
         [visible]="dialogVisible()"
@@ -114,8 +90,7 @@
         (saved)="onSaved()"
     ></argent-dictionary-record-dialog>
     @if (canImport()) {
-        <argent-dictionary-import-dialog
-            [code]="code()"
+        <argent-dictionary-import-dialog [code]="code()"
             [visible]="importVisible()"
             (visibleChange)="importVisible.set($event)"
             (imported)="onImported()"

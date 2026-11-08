@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, inject } from '@angular/core';
-import { InputTextModule } from 'primeng/inputtext';
+import { ArgentTableComponent, ArgentTableColumnComponent, ArgentTableQuery } from '../../../../../shared/table';
 import { TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { DynamicDictionarySchema, DynamicFieldDefinition, DynamicPage } from '../../../dto/dynamic-dictionary.dto';
 import { DictionaryRecord } from '../../../service/dynamic-dictionary-form.service';
@@ -12,7 +12,7 @@ import { DynamicDictionaryDisplayService } from '../../../service/dynamic-dictio
 @Component({
     selector: 'argent-dictionary-record-table',
     standalone: true,
-    imports: [TableModule, InputTextModule],
+    imports: [ArgentTableComponent, ArgentTableColumnComponent],
     templateUrl: './dictionary-record-table.component.html',
     styleUrl: './dictionary-record-table.component.scss',
     changeDetection: ChangeDetectionStrategy.Default,
@@ -33,6 +33,17 @@ export class DictionaryRecordTableComponent {
     get columns(): DynamicFieldDefinition[] {
         return (this.schema?.fields ?? []).filter(field => field.visible && field.control !== 'hidden')
             .sort((left, right) => left.order - right.order);
+    }
+
+    onTableQuery(query: ArgentTableQuery): void {
+        this.queryChange.emit({
+            first: query.page * query.size,
+            rows: query.size,
+            sortField: query.sort?.field,
+            sortOrder: query.sort?.direction === 'desc' ? -1 : 1,
+        });
+        Object.entries(query.filters).forEach(([field, value]) =>
+            this.filterChange.emit({ field, value: String(value ?? '') }));
     }
 
     show(value: unknown, field: DynamicFieldDefinition): string {

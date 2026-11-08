@@ -1,18 +1,42 @@
+
+/* Общая светлая тема Argent, ограниченная административной оболочкой. */
 :host {
+    --argent-sidebar: #222a35;
+    --argent-surface: #ffffff;
+    --argent-page: #f5f7fb;
+    --argent-surface-muted: #fbfcfe;
+    --argent-text: #162033;
+    --argent-muted: #7b8798;
+    --argent-border: #e4eaf1;
+    --argent-accent: #35b8c9;
+    --argent-accent-strong: #1694a9;
+    --argent-radius: 12px;
+    --argent-radius-lg: 18px;
+    --argent-shadow-sm: 0 10px 24px rgb(15 23 42 / 5%);
+    --argent-shadow-md: 0 18px 40px rgb(15 23 42 / 8%);
+    --p-primary-color: #35b8c9;
+    --p-primary-contrast-color: #ffffff;
+    --p-text-color: #162033;
+    --p-text-muted-color: #7b8798;
+    --p-content-background: #ffffff;
+    --p-surface-0: #ffffff;
+    --p-surface-50: #fbfcfe;
     display: block;
     min-height: 100dvh;
+    color: var(--argent-text);
+    font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
 .argent-admin-layout {
     display: grid;
-    grid-template-columns: 17rem minmax(0, 1fr);
+    grid-template-columns: 16rem minmax(0, 1fr);
     min-height: 100dvh;
-    background: var(--p-surface-50, #f8fafc);
-    color: var(--p-text-color, #202531);
+    color: var(--argent-text);
+    background: var(--argent-page);
     transition: grid-template-columns 180ms ease;
 
     &--collapsed {
-        grid-template-columns: 5.25rem minmax(0, 1fr);
+        grid-template-columns: 5rem minmax(0, 1fr);
     }
 
     &__sidebar {
@@ -27,14 +51,44 @@
     }
 
     &__content {
-        width: min(100%, 94rem);
+        width: min(100%, 104rem);
         flex: 1;
         margin: 0 auto;
-        padding: clamp(1.2rem, 2.5vw, 2.5rem);
+        padding: clamp(1.6rem, 2.2vw, 2.6rem);
     }
 
     &__backdrop {
         display: none;
+    }
+}
+
+:host ::ng-deep {
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        margin: 0;
+        font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        color: var(--argent-text);
+        letter-spacing: -.03em;
+    }
+
+    .p-card,
+    .p-dialog,
+    .p-toast-message,
+    .p-confirmdialog,
+    .p-menu,
+    .p-select-overlay,
+    .p-multiselect-overlay,
+    .p-autocomplete-overlay,
+    .p-datepicker-panel {
+        color: var(--argent-text);
+    }
+
+    .p-card {
+        border-radius: var(--argent-radius-lg);
     }
 }
 
@@ -62,8 +116,6 @@
         display: block;
         z-index: 20;
         border: 0;
-        padding: 0;
-        background: rgb(15 23 42 / 55%);
-        cursor: pointer;
+        background: rgb(11 19 32 / 48%);
     }
 }

@@ -1,4 +1,3 @@
-import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -9,7 +8,7 @@ import { ConfirmDialog } from 'primeng/confirmdialog';
 import { Dialog } from 'primeng/dialog';
 import { InputText } from 'primeng/inputtext';
 import { MultiSelect } from 'primeng/multiselect';
-import { TableLazyLoadEvent, TableModule } from 'primeng/table';
+import { ArgentTableComponent, ArgentTableColumnComponent, ArgentTableCellDirective, ArgentTableToolbarEndDirective, ArgentTableQuery } from '../../../shared/table';
 import { Tag } from 'primeng/tag';
 import { Toast } from 'primeng/toast';
 import { ToggleSwitch } from 'primeng/toggleswitch';
@@ -41,7 +40,7 @@ interface RoleOption {
     selector: 'argent-admin-users-page',
     standalone: true,
     imports: [
-        DatePipe, FormsModule, ReactiveFormsModule, TableModule, ButtonDirective, InputText, MultiSelect,
+        FormsModule, ReactiveFormsModule, ArgentTableComponent, ArgentTableColumnComponent, ArgentTableCellDirective, ArgentTableToolbarEndDirective, ButtonDirective, InputText, MultiSelect,
         ToggleSwitch, Tag, Tooltip, Dialog, ConfirmDialog, Toast, FieldErrorComponent,
     ],
     providers: [ConfirmationService, MessageService],
@@ -109,6 +108,7 @@ export class AdminUsersPage implements OnInit {
             next: roles => this.roles.set(roles),
             error: error => this.notifyError(error, 'Не удалось загрузить роли'),
         });
+        this.loadUsers();
     }
 
     protected search(event: Event): void {
@@ -117,10 +117,10 @@ export class AdminUsersPage implements OnInit {
     }
 
     /** Lazy-загрузка таблицы: первая загрузка, смена страницы или размера страницы. */
-    protected paginate(event: TableLazyLoadEvent): void {
-        const size = event.rows || this.pageSize();
-        this.pageSize.set(size);
-        this.pageIndex.set(Math.floor((event.first || 0) / size));
+    protected paginate(event: ArgentTableQuery): void {
+        this.pageSize.set(event.size);
+        this.pageIndex.set(event.page);
+        this.searchText.set(event.search);
         this.loadUsers();
     }
 

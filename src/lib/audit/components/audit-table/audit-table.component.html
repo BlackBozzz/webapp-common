@@ -1,48 +1,47 @@
-<p-table
-    dataKey="id"
-    [value]="page()?.items ?? []"
-    [lazy]="true"
-    [lazyLoadOnInit]="false"
-    [paginator]="true"
-    [rows]="pageSize()"
-    [first]="first()"
-    [rowsPerPageOptions]="rowsPerPageOptions"
-    [totalRecords]="page()?.totalElements ?? 0"
+<argent-table title="Журнал изменений"
+    rowKey="id"
+    selectionMode="none"
+    [rows]="page()?.items ?? []"
     [loading]="loading()"
-    [scrollable]="true"
-    (onLazyLoad)="paginate($event)"
+    [pageIndex]="page()?.page ?? 0"
+    [pageSize]="pageSize()"
+    [totalRecords]="page()?.totalElements ?? 0"
+    [showSearch]="false"
+    [showFilters]="false"
+    (queryChange)="paginate($event)"
+    (refreshRequested)="refresh()"
 >
-    <ng-template #header>
-        <tr>
-            <th>Когда</th>
-            <th>Кто</th>
-            <th>Действие</th>
-            @if (showEntity()) {
-                <th>Таблица</th>
-                <th>Запись</th>
-            }
-            <th>Поле</th>
-            <th>Было</th>
-            <th>Стало</th>
-        </tr>
-    </ng-template>
-    <ng-template #body let-entry>
-        <tr class="argent-audit-table__row">
-            <td class="argent-audit-table__date">{{ entry.createdAt | date: 'dd.MM.yyyy HH:mm' }}</td>
-            <td>{{ entry.actorLogin ?? '—' }}</td>
-            <td class="argent-audit-table__action">{{ actionLabel(entry.action) }}</td>
-            @if (showEntity()) {
-                <td>{{ entry.entityType }}</td>
-                <td>{{ entry.entityId ?? '—' }}</td>
-            }
-            <td>{{ entry.field ?? '—' }}</td>
-            <td class="argent-audit-table__value">{{ entry.oldValue ?? '—' }}</td>
-            <td class="argent-audit-table__value">{{ entry.newValue ?? '—' }}</td>
-        </tr>
-    </ng-template>
-    <ng-template #emptymessage>
-        <tr>
-            <td class="argent-audit-table__empty" [attr.colspan]="showEntity() ? 8 : 6">Записей нет.</td>
-        </tr>
-    </ng-template>
-</p-table>
+    <argent-table-column field="createdAt"
+        header="Когда"
+        type="datetime"
+        width="160px"
+    ></argent-table-column>
+    <argent-table-column field="actorLogin"
+        header="Кто"
+        type="string"
+    ></argent-table-column>
+    <argent-table-column field="action"
+        header="Действие"
+        type="status"
+        [labelMap]="actionLabels"
+    ></argent-table-column>
+    @if (showEntity()) {
+        <argent-table-column field="entityType"
+            header="Таблица"
+        ></argent-table-column>
+        <argent-table-column field="entityId"
+            header="Запись"
+        ></argent-table-column>
+    }
+    <argent-table-column field="field"
+        header="Поле"
+    ></argent-table-column>
+    <argent-table-column field="oldValue"
+        header="Было"
+        type="text"
+    ></argent-table-column>
+    <argent-table-column field="newValue"
+        header="Стало"
+        type="text"
+    ></argent-table-column>
+</argent-table>

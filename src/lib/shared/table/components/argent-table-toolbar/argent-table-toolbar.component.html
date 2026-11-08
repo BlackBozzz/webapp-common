@@ -1,0 +1,56 @@
+<div class="argent-table-toolbar">
+    <div class="argent-table-toolbar__heading">
+        @if (title) {
+            <h2 class="argent-table-toolbar__title">{{ title }}</h2>
+        }
+        @if (totalRecords !== undefined) {
+            <span class="argent-table-toolbar__count">{{ totalRecords }} записей</span>
+        }
+    </div>
+    <div class="argent-table-toolbar__tools">
+        @if (startTemplate) {
+            <ng-container *ngTemplateOutlet="startTemplate"></ng-container>
+        }
+        @if (endTemplate) {
+            <ng-container *ngTemplateOutlet="endTemplate"></ng-container>
+        }
+        @if (showRefresh) {
+            <button pButton
+                class="argent-table-toolbar__button"
+                type="button"
+                icon="pi pi-refresh"
+                severity="secondary"
+                [outlined]="true"
+                [disabled]="loading"
+                (click)="refreshRequested.emit()"
+            >Обновить</button>
+        }
+        @if (showExport) {
+            <button pButton
+                class="argent-table-toolbar__button"
+                type="button"
+                icon="pi pi-download"
+                severity="secondary"
+                [outlined]="true"
+                [disabled]="loading || exportDisabled || !exportFormats.length"
+                (click)="openExport($event)"
+            >Экспорт</button>
+            <p-menu #exportMenu
+                [model]="exportItems"
+                [popup]="true"
+                appendTo="body"
+            ></p-menu>
+        }
+        @if (showImport) {
+            <button pButton
+                class="argent-table-toolbar__button"
+                type="button"
+                icon="pi pi-upload"
+                severity="secondary"
+                [outlined]="true"
+                [disabled]="loading || importDisabled"
+                (click)="importRequested.emit()"
+            >Импорт</button>
+        }
+    </div>
+</div>

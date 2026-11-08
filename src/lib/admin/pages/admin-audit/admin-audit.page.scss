@@ -10,3 +10,8 @@
 .argent-audit__field p-select, .argent-audit__field p-datepicker, .argent-audit__field input { width: 100%; }
 .argent-audit__filter-actions { display: flex; gap: .5rem; flex-wrap: wrap; }
 .argent-audit__error { padding: 1rem; background: var(--p-red-50); color: var(--p-red-700); border-radius: .6rem; }
+
+/* Единый минималистичный стиль страниц администрирования. */
+.argent-audit__heading { margin-bottom: .1rem; }
+.argent-audit__heading h1 { font-size: 1.55rem; font-weight: 680; letter-spacing: -.035em; color: var(--argent-text, #252b36); }
+.argent-audit__eyebrow { text-transform: uppercase; letter-spacing: .08em; font-size: .69rem; color: var(--argent-muted, #89919d); }

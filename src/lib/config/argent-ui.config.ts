@@ -49,7 +49,7 @@ export function provideArgentWebapp(config: ArgentWebappConfig = {}): Environmen
             theme: {
                 preset: Aura,
                 options: {
-                    darkModeSelector: 'system',
+                    darkModeSelector: false,
                 },
             },
         }),

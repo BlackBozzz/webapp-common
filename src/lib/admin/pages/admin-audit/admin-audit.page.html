@@ -4,14 +4,7 @@
             <span class="argent-audit__eyebrow">Администрирование</span>
             <h1>Журнал изменений</h1>
         </div>
-        <div class="argent-audit__actions">
-            <button pButton
-                type="button"
-                severity="secondary"
-                [disabled]="loading()"
-                (click)="refresh()"
-            >Обновить</button>
-        </div>
+
     </div>
 
     <form class="argent-audit__filters" (ngSubmit)="apply()">
@@ -26,6 +19,7 @@
                 [editable]="true"
                 [filter]="false"
                 placeholder="Все таблицы"
+                appendTo="body"
                 [ngModel]="entityType()"
                 (ngModelChange)="entityType.set($event ?? '')"
             />
@@ -48,6 +42,7 @@
                 optionLabel="label"
                 optionValue="value"
                 [ngModel]="action()"
+                appendTo="body"
                 (ngModelChange)="action.set($event ?? '')"
             />
         </label>
@@ -56,6 +51,7 @@
             <p-datepicker
                 name="from"
                 inputId="argent-audit-from"
+                appendTo="body"
                 dateFormat="dd.mm.yy"
                 [showIcon]="true"
                 [showClear]="true"
@@ -68,6 +64,7 @@
             <p-datepicker
                 name="to"
                 inputId="argent-audit-to"
+                appendTo="body"
                 dateFormat="dd.mm.yy"
                 [showIcon]="true"
                 [showClear]="true"

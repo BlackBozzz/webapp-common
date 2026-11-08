@@ -8,6 +8,7 @@
     [suggestions]="suggestions"
     [ngModel]="selected"
     [ngModelOptions]="{ standalone: true }"
+    appendTo="body"
     (completeMethod)="search($event)"
     (ngModelChange)="choose($event)"
 ></p-autocomplete>

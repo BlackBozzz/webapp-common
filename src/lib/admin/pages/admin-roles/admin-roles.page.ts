@@ -7,7 +7,7 @@ import { ButtonDirective } from 'primeng/button';
 import { ConfirmDialog } from 'primeng/confirmdialog';
 import { Dialog } from 'primeng/dialog';
 import { InputText } from 'primeng/inputtext';
-import { TableModule } from 'primeng/table';
+import { ArgentTableComponent, ArgentTableColumnComponent, ArgentTableCellDirective, ArgentTableToolbarEndDirective } from '../../../shared/table';
 import { Tag } from 'primeng/tag';
 import { Textarea } from 'primeng/textarea';
 import { Toast } from 'primeng/toast';
@@ -42,7 +42,7 @@ const EMPTY_GRANTS: Grants = { tables: {}, actions: [] };
     selector: 'argent-admin-roles-page',
     standalone: true,
     imports: [
-        ReactiveFormsModule, TableModule, ButtonDirective, InputText, Textarea, Tag, Dialog, ConfirmDialog, Toast,
+        ReactiveFormsModule, ArgentTableComponent, ArgentTableColumnComponent, ArgentTableCellDirective, ArgentTableToolbarEndDirective, ButtonDirective, InputText, Textarea, Tag, Dialog, ConfirmDialog, Toast,
         FieldErrorComponent, GrantsEditorComponent,
     ],
     providers: [ConfirmationService, MessageService],

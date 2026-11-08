@@ -19,3 +19,8 @@
 .argent-roles__hint { font-size: .78rem; color: var(--p-text-muted-color); }
 .argent-roles__grants-error { font-size: .8rem; color: var(--p-red-600, #dc2626); }
 .argent-roles__code-input { text-transform: uppercase; }
+
+/* Единый минималистичный стиль страниц администрирования. */
+.argent-roles__heading { margin-bottom: .1rem; }
+.argent-roles__heading h1 { font-size: 1.55rem; font-weight: 680; letter-spacing: -.035em; color: var(--argent-text, #252b36); }
+.argent-roles__eyebrow { text-transform: uppercase; letter-spacing: .08em; font-size: .69rem; color: var(--argent-muted, #89919d); }

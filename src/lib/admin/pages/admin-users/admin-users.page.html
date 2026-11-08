@@ -4,129 +4,123 @@
             <span class="argent-users__eyebrow">Администрирование</span>
             <h1>Пользователи</h1>
         </div>
-        <div class="argent-users__actions">
-            <button pButton
-                type="button"
-                severity="secondary"
-                [disabled]="loading()"
-                (click)="refresh()"
-            >Обновить</button>
-            <button pButton
-                type="button"
-                (click)="openCreate()"
-            >Добавить</button>
-        </div>
+
     </div>
 
     @if (error()) {
         <div class="argent-users__error" role="alert">{{ error() }}</div>
     }
 
-    <div class="argent-users__search">
-        <input pInputText
-            type="search"
-            placeholder="Поиск по логину или имени"
-            aria-label="Поиск пользователей"
-            [value]="searchText()"
-            (input)="search($event)"
-        />
-    </div>
-
-    <p-table
-        dataKey="id"
-        [value]="page()?.items ?? []"
-        [paginator]="true"
-        [lazy]="true"
-        [rows]="pageSize()"
-        [first]="pageIndex() * pageSize()"
-        [rowsPerPageOptions]="[10, 20, 50, 100]"
-        [totalRecords]="page()?.totalElements ?? 0"
+    <argent-table title="Пользователи"
+        rowKey="id"
+        selectionMode="none"
+        [rows]="page()?.items ?? []"
         [loading]="loading()"
-        [scrollable]="true"
-        (onLazyLoad)="paginate($event)"
+        [pageIndex]="pageIndex()"
+        [pageSize]="pageSize()"
+        [totalRecords]="page()?.totalElements ?? 0"
+        [search]="searchText()"
+        [showFilters]="false"
+        (queryChange)="paginate($event)"
+        (refreshRequested)="refresh()"
     >
-        <ng-template #header>
-            <tr>
-                <th>Логин</th>
-                <th>Имя</th>
-                <th class="argent-users__roles-col">Роли</th>
-                <th>Активен</th>
-                <th>Пароль</th>
-                <th>Создан</th>
-                <th class="argent-users__row-actions-col">Действия</th>
-            </tr>
+        <ng-template argentTableToolbarEnd>
+            <button pButton
+                type="button"
+                icon="pi pi-plus"
+                (click)="openCreate()"
+            >Добавить</button>
         </ng-template>
-        <ng-template #body let-user>
-            <tr>
-                <td class="argent-users__login">{{ user.login }}</td>
-                <td>{{ user.displayName }}</td>
-                <td class="argent-users__roles-col">
-                    <p-multiselect
-                        appendTo="body"
-                        display="chip"
-                        placeholder="Без ролей"
-                        optionLabel="label"
-                        optionValue="value"
-                        [options]="roleOptions()"
-                        [ngModel]="user.roles"
-                        [filter]="roleOptions().length > 7"
-                        [showToggleAll]="false"
+        <argent-table-column field="login"
+            header="Логин"
+            width="150px"
+        ></argent-table-column>
+        <argent-table-column field="displayName"
+            header="Имя"
+        ></argent-table-column>
+        <argent-table-column field="roles"
+            header="Роли"
+            type="custom"
+            minWidth="220px"
+        >
+            <ng-template argentTableCell let-user>
+                <p-multiselect appendTo="body"
+                    display="chip"
+                    placeholder="Без ролей"
+                    optionLabel="label"
+                    optionValue="value"
+                    [options]="roleOptions()"
+                    [ngModel]="user.roles"
+                    [filter]="roleOptions().length > 7"
+                    [showToggleAll]="false"
+                    [disabled]="isBusy(user)"
+                    [fluid]="true"
+                    [attr.aria-label]="'Роли пользователя ' + user.login"
+                    (ngModelChange)="changeRoles(user, $event)"
+                    (onPanelHide)="saveRoles(user)"
+                ></p-multiselect>
+            </ng-template>
+        </argent-table-column>
+        <argent-table-column field="enabled"
+            header="Активен"
+            type="custom"
+        >
+            <ng-template argentTableCell let-user>
+                <p-toggleswitch [ngModel]="user.enabled"
+                    [disabled]="isBusy(user)"
+                    [attr.aria-label]="'Активен: ' + user.login"
+                    (onChange)="toggleEnabled(user, $event.checked)"
+                ></p-toggleswitch>
+            </ng-template>
+        </argent-table-column>
+        <argent-table-column field="hasPassword"
+            header="Пароль"
+            type="custom"
+        >
+            <ng-template argentTableCell let-user>
+                @if (user.hasPassword) {
+                    <p-tag severity="success" value="Задан"></p-tag>
+                } @else {
+                    <p-tag severity="secondary" value="Нет"></p-tag>
+                }
+            </ng-template>
+        </argent-table-column>
+        <argent-table-column field="createdAt"
+            header="Создан"
+            type="datetime"
+            width="165px"
+        ></argent-table-column>
+        <argent-table-column field="id"
+            header="Действия"
+            type="actions"
+            minWidth="275px"
+        >
+            <ng-template argentTableCell let-user>
+                <div class="argent-users__row-actions">
+                    <button pButton
+                        type="button"
+                        size="small"
+                        severity="secondary"
+                        [outlined]="true"
                         [disabled]="isBusy(user)"
-                        [fluid]="true"
-                        [attr.aria-label]="'Роли пользователя ' + user.login"
-                        (ngModelChange)="changeRoles(user, $event)"
-                        (onPanelHide)="saveRoles(user)"
-                    ></p-multiselect>
-                </td>
-                <td>
-                    <p-toggleswitch
-                        [ngModel]="user.enabled"
+                        (click)="openPassword(user)"
+                    >Задать пароль</button>
+                    <button pButton
+                        pTooltip="Завершить все сессии пользователя"
+                        type="button"
+                        size="small"
+                        severity="danger"
+                        tooltipPosition="top"
+                        [outlined]="true"
                         [disabled]="isBusy(user)"
-                        [attr.aria-label]="'Активен: ' + user.login"
-                        (onChange)="toggleEnabled(user, $event.checked)"
-                    ></p-toggleswitch>
-                </td>
-                <td>
-                    @if (user.hasPassword) {
-                        <p-tag severity="success" value="Задан"></p-tag>
-                    } @else {
-                        <p-tag severity="secondary" value="Нет"></p-tag>
-                    }
-                </td>
-                <td class="argent-users__date">{{ user.createdAt | date: 'dd.MM.yyyy HH:mm' }}</td>
-                <td class="argent-users__row-actions-col">
-                    <div class="argent-users__row-actions">
-                        <button pButton
-                            type="button"
-                            size="small"
-                            severity="secondary"
-                            [outlined]="true"
-                            [disabled]="isBusy(user)"
-                            (click)="openPassword(user)"
-                        >Задать пароль</button>
-                        <button pButton
-                            type="button"
-                            size="small"
-                            severity="danger"
-                            [outlined]="true"
-                            pTooltip="Завершить все сессии пользователя"
-                            tooltipPosition="top"
-                            [disabled]="isBusy(user)"
-                            (click)="confirmRevoke(user)"
-                        >Отозвать сессии</button>
-                    </div>
-                </td>
-            </tr>
-        </ng-template>
-        <ng-template #emptymessage>
-            <tr>
-                <td class="argent-users__empty" colspan="7">Пользователи не найдены.</td>
-            </tr>
-        </ng-template>
-    </p-table>
+                        (click)="confirmRevoke(user)"
+                    >Отозвать сессии</button>
+                </div>
+            </ng-template>
+        </argent-table-column>
+    </argent-table>
 
-    <p-dialog
-        header="Новый пользователь"
+    <p-dialog header="Новый пользователь"
         [modal]="true"
         [closable]="!creating()"
         [draggable]="false"
@@ -168,8 +162,7 @@
         </ng-template>
     </p-dialog>
 
-    <p-dialog
-        [header]="'Пароль пользователя ' + (passwordUser()?.login ?? '')"
+    <p-dialog [header]="'Пароль пользователя ' + (passwordUser()?.login ?? '')"
         [modal]="true"
         [closable]="!savingPassword()"
         [draggable]="false"

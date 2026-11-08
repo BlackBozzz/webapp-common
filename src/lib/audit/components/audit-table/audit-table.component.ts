@@ -1,6 +1,6 @@
-import { DatePipe } from '@angular/common';
+
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
-import { TableLazyLoadEvent, TableModule } from 'primeng/table';
+import { ArgentTableComponent, ArgentTableColumnComponent, ArgentTableQuery } from '../../../shared/table';
 import { DynamicPage } from '../../../dictionary/dynamic/dto/dynamic-dictionary.dto';
 import { AUDIT_ACTION_LABELS, AuditAction, AuditEntryDto } from '../../dto/audit.dto';
 
@@ -17,7 +17,7 @@ export interface AuditPageRequest {
 @Component({
     selector: 'argent-audit-table',
     standalone: true,
-    imports: [DatePipe, TableModule],
+    imports: [ArgentTableComponent, ArgentTableColumnComponent],
     templateUrl: './audit-table.component.html',
     styleUrl: './audit-table.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
@@ -33,6 +33,7 @@ export class AuditTableComponent {
     /** Пользователь сменил страницу или её размер. */
     readonly lazyLoad = output<AuditPageRequest>();
 
+    protected readonly actionLabels: Readonly<Record<string, string>> = AUDIT_ACTION_LABELS;
     protected readonly rowsPerPageOptions = [10, 20, 50, 100];
 
     protected actionLabel(action: string): string {
@@ -48,8 +49,11 @@ export class AuditTableComponent {
         return page ? page.page * page.size : 0;
     }
 
-    protected paginate(event: TableLazyLoadEvent): void {
-        const size = event.rows || this.pageSize();
-        this.lazyLoad.emit({ page: Math.floor((event.first || 0) / size), size });
+    protected paginate(event: ArgentTableQuery): void {
+        this.lazyLoad.emit({ page: event.page, size: event.size });
+    }
+
+    protected refresh(): void {
+        this.lazyLoad.emit({ page: this.page()?.page ?? 0, size: this.pageSize() });
     }
 }

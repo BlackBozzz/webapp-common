@@ -1,0 +1,11 @@
+@if (column.type === 'relation-list') {
+    <div class="argent-table-relation-cell__chips">
+        @for (label of labels; track $index) {
+            <p-chip [label]="label"></p-chip>
+        } @empty {
+            <span>—</span>
+        }
+    </div>
+} @else {
+    <span>{{ labels[0] ?? '—' }}</span>
+}

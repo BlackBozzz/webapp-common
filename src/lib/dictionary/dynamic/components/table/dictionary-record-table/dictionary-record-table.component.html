@@ -1,72 +1,22 @@
-<p-table
-    selectionMode="single"
-    sortMode="single"
-    [value]="page?.items ?? []"
-    [paginator]="true"
-    [lazy]="true"
-    [lazyLoadOnInit]="false"
-    [rows]="page?.size ?? 20"
-    [first]="(page?.page ?? 0) * (page?.size ?? 20)"
-    [rowsPerPageOptions]="[10, 20, 50, 100]"
-    [totalRecords]="page?.totalElements ?? 0"
+<argent-table [rows]="page?.items ?? []"
+    [rowKey]="schema?.idField || 'id'"
     [loading]="loading"
-    [dataKey]="schema?.idField || 'id'"
-    [selection]="selected"
-    [scrollable]="true"
-    (onLazyLoad)="queryChange.emit($event)"
-    (selectionChange)="selectedChange.emit($event)"
+    [pageIndex]="page?.page ?? 0"
+    [pageSize]="page?.size ?? 20"
+    [totalRecords]="page?.totalElements ?? 0"
+    [selected]="selected"
+    [filters]="filters"
+    [showSearch]="false"
+    [showRefresh]="false"
+    [showExport]="false"
+    (selectionChange)="selectedChange.emit($any($event))"
+    (queryChange)="onTableQuery($event)"
 >
-    <ng-template #header>
-        <tr>
-            @for (field of columns; track field.name) {
-                @if (sortable(field)) {
-                    <th
-                        [pSortableColumn]="field.name"
-                    >
-                      {{ field.label }}
-                      <p-sortIcon
-                        [field]="field.name"
-                      ></p-sortIcon>
-                    </th>
-                } @else {
-                    <th>{{ field.label }}</th>
-                }
-            }
-        </tr>
-        <tr>
-            @for (field of columns; track field.name) {
-                <th>
-                    @if (filterable(field)) {
-                        <input pInputText
-                            class="argent-record-table__filter"
-                            type="text"
-                            [id]="'argent-filter-' + field.name"
-                            [name]="'filter-' + field.name"
-                            [attr.aria-label]="'Фильтр: ' + field.label"
-                            [value]="filters[field.name] || ''"
-                            (input)="changeFilter(field.name, $event)"
-                        />
-                    }
-                </th>
-            }
-        </tr>
-    </ng-template>
-    <ng-template #body let-record>
-        <tr
-            [pSelectableRow]="record"
-        >
-            @for (field of columns; track field.name) {
-                <td [title]="show(record[field.name], field)">
-                    {{ show(record[field.name], field) }}
-                </td>
-            }
-        </tr>
-    </ng-template>
-    <ng-template #emptymessage>
-        <tr>
-            <td class="argent-record-table__empty" [attr.colspan]="columns.length || 1">
-                Записей не найдено.
-            </td>
-        </tr>
-    </ng-template>
-</p-table>
+    @for (field of columns; track field.name) {
+        <argent-table-column [field]="field.name"
+            [header]="field.label"
+            [sortable]="sortable(field)"
+            [filterable]="filterable(field)"
+        ></argent-table-column>
+    }
+</argent-table>

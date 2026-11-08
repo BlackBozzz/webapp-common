@@ -18,7 +18,8 @@
               "tsConfig": "tsconfig.lib.prod.json"
             },
             "development": {
-              "tsConfig": "tsconfig.lib.json"
+              "tsConfig": "tsconfig.lib.json",
+              "project": "ng-package.watch.json"
             }
           },
           "defaultConfiguration": "production",

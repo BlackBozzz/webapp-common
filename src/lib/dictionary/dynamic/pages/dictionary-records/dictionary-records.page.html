@@ -16,23 +16,25 @@
                 [disabled]="loading() || !schema()"
                 (click)="refresh()"
             >Обновить</button>
-            <button pButton
-                type="button"
-                [disabled]="!schema()"
-                (click)="add()"
-            >Добавить</button>
-            <button pButton
-                type="button"
-                severity="secondary"
-                [disabled]="!selected() || loading()"
-                (click)="edit()"
-            >Редактировать</button>
-            <button pButton
-                type="button"
-                severity="danger"
-                [disabled]="!selected() || deleting() || loading()"
-                (click)="remove()"
-            >Удалить</button>
+            @if (canWrite()) {
+                <button pButton
+                    type="button"
+                    [disabled]="!schema()"
+                    (click)="add()"
+                >Добавить</button>
+                <button pButton
+                    type="button"
+                    severity="secondary"
+                    [disabled]="!selected() || loading()"
+                    (click)="edit()"
+                >Редактировать</button>
+                <button pButton
+                    type="button"
+                    severity="danger"
+                    [disabled]="!selected() || deleting() || loading()"
+                    (click)="remove()"
+                >Удалить</button>
+            }
         </div>
     </div>
 

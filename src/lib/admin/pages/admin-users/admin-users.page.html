@@ -1,0 +1,206 @@
+<section class="argent-users">
+    <div class="argent-users__heading">
+        <div>
+            <span class="argent-users__eyebrow">Администрирование</span>
+            <h1>Пользователи</h1>
+        </div>
+        <div class="argent-users__actions">
+            <button pButton
+                type="button"
+                severity="secondary"
+                [disabled]="loading()"
+                (click)="refresh()"
+            >Обновить</button>
+            <button pButton
+                type="button"
+                (click)="openCreate()"
+            >Добавить</button>
+        </div>
+    </div>
+
+    @if (error()) {
+        <div class="argent-users__error" role="alert">{{ error() }}</div>
+    }
+
+    <div class="argent-users__search">
+        <input pInputText
+            type="search"
+            placeholder="Поиск по логину или имени"
+            aria-label="Поиск пользователей"
+            [value]="searchText()"
+            (input)="search($event)"
+        />
+    </div>
+
+    <p-table
+        dataKey="id"
+        [value]="page()?.items ?? []"
+        [paginator]="true"
+        [lazy]="true"
+        [rows]="pageSize()"
+        [first]="pageIndex() * pageSize()"
+        [rowsPerPageOptions]="[10, 20, 50, 100]"
+        [totalRecords]="page()?.totalElements ?? 0"
+        [loading]="loading()"
+        [scrollable]="true"
+        (onLazyLoad)="paginate($event)"
+    >
+        <ng-template #header>
+            <tr>
+                <th>Логин</th>
+                <th>Имя</th>
+                <th class="argent-users__roles-col">Роли</th>
+                <th>Активен</th>
+                <th>Пароль</th>
+                <th>Создан</th>
+                <th class="argent-users__row-actions-col">Действия</th>
+            </tr>
+        </ng-template>
+        <ng-template #body let-user>
+            <tr>
+                <td class="argent-users__login">{{ user.login }}</td>
+                <td>{{ user.displayName }}</td>
+                <td class="argent-users__roles-col">
+                    <p-multiselect
+                        appendTo="body"
+                        display="chip"
+                        placeholder="Без ролей"
+                        optionLabel="label"
+                        optionValue="value"
+                        [options]="roleOptions()"
+                        [ngModel]="user.roles"
+                        [filter]="roleOptions().length > 7"
+                        [showToggleAll]="false"
+                        [disabled]="isBusy(user)"
+                        [fluid]="true"
+                        [attr.aria-label]="'Роли пользователя ' + user.login"
+                        (ngModelChange)="changeRoles(user, $event)"
+                        (onPanelHide)="saveRoles(user)"
+                    ></p-multiselect>
+                </td>
+                <td>
+                    <p-toggleswitch
+                        [ngModel]="user.enabled"
+                        [disabled]="isBusy(user)"
+                        [attr.aria-label]="'Активен: ' + user.login"
+                        (onChange)="toggleEnabled(user, $event.checked)"
+                    ></p-toggleswitch>
+                </td>
+                <td>
+                    @if (user.hasPassword) {
+                        <p-tag severity="success" value="Задан"></p-tag>
+                    } @else {
+                        <p-tag severity="secondary" value="Нет"></p-tag>
+                    }
+                </td>
+                <td class="argent-users__date">{{ user.createdAt | date: 'dd.MM.yyyy HH:mm' }}</td>
+                <td class="argent-users__row-actions-col">
+                    <div class="argent-users__row-actions">
+                        <button pButton
+                            type="button"
+                            size="small"
+                            severity="secondary"
+                            [outlined]="true"
+                            [disabled]="isBusy(user)"
+                            (click)="openPassword(user)"
+                        >Задать пароль</button>
+                        <button pButton
+                            type="button"
+                            size="small"
+                            severity="danger"
+                            [outlined]="true"
+                            pTooltip="Завершить все сессии пользователя"
+                            tooltipPosition="top"
+                            [disabled]="isBusy(user)"
+                            (click)="confirmRevoke(user)"
+                        >Отозвать сессии</button>
+                    </div>
+                </td>
+            </tr>
+        </ng-template>
+        <ng-template #emptymessage>
+            <tr>
+                <td class="argent-users__empty" colspan="7">Пользователи не найдены.</td>
+            </tr>
+        </ng-template>
+    </p-table>
+
+    <p-dialog
+        header="Новый пользователь"
+        [modal]="true"
+        [closable]="!creating()"
+        [draggable]="false"
+        [resizable]="false"
+        [style]="{ width: 'min(480px, 96vw)' }"
+        [visible]="createVisible()"
+        (visibleChange)="!$event && closeCreate()"
+    >
+        <form class="argent-users__form" id="argent-user-create-form" [formGroup]="createForm" (ngSubmit)="create()" novalidate>
+            <div class="argent-users__field">
+                <label for="argent-user-login">Логин</label>
+                <input pInputText id="argent-user-login" formControlName="login" autocomplete="off" [fluid]="true" />
+                <argent-field-error [control]="createForm.controls.login" />
+            </div>
+            <div class="argent-users__field">
+                <label for="argent-user-display-name">Имя</label>
+                <input pInputText id="argent-user-display-name" formControlName="displayName" autocomplete="off" [fluid]="true" />
+                <argent-field-error [control]="createForm.controls.displayName" />
+            </div>
+            <div class="argent-users__field">
+                <label for="argent-user-password">Пароль <span class="argent-users__hint">(необязательно)</span></label>
+                <input pInputText id="argent-user-password" type="password" formControlName="password"
+                    autocomplete="new-password" [fluid]="true" />
+                <argent-field-error [control]="createForm.controls.password" />
+            </div>
+        </form>
+        <ng-template #footer>
+            <button pButton
+                type="button"
+                severity="secondary"
+                [disabled]="creating()"
+                (click)="closeCreate()"
+            >Отмена</button>
+            <button pButton
+                type="submit"
+                form="argent-user-create-form"
+                [loading]="creating()"
+            >Создать</button>
+        </ng-template>
+    </p-dialog>
+
+    <p-dialog
+        [header]="'Пароль пользователя ' + (passwordUser()?.login ?? '')"
+        [modal]="true"
+        [closable]="!savingPassword()"
+        [draggable]="false"
+        [resizable]="false"
+        [style]="{ width: 'min(420px, 96vw)' }"
+        [visible]="passwordUser() !== null"
+        (visibleChange)="!$event && closePassword()"
+    >
+        <form class="argent-users__form" id="argent-user-password-form" [formGroup]="passwordForm" (ngSubmit)="savePassword()" novalidate>
+            <div class="argent-users__field">
+                <label for="argent-user-new-password">Новый пароль</label>
+                <input pInputText id="argent-user-new-password" type="password" formControlName="password"
+                    autocomplete="new-password" [fluid]="true" />
+                <argent-field-error [control]="passwordForm.controls.password" />
+            </div>
+        </form>
+        <ng-template #footer>
+            <button pButton
+                type="button"
+                severity="secondary"
+                [disabled]="savingPassword()"
+                (click)="closePassword()"
+            >Отмена</button>
+            <button pButton
+                type="submit"
+                form="argent-user-password-form"
+                [loading]="savingPassword()"
+            >Сохранить</button>
+        </ng-template>
+    </p-dialog>
+
+    <p-confirmdialog></p-confirmdialog>
+    <p-toast></p-toast>
+</section>

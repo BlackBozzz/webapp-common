@@ -21,10 +21,14 @@
         </div>
     </div>
 
-    <div class="argent-admin-header__account"
-        aria-label="Авторизация будет подключена позже"
-    >
-        <span class="argent-admin-header__avatar" aria-hidden="true">A</span>
-        <span class="argent-admin-header__account-caption">Argent</span>
+    <div class="argent-admin-header__account">
+        <span class="argent-admin-header__avatar" aria-hidden="true">{{ initial() }}</span>
+        <span class="argent-admin-header__account-caption">{{ userName() }}</span>
+        <button pButton
+            type="button"
+            severity="secondary"
+            [text]="true"
+            (click)="logout()"
+        >Выйти</button>
     </div>
 </header>

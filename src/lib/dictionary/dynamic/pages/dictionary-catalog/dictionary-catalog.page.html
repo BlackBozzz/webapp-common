@@ -19,9 +19,11 @@
         <p>Загрузка справочников…</p>
     } @else if (!dictionaries().length) {
         <p>Зарегистрированных справочников пока нет.</p>
+    } @else if (!visibleDictionaries().length) {
+        <p>Нет доступных справочников.</p>
     } @else {
         <div class="argent-catalog__grid">
-            @for (dictionary of dictionaries(); track dictionary.code) {
+            @for (dictionary of visibleDictionaries(); track dictionary.code) {
                 <a class="argent-catalog__link"
                     [routerLink]="[dictionary.code]"
                 >

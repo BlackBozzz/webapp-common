@@ -1,0 +1,160 @@
+<div class="argent-grants" [class.argent-grants--disabled]="disabled()">
+    <div class="argent-grants__toolbar">
+        <span class="argent-grants__caption">{{ jsonMode() ? 'Гранты в формате JSON' : 'Таблицы и действия' }}</span>
+        <button pButton
+            type="button"
+            size="small"
+            severity="secondary"
+            [outlined]="!jsonMode()"
+            [attr.aria-pressed]="jsonMode()"
+            (click)="toggleJson()"
+        >JSON</button>
+    </div>
+
+    @if (jsonMode()) {
+        <textarea pTextarea
+            class="argent-grants__json"
+            rows="12"
+            spellcheck="false"
+            aria-label="Гранты в формате JSON"
+            [attr.id]="inputId() + '-json'"
+            [value]="jsonText()"
+            [disabled]="disabled()"
+            [invalid]="!!jsonError()"
+            (input)="setJsonText($any($event.target).value)"
+            (blur)="applyJson()"
+        ></textarea>
+        @if (jsonError()) {
+            <small class="argent-grants__error" role="alert">{{ jsonError() }}</small>
+        } @else {
+            <small class="argent-grants__hint">
+                Формат: {{ '{' }} "tables": {{ '{' }} "таблица или *": ["read", "write"] {{ '}' }}, "actions": ["код"] {{ '}' }}.
+                Изменения применяются при выходе из поля.
+            </small>
+        }
+    } @else {
+        <div class="argent-grants__section">
+            <div class="argent-grants__section-title">Таблицы <span class="argent-grants__muted">(* — любая таблица)</span></div>
+            @if (rows().length) {
+                <div class="argent-grants__rows" role="table" aria-label="Права на таблицы">
+                    <div class="argent-grants__row argent-grants__row--head" role="row">
+                        <span role="columnheader">Таблица</span>
+                        <span role="columnheader">Чтение</span>
+                        <span role="columnheader">Запись</span>
+                        <span></span>
+                    </div>
+                    @for (row of rows(); track row.id; let i = $index) {
+                        <div class="argent-grants__row" role="row">
+                            <p-autocomplete
+                                appendTo="body"
+                                placeholder="таблица или *"
+                                [ngModel]="row.table"
+                                [suggestions]="tableSuggestions()"
+                                [dropdown]="true"
+                                [completeOnFocus]="true"
+                                [fluid]="true"
+                                [disabled]="disabled()"
+                                [ariaLabel]="'Таблица, строка ' + (i + 1)"
+                                (ngModelChange)="setTable(i, $event)"
+                                (completeMethod)="completeTable($event)"
+                                (onBlur)="touch()"
+                            ></p-autocomplete>
+                            <p-checkbox
+                                [binary]="true"
+                                [ngModel]="row.read"
+                                [disabled]="disabled()"
+                                [ariaLabel]="'Чтение, строка ' + (i + 1)"
+                                (ngModelChange)="setOp(i, 'read', $event)"
+                            ></p-checkbox>
+                            <p-checkbox
+                                [binary]="true"
+                                [ngModel]="row.write"
+                                [disabled]="disabled()"
+                                [ariaLabel]="'Запись, строка ' + (i + 1)"
+                                (ngModelChange)="setOp(i, 'write', $event)"
+                            ></p-checkbox>
+                            <button pButton
+                                type="button"
+                                size="small"
+                                severity="danger"
+                                icon="pi pi-times"
+                                [text]="true"
+                                [disabled]="disabled()"
+                                [attr.aria-label]="'Удалить строку ' + (i + 1)"
+                                (click)="removeRow(i)"
+                            ></button>
+                            @if (tableNameSuspicious(row)) {
+                                <small class="argent-grants__row-hint">Имя таблицы обычно из строчных латинских букв, цифр и «_» (или «*») — сервер может его отклонить</small>
+                            }
+                            @if (rowHasNoOps(row)) {
+                                <small class="argent-grants__row-hint">Отметьте хотя бы одну операцию, иначе таблица не сохранится</small>
+                            }
+                        </div>
+                    }
+                </div>
+            } @else {
+                <p class="argent-grants__empty">Нет прав на таблицы.</p>
+            }
+            @if (!disabled()) {
+                <div>
+                    <button pButton
+                        type="button"
+                        size="small"
+                        severity="secondary"
+                        icon="pi pi-plus"
+                        [outlined]="true"
+                        (click)="addRow()"
+                    >Добавить таблицу</button>
+                </div>
+            }
+        </div>
+
+        <div class="argent-grants__section">
+            <div class="argent-grants__section-title">Действия</div>
+            <div class="argent-grants__chips">
+                @for (action of actions(); track action) {
+                    <p-chip
+                        [label]="action"
+                        [class.argent-grants__chip--warn]="actionSuspicious(action)"
+                        [removable]="!disabled()"
+                        (onRemove)="removeAction(action)"
+                    ></p-chip>
+                } @empty {
+                    <span class="argent-grants__empty">Нет действий.</span>
+                }
+            </div>
+            @for (action of actions(); track action) {
+                @if (actionSuspicious(action)) {
+                    <small class="argent-grants__row-hint">Код действия «{{ action }}» не по формату (строчные латинские буквы, цифры, «_», части через точку) — сервер может его отклонить</small>
+                }
+            }
+            @if (!disabled()) {
+                <div class="argent-grants__action-input">
+                    <p-autocomplete
+                        appendTo="body"
+                        placeholder="код действия, например admin"
+                        [ngModel]="actionDraft()"
+                        [suggestions]="actionSuggestions()"
+                        [dropdown]="true"
+                        [completeOnFocus]="true"
+                        [fluid]="true"
+                        ariaLabel="Новое действие"
+                        (ngModelChange)="actionDraft.set($event ?? '')"
+                        (completeMethod)="completeAction($event)"
+                        (onSelect)="addAction($event.value)"
+                        (onInputKeydown)="actionKeydown($event)"
+                        (onBlur)="touch()"
+                    ></p-autocomplete>
+                    <button pButton
+                        type="button"
+                        size="small"
+                        severity="secondary"
+                        [outlined]="true"
+                        [disabled]="!actionDraft().trim()"
+                        (click)="addAction()"
+                    >Добавить</button>
+                </div>
+            }
+        </div>
+    }
+</div>

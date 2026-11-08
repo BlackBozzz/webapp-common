@@ -1,0 +1,21 @@
+:host { display: block; }
+.argent-roles { display: grid; gap: 1.3rem; min-width: 0; }
+.argent-roles__heading { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 1.1rem; }
+.argent-roles__heading h1 { margin: .25rem 0 0; font-size: clamp(1.4rem, 3vw, 1.9rem); }
+.argent-roles__eyebrow { font-size: .77rem; color: var(--p-text-muted-color); }
+.argent-roles__actions { display: flex; gap: .5rem; flex-wrap: wrap; }
+.argent-roles__error { padding: 1rem; background: var(--p-red-50); color: var(--p-red-700); border-radius: .6rem; }
+.argent-roles__code { font-weight: 600; white-space: nowrap; }
+.argent-roles__code p-tag { margin-left: .4rem; }
+.argent-roles__description { font-size: .82rem; color: var(--p-text-muted-color); }
+.argent-roles__count { font-variant-numeric: tabular-nums; }
+.argent-roles__row-actions-col { text-align: right; }
+.argent-roles__row-actions { display: flex; gap: .4rem; justify-content: flex-end; flex-wrap: wrap; }
+.argent-roles__empty { text-align: center; color: var(--p-text-muted-color); padding: 2rem 1rem; }
+.argent-roles__form { display: grid; gap: 1rem; }
+.argent-roles__field { display: grid; gap: .35rem; min-width: 0; }
+.argent-roles__field label, .argent-roles__label { font-size: .87rem; font-weight: 500; }
+.argent-roles__muted { font-weight: 400; color: var(--p-text-muted-color); }
+.argent-roles__hint { font-size: .78rem; color: var(--p-text-muted-color); }
+.argent-roles__grants-error { font-size: .8rem; color: var(--p-red-600, #dc2626); }
+.argent-roles__code-input { text-transform: uppercase; }

@@ -1,0 +1,70 @@
+:host {
+    display: block;
+    min-height: 100dvh;
+}
+
+.argent-login {
+    display: grid;
+    place-items: center;
+    min-height: 100dvh;
+    padding: 1.5rem;
+    background: var(--p-surface-50, #f8fafc);
+    color: var(--p-text-color, #202531);
+
+    &__card {
+        display: grid;
+        gap: 1.4rem;
+        width: min(100%, 24rem);
+        padding: 2rem;
+        border: 1px solid var(--p-content-border-color, #e5e7eb);
+        border-radius: 1rem;
+        background: var(--p-content-background, #fff);
+        box-shadow: 0 12px 32px rgb(15 23 42 / 8%);
+    }
+
+    &__header {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+    }
+
+    &__mark {
+        display: grid;
+        place-items: center;
+        width: 2.4rem;
+        height: 2.4rem;
+        border-radius: 0.7rem;
+        font-weight: 700;
+        color: var(--p-primary-contrast-color, #fff);
+        background: var(--p-primary-color, #4f46e5);
+    }
+
+    &__title {
+        margin: 0;
+        font-size: 1.5rem;
+        letter-spacing: -0.03em;
+    }
+
+    &__form {
+        display: grid;
+        gap: 1.1rem;
+    }
+
+    &__field {
+        display: grid;
+        gap: 0.4rem;
+
+        label {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+    }
+
+    &__switch,
+    &__loading {
+        margin: 0;
+        font-size: 0.9rem;
+        text-align: center;
+        color: var(--p-text-muted-color, #64748b);
+    }
+}

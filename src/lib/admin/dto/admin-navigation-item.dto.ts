@@ -9,4 +9,9 @@ export interface AdminNavigationItem {
     glyph: string;
     /** Отключённые разделы появятся на следующих этапах. */
     enabled: boolean;
+    /**
+     * Код действия из грантов, без которого пункт скрыт (например `admin`).
+     * Скрытие пункта — только удобство UI: доступ всё равно проверяют guard и backend.
+     */
+    action?: string;
 }

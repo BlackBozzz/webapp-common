@@ -16,7 +16,7 @@
         </div>
 
         <div class="argent-admin-dashboard__grid">
-            @for (item of sections; track item.id) {
+            @for (item of sections(); track item.id) {
                 <argent-admin-section-card
                     [item]="item"
                 ></argent-admin-section-card>

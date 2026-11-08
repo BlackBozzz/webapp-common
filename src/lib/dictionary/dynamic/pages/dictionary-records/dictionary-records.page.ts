@@ -8,6 +8,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { TableLazyLoadEvent } from 'primeng/table';
 import { ToastModule } from 'primeng/toast';
 import { debounceTime, distinctUntilChanged, map, Subject, Subscription } from 'rxjs';
+import { AuthStore } from '../../../../auth/service/auth.store';
 import { DynamicDictionarySchema, DynamicPage, DynamicRecordsQuery } from '../../dto/dynamic-dictionary.dto';
 import { DictionaryRecord } from '../../service/dynamic-dictionary-form.service';
 import { DynamicDictionaryApiService } from '../../service/dynamic-dictionary-api.service';
@@ -34,6 +35,7 @@ export class DictionaryRecordsPage implements OnDestroy {
     private readonly errors = inject(DynamicDictionaryErrorService);
     private readonly confirm = inject(ConfirmationService);
     private readonly messages = inject(MessageService);
+    private readonly auth = inject(AuthStore);
     private readonly destroyRef = inject(DestroyRef);
     private readonly filtersChanged = new Subject<void>();
     private dataRequest?: Subscription;
@@ -54,6 +56,12 @@ export class DictionaryRecordsPage implements OnDestroy {
     readonly pageSize = signal(20);
     readonly sort = signal('');
     readonly title = computed(() => this.schema()?.name || this.code());
+    /** Можно ли изменять записи: грант `write` на справочник (только для UI, права проверяет backend). */
+    readonly canWrite = computed(() => {
+        // Явно читаем пользователя, чтобы кнопки появлялись после загрузки грантов.
+        this.auth.user();
+        return this.auth.canTable(this.code(), 'write');
+    });
 
     constructor() {
         this.route.paramMap.pipe(

@@ -10,7 +10,7 @@
     <nav class="argent-admin-sidebar__navigation" aria-label="Администрирование">
         <p class="argent-admin-sidebar__caption">Управление</p>
 
-        @for (item of navigation; track item.id) {
+        @for (item of navigation(); track item.id) {
             <argent-admin-nav-item
                 [item]="item"
                 [collapsed]="collapsed && !mobileOpen"

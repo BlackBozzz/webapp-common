@@ -1,7 +1,7 @@
 import { AdminNavigationItem } from '../dto/admin-navigation-item.dto';
 
 /**
- * Общие пункты навигации. Позже тут появятся настройки доступа по ролям.
+ * Общие пункты навигации. Пункт с `action` виден только пользователю с этим действием в грантах.
  * Наличие пункта меню само по себе не предоставляет доступ к REST API.
  */
 export const ADMIN_NAVIGATION: readonly AdminNavigationItem[] = [
@@ -27,7 +27,8 @@ export const ADMIN_NAVIGATION: readonly AdminNavigationItem[] = [
         description: 'Управление учётными записями',
         path: 'users',
         glyph: '♙',
-        enabled: false,
+        enabled: true,
+        action: 'admin',
     },
     {
         id: 'roles',
@@ -35,7 +36,8 @@ export const ADMIN_NAVIGATION: readonly AdminNavigationItem[] = [
         description: 'Права и группы доступа',
         path: 'roles',
         glyph: '◇',
-        enabled: false,
+        enabled: true,
+        action: 'admin',
     },
     {
         id: 'settings',

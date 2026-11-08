@@ -1,3 +1,5 @@
+import type { FieldError, ProblemDetail } from '../../../errors/problem-detail';
+
 /** Краткое описание справочника из GET /api/argent-dictionary. */
 export interface DynamicDictionarySummary {
   code: string;
@@ -84,18 +86,8 @@ export interface DynamicRecordsQuery {
   filters?: Readonly<Record<string, string | number | boolean | null | undefined>>;
 }
 
-/** Ошибка валидации отдельного поля, присланная Spring Boot. */
-export interface DynamicFieldError {
-  field: string;
-  message: string;
-}
+/** Ошибка валидации отдельного поля; псевдоним {@link FieldError} из модуля ошибок. */
+export type DynamicFieldError = FieldError;
 
-/** RFC 9457 ProblemDetail с дополнительными данными ошибок валидации. */
-export interface DynamicApiProblem {
-  type?: string;
-  title?: string;
-  status?: number;
-  detail?: string;
-  instance?: string;
-  errors?: DynamicFieldError[];
-}
+/** RFC 9457 ProblemDetail; псевдоним {@link ProblemDetail} из модуля ошибок. */
+export type DynamicApiProblem = ProblemDetail;

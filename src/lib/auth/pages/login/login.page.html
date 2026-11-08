@@ -1,0 +1,79 @@
+<main class="argent-login">
+    <section class="argent-login__card" aria-labelledby="argent-login-title">
+        <header class="argent-login__header">
+            <span class="argent-login__mark" aria-hidden="true">A</span>
+            <h1 class="argent-login__title" id="argent-login-title">
+                {{ mode() === 'register' ? 'Регистрация' : 'Вход' }}
+            </h1>
+        </header>
+
+        @if (error(); as text) {
+            <p-message severity="error">{{ text }}</p-message>
+        }
+
+        @if (config(); as settings) {
+            @if (mode() === 'login') {
+                <form class="argent-login__form" [formGroup]="loginForm" (ngSubmit)="submit()" novalidate>
+                    <div class="argent-login__field">
+                        <label for="argent-login-login">Логин</label>
+                        <input pInputText id="argent-login-login" formControlName="login"
+                            autocomplete="username" [fluid]="true" />
+                        <argent-field-error [control]="loginForm.controls.login" />
+                    </div>
+
+                    @if (settings.passwordRequired) {
+                        <div class="argent-login__field">
+                            <label for="argent-login-password">Пароль</label>
+                            <input pInputText id="argent-login-password" type="password"
+                                formControlName="password" autocomplete="current-password" [fluid]="true" />
+                            <argent-field-error [control]="loginForm.controls.password" />
+                        </div>
+                    }
+
+                    <p-button type="submit" label="Войти" [loading]="loading()" [fluid]="true"></p-button>
+                </form>
+
+                @if (settings.registrationEnabled) {
+                    <p class="argent-login__switch">
+                        Нет учётной записи?
+                        <p-button label="Зарегистрироваться" [link]="true"
+                            (onClick)="switchMode('register')"></p-button>
+                    </p>
+                }
+            } @else {
+                <form class="argent-login__form" [formGroup]="registerForm" (ngSubmit)="submit()" novalidate>
+                    <div class="argent-login__field">
+                        <label for="argent-register-login">Логин</label>
+                        <input pInputText id="argent-register-login" formControlName="login"
+                            autocomplete="username" [fluid]="true" />
+                        <argent-field-error [control]="registerForm.controls.login" />
+                    </div>
+
+                    <div class="argent-login__field">
+                        <label for="argent-register-display-name">Имя</label>
+                        <input pInputText id="argent-register-display-name" formControlName="displayName"
+                            autocomplete="name" [fluid]="true" />
+                        <argent-field-error [control]="registerForm.controls.displayName" />
+                    </div>
+
+                    <div class="argent-login__field">
+                        <label for="argent-register-password">Пароль</label>
+                        <input pInputText id="argent-register-password" type="password"
+                            formControlName="password" autocomplete="new-password" [fluid]="true" />
+                        <argent-field-error [control]="registerForm.controls.password" />
+                    </div>
+
+                    <p-button type="submit" label="Зарегистрироваться" [loading]="loading()"
+                        [fluid]="true"></p-button>
+                </form>
+
+                <p class="argent-login__switch">
+                    Уже есть учётная запись?
+                    <p-button label="Войти" [link]="true" (onClick)="switchMode('login')"></p-button>
+                </p>
+            }
+        } @else if (!error()) {
+            <p class="argent-login__loading">Загрузка…</p>
+        }
+    </section>
+</main>

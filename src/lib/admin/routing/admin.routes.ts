@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { actionGuard } from '../../auth/guard/auth.guard';
 
 /** Внутренние маршруты административной панели. */
 export const ARGENT_ADMIN_ROUTES: Routes = [
@@ -18,6 +19,20 @@ export const ARGENT_ADMIN_ROUTES: Routes = [
                 path: 'dictionaries',
                 loadChildren: () => import('../../dictionary/dynamic/routing/dynamic-dictionary.routes')
                     .then(m => m.ARGENT_DYNAMIC_DICTIONARY_ROUTES),
+            },
+            {
+                path: 'users',
+                title: 'Пользователи',
+                canActivate: [actionGuard('admin')],
+                loadComponent: () => import('../pages/admin-users/admin-users.page')
+                    .then(m => m.AdminUsersPage),
+            },
+            {
+                path: 'roles',
+                title: 'Роли',
+                canActivate: [actionGuard('admin')],
+                loadComponent: () => import('../pages/admin-roles/admin-roles.page')
+                    .then(m => m.AdminRolesPage),
             },
         ],
     },

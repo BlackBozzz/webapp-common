@@ -1,0 +1,146 @@
+<section class="argent-roles">
+    <div class="argent-roles__heading">
+        <div>
+            <span class="argent-roles__eyebrow">Администрирование</span>
+            <h1>Роли</h1>
+        </div>
+        <div class="argent-roles__actions">
+            <button pButton
+                type="button"
+                severity="secondary"
+                [disabled]="loading()"
+                (click)="refresh()"
+            >Обновить</button>
+            <button pButton
+                type="button"
+                (click)="openCreate()"
+            >Добавить</button>
+        </div>
+    </div>
+
+    @if (error()) {
+        <div class="argent-roles__error" role="alert">{{ error() }}</div>
+    }
+
+    <p-table
+        dataKey="code"
+        [value]="roles()"
+        [loading]="loading()"
+        [scrollable]="true"
+    >
+        <ng-template #header>
+            <tr>
+                <th>Код</th>
+                <th>Название</th>
+                <th>Таблицы</th>
+                <th>Действия</th>
+                <th class="argent-roles__row-actions-col"></th>
+            </tr>
+        </ng-template>
+        <ng-template #body let-role>
+            <tr>
+                <td class="argent-roles__code">
+                    {{ role.code }}
+                    @if (role.system) {
+                        <p-tag severity="info" value="Системная"></p-tag>
+                    }
+                </td>
+                <td>
+                    <div>{{ role.name }}</div>
+                    @if (role.description) {
+                        <div class="argent-roles__description">{{ role.description }}</div>
+                    }
+                </td>
+                <td class="argent-roles__count">{{ tableCount(role) }}</td>
+                <td class="argent-roles__count">{{ actionCount(role) }}</td>
+                <td class="argent-roles__row-actions-col">
+                    <div class="argent-roles__row-actions">
+                        <button pButton
+                            type="button"
+                            size="small"
+                            severity="secondary"
+                            [outlined]="true"
+                            [disabled]="isDeleting(role)"
+                            (click)="openEdit(role)"
+                        >{{ role.system ? 'Просмотр' : 'Изменить' }}</button>
+                        @if (!role.system) {
+                            <button pButton
+                                type="button"
+                                size="small"
+                                severity="danger"
+                                [outlined]="true"
+                                [loading]="isDeleting(role)"
+                                (click)="confirmDelete(role)"
+                            >Удалить</button>
+                        }
+                    </div>
+                </td>
+            </tr>
+        </ng-template>
+        <ng-template #emptymessage>
+            <tr>
+                <td class="argent-roles__empty" colspan="5">Ролей пока нет.</td>
+            </tr>
+        </ng-template>
+    </p-table>
+
+    <p-dialog
+        [header]="isCreate() ? 'Новая роль' : 'Роль ' + (editedRole()?.code ?? '')"
+        [modal]="true"
+        [closable]="!saving()"
+        [draggable]="false"
+        [resizable]="false"
+        [style]="{ width: 'min(720px, 96vw)' }"
+        [visible]="dialog() !== null"
+        (visibleChange)="!$event && closeDialog()"
+    >
+        <form class="argent-roles__form" id="argent-role-form" [formGroup]="form" (ngSubmit)="save()" novalidate>
+            @if (isCreate()) {
+                <div class="argent-roles__field">
+                    <label for="argent-role-code">Код</label>
+                    <input pInputText id="argent-role-code" formControlName="code" autocomplete="off"
+                        placeholder="EDITOR"
+                        class="argent-roles__code-input" [fluid]="true" />
+                    <small class="argent-roles__hint">Латинские заглавные буквы, цифры и «_», начинается с буквы, до 50 символов. После создания не меняется.</small>
+                    <argent-field-error [control]="form.controls.code" />
+                </div>
+            }
+            <div class="argent-roles__field">
+                <label for="argent-role-name">Название</label>
+                <input pInputText id="argent-role-name" formControlName="name" autocomplete="off" [fluid]="true" />
+                <argent-field-error [control]="form.controls.name" />
+            </div>
+            <div class="argent-roles__field">
+                <label for="argent-role-description">Описание <span class="argent-roles__muted">(необязательно)</span></label>
+                <textarea pTextarea id="argent-role-description" formControlName="description" rows="2" [fluid]="true"></textarea>
+                <argent-field-error [control]="form.controls.description" />
+            </div>
+            <div class="argent-roles__field">
+                <span class="argent-roles__label">Гранты</span>
+                @if (isSystem()) {
+                    <small class="argent-roles__hint">Гранты системной роли не меняются: у неё всегда полный доступ администратора.</small>
+                }
+                <argent-grants-editor formControlName="grants" inputId="argent-role-grants" [catalog]="catalog()" />
+                @if (grantsError()) {
+                    <small class="argent-roles__grants-error" role="alert">{{ grantsError() }}</small>
+                }
+            </div>
+        </form>
+        <ng-template #footer>
+            <button pButton
+                type="button"
+                severity="secondary"
+                [disabled]="saving()"
+                (click)="closeDialog()"
+            >Отмена</button>
+            <button pButton
+                type="submit"
+                form="argent-role-form"
+                [loading]="saving()"
+            >{{ isCreate() ? 'Создать' : 'Сохранить' }}</button>
+        </ng-template>
+    </p-dialog>
+
+    <p-confirmdialog></p-confirmdialog>
+    <p-toast></p-toast>
+</section>

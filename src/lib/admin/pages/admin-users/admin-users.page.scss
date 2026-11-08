@@ -1,0 +1,18 @@
+:host { display: block; }
+.argent-users { display: grid; gap: 1.3rem; min-width: 0; }
+.argent-users__heading { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 1.1rem; }
+.argent-users__heading h1 { margin: .25rem 0 0; font-size: clamp(1.4rem, 3vw, 1.9rem); }
+.argent-users__eyebrow { font-size: .77rem; color: var(--p-text-muted-color); }
+.argent-users__actions { display: flex; gap: .5rem; flex-wrap: wrap; }
+.argent-users__search input { width: 100%; max-width: 24rem; }
+.argent-users__error { padding: 1rem; background: var(--p-red-50); color: var(--p-red-700); border-radius: .6rem; }
+.argent-users__login { font-weight: 600; }
+.argent-users__roles-col { min-width: 14rem; max-width: 22rem; }
+.argent-users__date { white-space: nowrap; color: var(--p-text-muted-color); }
+.argent-users__row-actions-col { text-align: right; }
+.argent-users__row-actions { display: flex; gap: .4rem; justify-content: flex-end; flex-wrap: wrap; }
+.argent-users__empty { text-align: center; color: var(--p-text-muted-color); padding: 2rem 1rem; }
+.argent-users__form { display: grid; gap: 1rem; }
+.argent-users__field { display: grid; gap: .35rem; }
+.argent-users__field label { font-size: .87rem; font-weight: 500; }
+.argent-users__hint { font-weight: 400; color: var(--p-text-muted-color); }

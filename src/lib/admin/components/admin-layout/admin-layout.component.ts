@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { ToastModule } from 'primeng/toast';
 import { AdminLayoutStateService } from '../../service/admin-layout-state.service';
 import { AdminHeaderComponent } from '../admin-header/admin-header.component';
 import { AdminSidebarComponent } from '../admin-sidebar/admin-sidebar.component';
@@ -8,7 +9,7 @@ import { AdminSidebarComponent } from '../admin-sidebar/admin-sidebar.component'
 @Component({
     selector: 'argent-admin-layout',
     standalone: true,
-    imports: [RouterOutlet, AdminHeaderComponent, AdminSidebarComponent],
+    imports: [RouterOutlet, ToastModule, AdminHeaderComponent, AdminSidebarComponent],
     providers: [AdminLayoutStateService],
     templateUrl: './admin-layout.component.html',
     styleUrl: './admin-layout.component.scss',

@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, OnDestroy, computed, inject, signal } from '@angular/core';
+import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ButtonDirective } from 'primeng/button';
@@ -9,12 +10,17 @@ import { TableLazyLoadEvent } from 'primeng/table';
 import { ToastModule } from 'primeng/toast';
 import { debounceTime, distinctUntilChanged, map, Subject, Subscription } from 'rxjs';
 import { AuthStore } from '../../../../auth/service/auth.store';
+import { problemMessage } from '../../../../errors/problem-detail';
+import { downloadBlob } from '../../../../shared/file-download';
+import { DictionaryExportFormat } from '../../dto/dictionary-transfer.dto';
+import { DictionaryTransferApiService } from '../../service/dictionary-transfer-api.service';
 import { DynamicDictionarySchema, DynamicPage, DynamicRecordsQuery } from '../../dto/dynamic-dictionary.dto';
 import { DictionaryRecord } from '../../service/dynamic-dictionary-form.service';
 import { DynamicDictionaryApiService } from '../../service/dynamic-dictionary-api.service';
 import { DynamicDictionaryErrorService } from '../../service/dynamic-dictionary-error.service';
 import { DictionaryRecordDialogComponent } from '../../components/dialog/dictionary-record-dialog/dictionary-record-dialog.component';
 import { DictionaryRecordTableComponent } from '../../components/table/dictionary-record-table/dictionary-record-table.component';
+import { DictionaryImportDialogComponent } from '../../components/dialog/dictionary-import-dialog/dictionary-import-dialog.component';
 
 /** Универсальная страница справочника: серверные данные и операции над выбранной строкой. */
 @Component({
@@ -22,7 +28,7 @@ import { DictionaryRecordTableComponent } from '../../components/table/dictionar
     standalone: true,
     imports: [
         RouterLink, ButtonDirective, InputTextModule, ConfirmDialogModule, ToastModule,
-        DictionaryRecordTableComponent, DictionaryRecordDialogComponent,
+        DictionaryRecordTableComponent, DictionaryRecordDialogComponent, DictionaryImportDialogComponent,
     ],
     providers: [ConfirmationService, MessageService],
     templateUrl: './dictionary-records.page.html',
@@ -33,6 +39,7 @@ export class DictionaryRecordsPage implements OnDestroy {
     private readonly route = inject(ActivatedRoute);
     private readonly api = inject(DynamicDictionaryApiService);
     private readonly errors = inject(DynamicDictionaryErrorService);
+    private readonly transfer = inject(DictionaryTransferApiService);
     private readonly confirm = inject(ConfirmationService);
     private readonly messages = inject(MessageService);
     private readonly auth = inject(AuthStore);
@@ -62,6 +69,15 @@ export class DictionaryRecordsPage implements OnDestroy {
         this.auth.user();
         return this.auth.canTable(this.code(), 'write');
     });
+    /** Экспорт доступен с грантом `read` на справочник. */
+    readonly canRead = computed(() => {
+        this.auth.user();
+        return this.auth.canTable(this.code(), 'read');
+    });
+    /** Импорт: действие `import` и грант `write` на справочник. */
+    readonly canImport = computed(() => this.canWrite() && this.auth.hasAction('import'));
+    readonly exporting = signal(false);
+    readonly importVisible = signal(false);
 
     constructor() {
         this.route.paramMap.pipe(
@@ -141,6 +157,40 @@ export class DictionaryRecordsPage implements OnDestroy {
         });
     }
 
+    /** Выгрузка с текущими поиском и сортировкой. */
+    exportRecords(format: DictionaryExportFormat): void {
+        if (this.exporting()) return;
+        this.exporting.set(true);
+        const code = this.code();
+        const query = { search: this.searchText().trim() || undefined, sort: this.sort() || undefined };
+        this.transfer.export(code, format, query).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+            next: response => {
+                this.exporting.set(false);
+                if (response.body) {
+                    downloadBlob(response.body, exportFileName(response, `${code}.${format}`));
+                }
+            },
+            error: (error: unknown) => {
+                this.exporting.set(false);
+                // На 403 toast «Недостаточно прав» уже показал errorInterceptor.
+                if (isForbidden(error)) return;
+                void blobErrorToJson(error).then(parsed => this.messages.add({
+                    severity: 'error',
+                    summary: 'Экспорт не выполнен',
+                    detail: problemMessage(parsed, 'Не удалось выгрузить записи'),
+                }));
+            },
+        });
+    }
+
+    openImport(): void {
+        this.importVisible.set(true);
+    }
+
+    onImported(): void {
+        this.refresh();
+    }
+
     onSaved(): void {
         this.dialogVisible.set(false);
         this.selected.set(null);
@@ -159,6 +209,7 @@ export class DictionaryRecordsPage implements OnDestroy {
         this.searchText.set('');
         this.pageIndex.set(0);
         this.dialogVisible.set(false);
+        this.importVisible.set(false);
         this.loading.set(true);
         this.error.set('');
         if (!code) return;
@@ -212,8 +263,48 @@ export class DictionaryRecordsPage implements OnDestroy {
             },
             error: error => {
                 this.deleting.set(false);
+                if (isForbidden(error)) return;
                 this.messages.add({ severity: 'error', summary: 'Удаление не выполнено', detail: this.errors.message(error) });
             },
         });
+    }
+}
+
+/** Имя файла из `Content-Disposition` (`filename*=UTF-8''…` или `filename="…"`), иначе `fallback`. */
+function exportFileName(response: HttpResponse<Blob>, fallback: string): string {
+    const header = response.headers.get('Content-Disposition') ?? '';
+    const encoded = /filename\*\s*=\s*UTF-8''([^;]+)/i.exec(header)?.[1];
+    if (encoded) {
+        try {
+            return decodeURIComponent(encoded.trim().replace(/^"|"$/g, ''));
+        } catch {
+            // Битая кодировка в заголовке — используем запасное имя ниже.
+        }
+    }
+    const plain = /filename\s*=\s*"?([^";]+)"?/i.exec(header)?.[1]?.trim();
+    return plain || fallback;
+}
+
+function isForbidden(error: unknown): boolean {
+    return error instanceof HttpErrorResponse && error.status === 403;
+}
+
+/**
+ * При `responseType: 'blob'` тело ошибки тоже приходит Blob — разбираем его как JSON ProblemDetail,
+ * чтобы показать `detail` с backend. Если не JSON, возвращаем исходную ошибку.
+ */
+async function blobErrorToJson(error: unknown): Promise<unknown> {
+    if (!(error instanceof HttpErrorResponse) || !(error.error instanceof Blob)) return error;
+    try {
+        const body: unknown = JSON.parse(await error.error.text());
+        return new HttpErrorResponse({
+            error: body,
+            headers: error.headers,
+            status: error.status,
+            statusText: error.statusText,
+            url: error.url ?? undefined,
+        });
+    } catch {
+        return error;
     }
 }

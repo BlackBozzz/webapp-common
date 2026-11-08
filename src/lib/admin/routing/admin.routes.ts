@@ -34,6 +34,13 @@ export const ARGENT_ADMIN_ROUTES: Routes = [
                 loadComponent: () => import('../pages/admin-roles/admin-roles.page')
                     .then(m => m.AdminRolesPage),
             },
+            {
+                path: 'audit',
+                title: 'Журнал изменений',
+                canActivate: [actionGuard('admin')],
+                loadComponent: () => import('../pages/admin-audit/admin-audit.page')
+                    .then(m => m.AdminAuditPage),
+            },
         ],
     },
 ];

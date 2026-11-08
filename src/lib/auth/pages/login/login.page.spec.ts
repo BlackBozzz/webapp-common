@@ -1,9 +1,10 @@
 import { TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { provideRouter, Router } from '@angular/router';
 import { of } from 'rxjs';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { AuthConfig } from '../../dto/auth.dto';
 import { AuthApiService } from '../../service/auth-api.service';
+import { AuthStore } from '../../service/auth.store';
 import { LoginPage } from './login.page';
 
 /** Создаёт страницу входа с подменённым `AuthApiService.config()`. */
@@ -35,5 +36,26 @@ describe('LoginPage', () => {
 
         expect(element.querySelector('input[formControlName="login"]')).not.toBeNull();
         expect(element.querySelector('input[formControlName="password"]')).not.toBeNull();
+    });
+
+    it('redirects authenticated user to /admin', async () => {
+        TestBed.configureTestingModule({
+            imports: [LoginPage],
+            providers: [
+                provideRouter([]),
+                {
+                    provide: AuthApiService,
+                    useValue: { config: () => of({ passwordRequired: false, registrationEnabled: false }) },
+                },
+            ],
+        });
+        TestBed.inject(AuthStore).setToken('x');
+        const navigate = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
+
+        const fixture = TestBed.createComponent(LoginPage);
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        expect(navigate).toHaveBeenCalledWith('/admin');
     });
 });

@@ -58,6 +58,11 @@ export class LoginPage implements OnInit {
     });
 
     ngOnInit(): void {
+        if (this.store.isAuthenticated()) {
+            // Уже вошедшему пользователю форма не нужна.
+            void this.router.navigateByUrl(this.returnUrl());
+            return;
+        }
         this.api
             .config()
             .pipe(takeUntilDestroyed(this.destroyRef))

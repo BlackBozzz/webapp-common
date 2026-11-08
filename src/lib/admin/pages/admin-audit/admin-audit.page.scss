@@ -1,0 +1,12 @@
+:host { display: block; }
+.argent-audit { display: grid; gap: 1.3rem; min-width: 0; }
+.argent-audit__heading { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 1.1rem; }
+.argent-audit__heading h1 { margin: .25rem 0 0; font-size: clamp(1.4rem, 3vw, 1.9rem); }
+.argent-audit__eyebrow { font-size: .77rem; color: var(--p-text-muted-color); }
+.argent-audit__actions { display: flex; gap: .5rem; flex-wrap: wrap; }
+.argent-audit__filters { display: grid; grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr)); gap: .9rem; align-items: end; }
+.argent-audit__field { display: grid; gap: .35rem; min-width: 0; }
+.argent-audit__field > span { font-size: .87rem; font-weight: 500; }
+.argent-audit__field p-select, .argent-audit__field p-datepicker, .argent-audit__field input { width: 100%; }
+.argent-audit__filter-actions { display: flex; gap: .5rem; flex-wrap: wrap; }
+.argent-audit__error { padding: 1rem; background: var(--p-red-50); color: var(--p-red-700); border-radius: .6rem; }

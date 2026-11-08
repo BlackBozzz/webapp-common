@@ -40,6 +40,15 @@ export const ADMIN_NAVIGATION: readonly AdminNavigationItem[] = [
         action: 'admin',
     },
     {
+        id: 'audit',
+        title: 'Журнал изменений',
+        description: 'История изменений записей и файлов',
+        path: 'audit',
+        glyph: '☰',
+        enabled: true,
+        action: 'admin',
+    },
+    {
         id: 'settings',
         title: 'Настройки',
         description: 'Параметры администрирования',

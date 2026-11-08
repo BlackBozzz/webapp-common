@@ -16,6 +16,37 @@
                 [disabled]="loading() || !schema()"
                 (click)="refresh()"
             >Обновить</button>
+            @if (canRead()) {
+                <div class="argent-records__export" role="group" aria-label="Экспорт">
+                    <span class="argent-records__export-label">Экспорт</span>
+                    <button pButton
+                        type="button"
+                        severity="secondary"
+                        class="argent-records__export-xlsx"
+                        icon="pi pi-file-excel"
+                        [disabled]="!schema() || exporting()"
+                        (click)="exportRecords('xlsx')"
+                    >XLSX</button>
+                    <button pButton
+                        type="button"
+                        severity="secondary"
+                        class="argent-records__export-csv"
+                        icon="pi pi-file"
+                        [disabled]="!schema() || exporting()"
+                        (click)="exportRecords('csv')"
+                    >CSV</button>
+                </div>
+            }
+            @if (canImport()) {
+                <button pButton
+                    type="button"
+                    severity="secondary"
+                    class="argent-records__import"
+                    icon="pi pi-upload"
+                    [disabled]="!schema()"
+                    (click)="openImport()"
+                >Импорт</button>
+            }
             @if (canWrite()) {
                 <button pButton
                     type="button"
@@ -34,6 +65,14 @@
                     [disabled]="!selected() || deleting() || loading()"
                     (click)="remove()"
                 >Удалить</button>
+            } @else if (canRead()) {
+                <button pButton
+                    type="button"
+                    severity="secondary"
+                    class="argent-records__open"
+                    [disabled]="!selected() || loading()"
+                    (click)="edit()"
+                >Открыть</button>
             }
         </div>
     </div>
@@ -70,9 +109,20 @@
         [schema]="schema()"
         [recordId]="editingId()"
         [visible]="dialogVisible()"
+        [readonly]="!canWrite()"
         (visibleChange)="dialogVisible.set($event)"
         (saved)="onSaved()"
     ></argent-dictionary-record-dialog>
+    @if (canImport()) {
+        <argent-dictionary-import-dialog
+            [code]="code()"
+            [visible]="importVisible()"
+            (visibleChange)="importVisible.set($event)"
+            (imported)="onImported()"
+        ></argent-dictionary-import-dialog>
+    }
     <p-confirmdialog></p-confirmdialog>
     <p-toast></p-toast>
+    <!-- Toast с ключом argent: сообщения вложений и истории в диалоге записи (MessageService страницы). -->
+    <p-toast key="argent" position="bottom-right"></p-toast>
 </section>

@@ -5,7 +5,10 @@ import { DynamicDictionarySchema, DynamicFieldDefinition, DynamicPage } from '..
 import { DictionaryRecord } from '../../../service/dynamic-dictionary-form.service';
 import { DynamicDictionaryDisplayService } from '../../../service/dynamic-dictionary-display.service';
 
-/** Отдельная универсальная таблица со серверной пагинацией и сортировкой. */
+/**
+ * Таблица записей справочника с серверной пагинацией, сортировкой и фильтрами.
+ * `lazyLoadOnInit=false`: первую страницу грузит страница-владелец, иначе запрос ушёл бы дважды.
+ */
 @Component({
     selector: 'argent-dictionary-record-table',
     standalone: true,

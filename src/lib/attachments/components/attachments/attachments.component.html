@@ -1,0 +1,84 @@
+<section class="argent-attachments">
+    @if (!canRead()) {
+        <div class="argent-attachments__no-access">Нет доступа к файлам</div>
+    } @else {
+        @if (canWrite()) {
+            <div class="argent-attachments__toolbar">
+                <input #fileInput
+                    [id]="inputId"
+                    name="attachments"
+                    class="argent-attachments__input"
+                    type="file"
+                    multiple
+                    hidden
+                    (change)="onFilesSelected($event)"
+                />
+                <button pButton
+                    type="button"
+                    class="argent-attachments__upload"
+                    icon="pi pi-upload"
+                    [loading]="uploading()"
+                    (click)="fileInput.click()"
+                >Загрузить</button>
+            </div>
+        }
+
+        @if (error()) {
+            <div class="argent-attachments__error" role="alert">{{ error() }}</div>
+        }
+
+        <p-table
+            dataKey="id"
+            [value]="items()"
+            [loading]="loading()"
+            [scrollable]="true"
+        >
+            <ng-template #header>
+                <tr>
+                    <th>Имя</th>
+                    <th>Размер</th>
+                    <th>Загрузил</th>
+                    <th>Когда</th>
+                    @if (canWrite()) {
+                        <th class="argent-attachments__actions-col"></th>
+                    }
+                </tr>
+            </ng-template>
+            <ng-template #body let-item>
+                <tr>
+                    <td>
+                        <button pButton
+                            type="button"
+                            class="argent-attachments__name p-button-link"
+                            pTooltip="Скачать"
+                            (click)="download(item)"
+                        >{{ item.fileName }}</button>
+                    </td>
+                    <td class="argent-attachments__size">{{ formatSize(item.sizeBytes) }}</td>
+                    <td>{{ item.uploadedLogin ?? '—' }}</td>
+                    <td class="argent-attachments__date">{{ item.createdAt | date: 'dd.MM.yyyy HH:mm' }}</td>
+                    @if (canWrite()) {
+                        <td class="argent-attachments__actions-col">
+                            <button pButton
+                                type="button"
+                                class="argent-attachments__delete"
+                                size="small"
+                                severity="danger"
+                                [outlined]="true"
+                                [loading]="isDeleting(item)"
+                                (click)="confirmDelete(item)"
+                            >Удалить</button>
+                        </td>
+                    }
+                </tr>
+            </ng-template>
+            <ng-template #emptymessage>
+                <tr>
+                    <td class="argent-attachments__empty" [attr.colspan]="canWrite() ? 5 : 4">Файлов пока нет.</td>
+                </tr>
+            </ng-template>
+        </p-table>
+
+        <p-confirmdialog></p-confirmdialog>
+    }
+</section>

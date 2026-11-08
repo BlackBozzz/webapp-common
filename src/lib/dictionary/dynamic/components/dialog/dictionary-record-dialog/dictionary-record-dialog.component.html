@@ -8,6 +8,33 @@
     [visible]="visible"
     (visibleChange)="!$event && close()"
 >
+    @if (recordId) {
+        <p-tabs [value]="activeTab()" (valueChange)="activeTab.set($event)" class="argent-record-dialog__tabs">
+            <p-tablist>
+                <p-tab value="fields">Поля</p-tab>
+                <p-tab value="files">Файлы</p-tab>
+                <p-tab value="history">История</p-tab>
+            </p-tablist>
+            <p-tabpanels>
+                <p-tabpanel value="fields">
+                    <ng-container [ngTemplateOutlet]="fieldsContent"></ng-container>
+                </p-tabpanel>
+                <p-tabpanel value="files">
+                    @if (activeTab() === 'files') {
+                        <argent-attachments [entityType]="code" [entityId]="recordId" [readonly]="readonly"></argent-attachments>
+                    }
+                </p-tabpanel>
+                <p-tabpanel value="history">
+                    @if (activeTab() === 'history') {
+                        <argent-audit-log [entityType]="code" [entityId]="recordId"></argent-audit-log>
+                    }
+                </p-tabpanel>
+            </p-tabpanels>
+        </p-tabs>
+    } @else {
+        <ng-container [ngTemplateOutlet]="fieldsContent"></ng-container>
+    }
+    <ng-template #fieldsContent>
     <div class="argent-record-dialog">
         @if (loading) {
             <div class="argent-record-dialog__status" role="status">Загрузка свежих данных…</div>
@@ -23,18 +50,22 @@
             ></argent-dictionary-dynamic-form>
         }
     </div>
+    </ng-template>
     <ng-template #footer>
         <button pButton
             type="button"
             severity="secondary"
             [disabled]="saving"
             (click)="close()"
-        >Отмена</button>
-        <button pButton
-            type="button"
-            [disabled]="!canSave"
-            [loading]="saving"
-            (click)="save()"
-        >{{ recordId ? 'Сохранить' : 'Создать' }}</button>
+        >{{ readonly ? 'Закрыть' : 'Отмена' }}</button>
+        @if (!readonly && activeTab() === 'fields') {
+            <button pButton
+                type="button"
+                class="argent-record-dialog__save"
+                [disabled]="!canSave"
+                [loading]="saving"
+                (click)="save()"
+            >{{ recordId ? 'Сохранить' : 'Создать' }}</button>
+        }
     </ng-template>
 </p-dialog>

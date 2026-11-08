@@ -35,9 +35,6 @@ export function toProblemDetail(error: unknown): ProblemDetail | undefined {
 /**
  * Текст ошибки для показа пользователю (toast, `p-message`): `detail`, затем `title`
  * из {@link ProblemDetail}, а если их нет — `fallback`.
- *
- * @param error ошибка из error-канала Observable `HttpClient`
- * @param fallback текст, если backend не прислал ни `detail`, ни `title`
  */
 export function problemMessage(error: unknown, fallback: string): string {
     if (error instanceof HttpErrorResponse && error.status === 0) {
@@ -48,15 +45,10 @@ export function problemMessage(error: unknown, fallback: string): string {
 }
 
 /**
- * Раскладывает ошибки валидации backend (`errors`) по контролам формы — как ошибку `server`,
- * которую показывает `argent-field-error`. Путь `items[0].name` превращается в `items.0.name`;
- * пробуются все суффиксы пути, т.к. Jakarta Validation может добавить в начало имя метода
- * и параметра (`create.request.address.city`).
- *
- * @param form форма, имена контролов которой совпадают с полями DTO на backend
- * @param error ошибка из error-канала Observable `HttpClient`
- * @returns `true`, если хотя бы одна ошибка легла на поле формы; иначе вызывающему коду
- *   стоит показать общее сообщение через {@link problemMessage}
+ * Раскладывает ошибки валидации backend (`errors`) по контролам формы как ошибку `server`
+ * (`items[0].name` → `items.0.name`). Пробуются все суффиксы пути, т.к. Jakarta Validation может
+ * добавить в начало имя метода и параметра (`create.request.address.city`).
+ * Возвращает `false`, если ни одна ошибка не легла на поле, — тогда покажите {@link problemMessage}.
  */
 export function applyServerErrors(form: FormGroup, error: unknown): boolean {
     let applied = false;

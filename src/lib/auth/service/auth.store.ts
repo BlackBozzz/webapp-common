@@ -24,7 +24,7 @@ export class AuthStore {
 
     /**
      * Разрешена ли операция над таблицей — по гранту самой таблицы или ключа `*`.
-     * `write` не включает `read`.
+     * `write` не включает `read`; действие `admin` таблиц не открывает (только проверки действий).
      */
     canTable(table: string, op: TableOperation): boolean {
         const tables = this.user()?.grants.tables;

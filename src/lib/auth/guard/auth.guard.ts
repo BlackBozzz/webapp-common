@@ -29,10 +29,8 @@ export const authGuard: CanActivateFn = (_route, state) => {
 };
 
 /**
- * Пускает только пользователя с указанным действием в грантах; иначе — редирект на `/admin`.
- * Ставится после {@link authGuard}, который загружает пользователя.
- *
- * @param code код действия, например `admin`
+ * Пускает только пользователя с действием `code` (или `admin`); иначе — редирект на `/admin`.
+ * Ставится после {@link authGuard}: сам пользователя не загружает.
  */
 export function actionGuard(code: string): CanActivateFn {
     return () => {

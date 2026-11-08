@@ -1,8 +1,12 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, EventEmitter, Input, OnChanges, Output, SimpleChanges, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, EventEmitter, Input, OnChanges, Output, SimpleChanges, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { NgTemplateOutlet } from '@angular/common';
 import { FormGroup } from '@angular/forms';
 import { ButtonDirective } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
+import { TabsModule } from 'primeng/tabs';
+import { AttachmentsComponent } from '../../../../../attachments/components/attachments/attachments.component';
+import { AuditLogComponent } from '../../../../../audit/components/audit-log/audit-log.component';
 import { DynamicDictionarySchema } from '../../../dto/dynamic-dictionary.dto';
 import { DictionaryRecord, DynamicDictionaryFormService } from '../../../service/dynamic-dictionary-form.service';
 import { DynamicDictionaryApiService } from '../../../service/dynamic-dictionary-api.service';
@@ -13,7 +17,10 @@ import { DictionaryDynamicFormComponent } from '../../form/dictionary-dynamic-fo
 @Component({
     selector: 'argent-dictionary-record-dialog',
     standalone: true,
-    imports: [ButtonDirective, DialogModule, DictionaryDynamicFormComponent],
+    imports: [
+        NgTemplateOutlet, ButtonDirective, DialogModule, TabsModule,
+        DictionaryDynamicFormComponent, AttachmentsComponent, AuditLogComponent,
+    ],
     templateUrl: './dictionary-record-dialog.component.html',
     styleUrl: './dictionary-record-dialog.component.scss',
     changeDetection: ChangeDetectionStrategy.Default,
@@ -23,6 +30,8 @@ export class DictionaryRecordDialogComponent implements OnChanges {
     @Input({ required: true }) schema: DynamicDictionarySchema | null = null;
     @Input() recordId: string | null = null;
     @Input() visible = false;
+    /** Просмотр без права `write`: форма отключена, сохранения нет, вложения только для чтения. */
+    @Input() readonly = false;
 
     @Output() visibleChange = new EventEmitter<boolean>();
     @Output() saved = new EventEmitter<void>();
@@ -38,13 +47,16 @@ export class DictionaryRecordDialogComponent implements OnChanges {
     saving = false;
     error = '';
     loadingFailed = false;
+    /** Вкладка диалога редактирования; при создании записи вкладок нет. */
+    readonly activeTab = signal<string | number | undefined>('fields');
 
     get heading(): string {
+        if (this.readonly) return 'Просмотр записи';
         return this.recordId ? 'Редактирование записи' : 'Новая запись';
     }
 
     get canSave(): boolean {
-        return !this.loading && !this.saving && !!this.schema && this.form.valid && !this.form.pending;
+        return !this.readonly && !this.loading && !this.saving && !!this.schema && this.form.valid && !this.form.pending;
     }
 
     ngOnChanges(changes: SimpleChanges): void {
@@ -52,7 +64,7 @@ export class DictionaryRecordDialogComponent implements OnChanges {
             this.requestVersion++;
             return;
         }
-        if (changes['visible'] || changes['recordId'] || changes['code'] || changes['schema']) {
+        if (changes['visible'] || changes['recordId'] || changes['code'] || changes['schema'] || changes['readonly']) {
             this.initialize();
         }
     }
@@ -64,7 +76,7 @@ export class DictionaryRecordDialogComponent implements OnChanges {
     }
 
     save(): void {
-        if (!this.schema || this.loading || this.saving) return;
+        if (this.readonly || !this.schema || this.loading || this.saving) return;
         this.form.markAllAsTouched();
         if (this.form.invalid || this.form.pending) return;
 
@@ -91,13 +103,20 @@ export class DictionaryRecordDialogComponent implements OnChanges {
         });
     }
 
+    private buildForm(record?: DictionaryRecord): FormGroup {
+        const form = this.forms.create(this.schema!, record);
+        if (this.readonly) form.disable();
+        return form;
+    }
+
     private initialize(): void {
         if (!this.schema) return;
         const version = ++this.requestVersion;
         this.error = '';
         this.loadingFailed = false;
         this.saving = false;
-        this.form = this.forms.create(this.schema);
+        this.activeTab.set('fields');
+        this.form = this.buildForm();
         this.loading = !!this.recordId;
         if (!this.recordId) return;
 
@@ -107,7 +126,7 @@ export class DictionaryRecordDialogComponent implements OnChanges {
             .subscribe({
                 next: record => {
                     if (version !== this.requestVersion) return;
-                    this.form = this.forms.create(this.schema!, record);
+                    this.form = this.buildForm(record);
                     this.loading = false;
                 },
                 error: error => {

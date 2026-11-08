@@ -1,0 +1,15 @@
+<section class="argent-audit-log">
+    @if (!canView()) {
+        <div class="argent-audit-log__no-access">Нет доступа к истории</div>
+    } @else {
+        @if (error()) {
+            <div class="argent-audit-log__error" role="alert">{{ error() }}</div>
+        }
+        <argent-audit-table
+            [page]="page()"
+            [loading]="loading()"
+            [rows]="pageSize()"
+            (lazyLoad)="onLazyLoad($event)"
+        />
+    }
+</section>

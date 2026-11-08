@@ -10,3 +10,5 @@
 .argent-records__search span { color: var(--p-text-muted-color); font-size: .8rem; }
 .argent-records__error { padding: 1rem; background: #fff1f2; color: #b42318; border-radius: .6rem; }
 .argent-records__loading { color: var(--p-text-muted-color); }
+.argent-records__export { display: flex; align-items: center; gap: .5rem; }
+.argent-records__export-label { color: var(--p-text-muted-color); font-size: .8rem; }

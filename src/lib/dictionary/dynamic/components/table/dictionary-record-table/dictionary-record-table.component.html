@@ -24,9 +24,9 @@
                         [pSortableColumn]="field.name"
                     >
                       {{ field.label }}
-                      <p-sort-icon
+                      <p-sortIcon
                         [field]="field.name"
-                      ></p-sort-icon>
+                      ></p-sortIcon>
                     </th>
                 } @else {
                     <th>{{ field.label }}</th>
@@ -40,6 +40,8 @@
                         <input pInputText
                             class="argent-record-table__filter"
                             type="text"
+                            [id]="'argent-filter-' + field.name"
+                            [name]="'filter-' + field.name"
                             [attr.aria-label]="'Фильтр: ' + field.label"
                             [value]="filters[field.name] || ''"
                             (input)="changeFilter(field.name, $event)"

@@ -28,7 +28,6 @@ export class AdminUsersApiService {
         return this.http.get<DynamicPage<UserDto>>(this.baseUrl, { params });
     }
 
-    /** Создаёт пользователя. */
     create(request: CreateUserRequest): Observable<UserDto> {
         return this.http.post<UserDto>(this.baseUrl, request);
     }
@@ -38,19 +37,16 @@ export class AdminUsersApiService {
         return this.http.put<UserDto>(`${this.baseUrl}/${id}`, request);
     }
 
-    /** Заменяет набор ролей пользователя. */
     setRoles(id: string, roleCodes: string[]): Observable<UserDto> {
         const body: UserRolesRequest = { roleCodes };
         return this.http.put<UserDto>(`${this.baseUrl}/${id}/roles`, body);
     }
 
-    /** Задаёт пользователю новый пароль. */
     setPassword(id: string, password: string): Observable<void> {
         const body: SetPasswordRequest = { password };
         return this.http.post<void>(`${this.baseUrl}/${id}/password`, body);
     }
 
-    /** Отзывает все активные сессии пользователя. */
     revokeSessions(id: string): Observable<void> {
         return this.http.post<void>(`${this.baseUrl}/${id}/revoke-sessions`, null);
     }

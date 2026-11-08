@@ -49,10 +49,7 @@ export function normalizeGrants(grants: Partial<Grants> | null | undefined): Gra
     return { tables, actions };
 }
 
-/**
- * Разбирает текст JSON в гранты.
- * @returns гранты (ещё не нормализованные) или текст ошибки для показа под полем
- */
+/** Разбирает текст JSON в гранты (ещё не нормализованные) или возвращает текст ошибки для показа под полем. */
 export function parseGrantsJson(text: string): { grants: Grants } | { error: string } {
     let raw: unknown;
     try {
@@ -89,10 +86,8 @@ export function parseGrantsJson(text: string): { grants: Grants } | { error: str
 }
 
 /**
- * Редактор грантов роли (`ControlValueAccessor` над {@link Grants}): строки «таблица → read/write»
- * с подсказками из каталога (допускается `*` и любое имя), список действий с подсказками и режим
- * «JSON» для правки сырого текста. Наружу всегда отдаёт нормализованное значение
- * ({@link normalizeGrants}); некорректный JSON не отправляется.
+ * Контрол формы для {@link Grants}: строки «таблица → read/write», действия и режим JSON.
+ * Наружу отдаёт только нормализованное значение ({@link normalizeGrants}); некорректный JSON не отправляется.
  */
 @Component({
     selector: 'argent-grants-editor',
@@ -256,8 +251,7 @@ export class GrantsEditorComponent implements ControlValueAccessor, Validator {
 
     /**
      * Разбирает текст JSON (по blur и при выходе из режима): корректный — заменяет строки
-     * и действия и отправляет значение; некорректный — показывает ошибку, значение не меняется.
-     * @returns `true`, если текст принят
+     * и действия и отправляет значение (`true`); некорректный — показывает ошибку, значение не меняется.
      */
     protected applyJson(): boolean {
         this.onTouched();

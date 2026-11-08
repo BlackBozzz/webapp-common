@@ -1,0 +1,95 @@
+<section class="argent-audit">
+    <div class="argent-audit__heading">
+        <div>
+            <span class="argent-audit__eyebrow">Администрирование</span>
+            <h1>Журнал изменений</h1>
+        </div>
+        <div class="argent-audit__actions">
+            <button pButton
+                type="button"
+                severity="secondary"
+                [disabled]="loading()"
+                (click)="refresh()"
+            >Обновить</button>
+        </div>
+    </div>
+
+    <form class="argent-audit__filters" (ngSubmit)="apply()">
+        <label class="argent-audit__field">
+            <span>Таблица</span>
+            <p-select
+                name="entityType"
+                inputId="argent-audit-entity-type"
+                [options]="tableOptions()"
+                optionLabel="label"
+                optionValue="value"
+                [editable]="true"
+                [filter]="false"
+                placeholder="Все таблицы"
+                [ngModel]="entityType()"
+                (ngModelChange)="entityType.set($event ?? '')"
+            />
+        </label>
+        <label class="argent-audit__field">
+            <span>Запись</span>
+            <input pInputText
+                name="entityId"
+                placeholder="Идентификатор"
+                [ngModel]="entityId()"
+                (ngModelChange)="entityId.set($event ?? '')"
+            />
+        </label>
+        <label class="argent-audit__field">
+            <span>Действие</span>
+            <p-select
+                name="action"
+                inputId="argent-audit-action"
+                [options]="actionOptions"
+                optionLabel="label"
+                optionValue="value"
+                [ngModel]="action()"
+                (ngModelChange)="action.set($event ?? '')"
+            />
+        </label>
+        <label class="argent-audit__field">
+            <span>С</span>
+            <p-datepicker
+                name="from"
+                inputId="argent-audit-from"
+                dateFormat="dd.mm.yy"
+                [showIcon]="true"
+                [showClear]="true"
+                [ngModel]="fromDate()"
+                (ngModelChange)="fromDate.set($event)"
+            />
+        </label>
+        <label class="argent-audit__field">
+            <span>По</span>
+            <p-datepicker
+                name="to"
+                inputId="argent-audit-to"
+                dateFormat="dd.mm.yy"
+                [showIcon]="true"
+                [showClear]="true"
+                [ngModel]="toDate()"
+                (ngModelChange)="toDate.set($event)"
+            />
+        </label>
+        <div class="argent-audit__filter-actions">
+            <button pButton type="submit">Применить</button>
+            <button pButton type="button" severity="secondary" [outlined]="true" (click)="reset()">Сбросить</button>
+        </div>
+    </form>
+
+    @if (error()) {
+        <div class="argent-audit__error" role="alert">{{ error() }}</div>
+    }
+
+    <argent-audit-table
+        [page]="page()"
+        [loading]="loading()"
+        [rows]="rows"
+        [showEntity]="true"
+        (lazyLoad)="paginate($event)"
+    />
+</section>

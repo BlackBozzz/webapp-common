@@ -12,8 +12,8 @@ export const ARGENT_DICTIONARY_CONFIG = new InjectionToken<ArgentDictionaryConfi
 );
 
 /**
- * Подключает API-конфигурацию к приложению-хосту.
- * HttpClient регистрируется отдельно через provideHttpClient().
+ * Подключает адрес API справочников к приложению-хосту.
+ * Обычно вызывается из `provideArgentWebapp`, отдельно — только при ручной сборке провайдеров.
  */
 export function provideArgentDictionary(
   config: Partial<ArgentDictionaryConfig> = {},

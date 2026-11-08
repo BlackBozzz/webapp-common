@@ -1,0 +1,95 @@
+<p-dialog
+    header="Импорт записей"
+    [modal]="true"
+    [closable]="!importing()"
+    [draggable]="false"
+    [resizable]="false"
+    [style]="{ width: 'min(720px, 96vw)' }"
+    [visible]="visible()"
+    (visibleChange)="!$event && close()"
+>
+    <div class="argent-import-dialog">
+        <label class="argent-import-dialog__file">
+            <span>Файл XLSX или CSV</span>
+            <input #fileInput
+                type="file"
+                accept=".xlsx,.csv"
+                [disabled]="importing()"
+                (change)="onFileSelected($event)"
+            />
+        </label>
+
+        <fieldset class="argent-import-dialog__modes">
+            <legend>Режим</legend>
+            <div class="argent-import-dialog__mode">
+                <p-radiobutton
+                    inputId="argent-import-mode-upsert"
+                    name="argent-import-mode"
+                    value="UPSERT"
+                    [ngModel]="mode()"
+                    (ngModelChange)="mode.set($event)"
+                ></p-radiobutton>
+                <label for="argent-import-mode-upsert">Дополнить (UPSERT)</label>
+            </div>
+            <div class="argent-import-dialog__mode">
+                <p-radiobutton
+                    inputId="argent-import-mode-replace"
+                    name="argent-import-mode"
+                    value="REPLACE"
+                    [ngModel]="mode()"
+                    (ngModelChange)="mode.set($event)"
+                ></p-radiobutton>
+                <label for="argent-import-mode-replace">Заменить (REPLACE)</label>
+            </div>
+        </fieldset>
+        @if (mode() === 'REPLACE') {
+            <p-message severity="warn">Все записи справочника будут заменены</p-message>
+        }
+
+        @if (error()) {
+            <p-message severity="error">{{ error() }}</p-message>
+        }
+
+        @if (report(); as result) {
+            <div class="argent-import-dialog__summary" role="status">
+                Всего строк: {{ result.total }} · Создано: {{ result.created }} ·
+                Обновлено: {{ result.updated }} · С ошибками: {{ result.failed }}
+            </div>
+            @if (result.errors.length) {
+                <div class="argent-import-dialog__errors">
+                    <p-table [value]="result.errors" [scrollable]="true" scrollHeight="240px">
+                        <ng-template #header>
+                            <tr>
+                                <th>Строка</th>
+                                <th>Колонка</th>
+                                <th>Сообщение</th>
+                            </tr>
+                        </ng-template>
+                        <ng-template #body let-item>
+                            <tr>
+                                <td>{{ item.row === 0 ? '—' : item.row }}</td>
+                                <td>{{ item.field ?? '—' }}</td>
+                                <td>{{ item.message }}</td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </div>
+            }
+        }
+    </div>
+    <ng-template #footer>
+        <button pButton
+            type="button"
+            severity="secondary"
+            [disabled]="importing()"
+            (click)="close()"
+        >Закрыть</button>
+        <button pButton
+            type="button"
+            class="argent-import-dialog__submit"
+            [disabled]="!file() || importing()"
+            [loading]="importing()"
+            (click)="submit()"
+        >Импортировать</button>
+    </ng-template>
+</p-dialog>

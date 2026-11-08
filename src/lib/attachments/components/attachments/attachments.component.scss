@@ -1,0 +1,10 @@
+:host { display: block; }
+.argent-attachments { display: grid; gap: .8rem; min-width: 0; }
+.argent-attachments__toolbar { display: flex; justify-content: flex-end; gap: .5rem; }
+.argent-attachments__no-access,
+.argent-attachments__empty { text-align: center; color: var(--p-text-muted-color); padding: 1.5rem 1rem; }
+.argent-attachments__error { padding: .8rem 1rem; background: var(--p-red-50); color: var(--p-red-700); border-radius: .6rem; }
+.argent-attachments__name { padding: 0; text-align: left; word-break: break-word; }
+.argent-attachments__size,
+.argent-attachments__date { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.argent-attachments__actions-col { text-align: right; }

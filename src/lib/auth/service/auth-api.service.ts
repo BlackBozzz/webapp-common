@@ -26,17 +26,14 @@ export class AuthApiService {
         return this.http.post<LoginResponse>(`${this.baseUrl}/login`, request);
     }
 
-    /** Регистрация нового пользователя; возвращает JWT. */
     register(request: RegisterRequest): Observable<LoginResponse> {
         return this.http.post<LoginResponse>(`${this.baseUrl}/register`, request);
     }
 
-    /** Выход на стороне backend. */
     logout(): Observable<void> {
         return this.http.post<void>(`${this.baseUrl}/logout`, null);
     }
 
-    /** Текущий пользователь с грантами. */
     me(): Observable<CurrentUser> {
         return this.http.get<CurrentUser>(`${this.baseUrl}/me`);
     }

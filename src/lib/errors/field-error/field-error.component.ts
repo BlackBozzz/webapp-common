@@ -16,11 +16,8 @@ interface KnownErrors {
 }
 
 /**
- * Сообщение об ошибке под полем формы. Показывает первую ошибку `control`, когда поле уже
- * тронуто: клиентские валидаторы (`required`, `maxlength`, ...) и ошибку `server`, которую
- * кладёт `applyServerErrors` из ответа backend.
- *
- * Использование: `<argent-field-error [control]="form.controls.name" />`.
+ * Первая ошибка `control` под полем, когда поле уже тронуто: клиентские валидаторы
+ * (`required`, `maxlength`, ...) и `server` из `applyServerErrors`.
  */
 @Component({
     selector: 'argent-field-error',

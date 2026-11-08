@@ -1,0 +1,4 @@
+:host { display: block; }
+.argent-audit-log { display: grid; gap: .75rem; }
+.argent-audit-log__no-access { color: var(--p-text-muted-color); }
+.argent-audit-log__error { padding: .75rem 1rem; background: var(--p-red-50); color: var(--p-red-700); border-radius: .6rem; }

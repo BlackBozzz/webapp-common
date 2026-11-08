@@ -15,12 +15,10 @@ export class AdminRolesApiService {
      */
     private readonly catalogUrl = this.baseUrl.replace(/\/roles$/, '') + '/grants/catalog';
 
-    /** Все роли с грантами. */
     list(): Observable<RoleDto[]> {
         return this.http.get<RoleDto[]>(this.baseUrl);
     }
 
-    /** Роль по коду. */
     get(code: string): Observable<RoleDto> {
         return this.http.get<RoleDto>(`${this.baseUrl}/${encodeURIComponent(code)}`);
     }

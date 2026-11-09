@@ -1,17 +1,23 @@
-<p-autocomplete
-    class="argent-multi-reference-field"
+<p-autocomplete class="argent-multi-reference-field"
     optionLabel="label"
+    appendTo="body"
+    [fluid]="true"
     [dropdown]="true"
     [forceSelection]="true"
     [multiple]="true"
-    [disabled]="field.readOnly || loading"
+    [showEmptyMessage]="true"
+    [emptyMessage]="emptyMessage()"
+    [disabled]="field.readOnly || loading()"
     [placeholder]="field.placeholder || 'Поиск связанных записей'"
-    [suggestions]="suggestions"
-    [ngModel]="selected"
+    [suggestions]="suggestions()"
+    [ngModel]="selected()"
     [ngModelOptions]="{ standalone: true }"
-    appendTo="body"
     (completeMethod)="search($event)"
     (ngModelChange)="choose($event)"
 ></p-autocomplete>
-@if (loading) { <small>Загрузка выбранных записей…</small> }
-@if (error) { <small class="argent-multi-reference-field__error">{{ error }}</small> }
+@if (loading()) {
+    <small class="argent-multi-reference-field__hint">Загрузка выбранных записей…</small>
+}
+@if (error()) {
+    <small class="argent-multi-reference-field__error">{{ error() }}</small>
+}

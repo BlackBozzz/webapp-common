@@ -15,7 +15,7 @@
             <argent-table-relation-cell [column]="column" [value]="value"></argent-table-relation-cell>
         }
         @case ('file') {
-            <argent-table-file-cell [column]="column" [value]="value"></argent-table-file-cell>
+            <argent-table-file-cell [column]="column" [value]="value" (previewRequested)="binaryPreviewRequested.emit($event)"></argent-table-file-cell>
         }
         @case ('actions') {}
         @case ('custom') {}

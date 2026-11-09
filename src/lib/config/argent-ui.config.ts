@@ -46,6 +46,12 @@ export function provideArgentWebapp(config: ArgentWebappConfig = {}): Environmen
         provideArgentAudit(config.audit),
         MessageService,
         providePrimeNG({
+            translation: {
+                emptyMessage: 'Нет данных',
+                emptySearchMessage: 'Ничего не найдено',
+                emptyFilterMessage: 'Ничего не найдено',
+                searchMessage: 'Найдено вариантов: {0}',
+            },
             theme: {
                 preset: Aura,
                 options: {

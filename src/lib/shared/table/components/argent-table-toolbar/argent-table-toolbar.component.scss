@@ -1,13 +1,11 @@
-
 :host {
     display: block;
+    min-width: 0;
 }
 
 .argent-table-toolbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
+    display: grid;
+    gap: .85rem;
     padding: 1.15rem 1.35rem;
     border-bottom: 1px solid var(--argent-border, #e6ebf2);
     background: linear-gradient(180deg, #fff 0%, #fcfdff 100%);
@@ -36,9 +34,27 @@
     &__tools {
         display: flex;
         align-items: center;
-        justify-content: flex-end;
+        justify-content: space-between;
+        gap: 1.25rem;
+        min-width: 0;
+    }
+
+    &__transfers,
+    &__actions {
+        display: flex;
+        align-items: center;
         flex-wrap: wrap;
         gap: .55rem;
+        min-width: 0;
+    }
+
+    &__actions {
+        justify-content: flex-start;
+    }
+
+    &__transfers {
+        justify-content: flex-end;
+        margin-left: auto;
     }
 
     &__button {
@@ -59,19 +75,23 @@
     }
 
     .p-button.p-button-secondary.p-button-outlined:hover {
-        background: #f8fafc;
-        border-color: #c5d2e0;
         color: #334155;
+        border-color: #c5d2e0;
+        background: #f8fafc;
     }
 }
 
-@media (max-width: 700px) {
+@media (max-width: 720px) {
     .argent-table-toolbar {
-        align-items: flex-start;
-        flex-direction: column;
-
         &__tools {
+            align-items: stretch;
+            flex-direction: column;
+            gap: .8rem;
+        }
+
+        &__transfers {
             justify-content: flex-start;
+            margin-left: 0;
         }
     }
 }

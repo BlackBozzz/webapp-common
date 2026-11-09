@@ -1,3 +1,79 @@
-:host { display: block; }
-.argent-multi-reference-field { display: block; width: 100%; }
-.argent-multi-reference-field__error { display: block; color: #b42318; margin-top: .3rem; }
+:host {
+    display: block;
+    width: 100%;
+    min-width: 0;
+}
+
+/* Список чипсов и кнопка должны быть частями одного flex-поля. */
+.argent-multi-reference-field {
+    display: inline-flex;
+    align-items: stretch;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    vertical-align: middle;
+}
+
+:host ::ng-deep {
+    .argent-multi-reference-field .p-autocomplete-input-multiple {
+        display: flex;
+        flex: 1 1 auto;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: .35rem;
+        width: 100%;
+        min-width: 0;
+        min-height: 2.85rem;
+        padding: .4rem .55rem;
+        box-sizing: border-box;
+    }
+
+    .argent-multi-reference-field .p-autocomplete-chip-item {
+        max-width: 100%;
+    }
+
+    .argent-multi-reference-field .p-autocomplete-chip {
+        max-width: 100%;
+        border-radius: 999px;
+    }
+
+    .argent-multi-reference-field .p-autocomplete-input-chip {
+        display: flex;
+        flex: 1 1 7rem;
+        min-width: 6rem;
+        align-items: center;
+    }
+
+    .argent-multi-reference-field .p-autocomplete-input-chip input {
+        width: 100%;
+        min-width: 0;
+        border: 0;
+        box-shadow: none;
+        background: transparent;
+        padding: .25rem .3rem;
+    }
+
+    .argent-multi-reference-field .p-autocomplete-dropdown {
+        flex: 0 0 2.75rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        align-self: stretch;
+        height: auto;
+    }
+}
+
+.argent-multi-reference-field__hint,
+.argent-multi-reference-field__error {
+    display: block;
+    margin-top: .4rem;
+    font-size: .8rem;
+}
+
+.argent-multi-reference-field__hint {
+    color: var(--argent-muted, #64748b);
+}
+
+.argent-multi-reference-field__error {
+    color: #b42318;
+}

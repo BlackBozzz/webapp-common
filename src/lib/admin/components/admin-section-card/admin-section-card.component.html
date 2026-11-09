@@ -3,7 +3,7 @@
 >
     <div class="argent-admin-section-card__body">
         <div class="argent-admin-section-card__head">
-            <span class="argent-admin-section-card__glyph" aria-hidden="true">{{ item.glyph }}</span>
+            <i aria-hidden="true" [class]="'argent-admin-section-card__glyph ' + item.glyph"></i>
             @if (!item.enabled) {
                 <span class="argent-admin-section-card__pending">Позже</span>
             }

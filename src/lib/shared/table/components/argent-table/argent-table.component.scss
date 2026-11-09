@@ -90,11 +90,23 @@
     }
 
     .p-datatable {
+        display: block;
+        min-width: 0;
+        max-width: 100%;
         border: 0;
         background: #fff;
     }
 
+    .p-datatable-table-container {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: auto;
+        overflow-y: hidden;
+    }
+
     .p-datatable-table {
+        table-layout: fixed;
+        width: 100%;
         font-size: .89rem;
         color: var(--argent-text, #0f172a);
     }
@@ -108,6 +120,8 @@
         font-weight: 700;
         letter-spacing: .01em;
         white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     .p-datatable-thead > tr:nth-child(2) > th {
@@ -126,7 +140,21 @@
         color: var(--argent-text, #1e293b);
         border-color: #eef2f6;
         vertical-align: middle;
+        overflow: hidden;
         background: #fff;
+    }
+
+    .p-datatable-tbody > tr > td > * {
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    .p-datatable-tbody .p-multiselect,
+    .p-datatable-tbody .p-select,
+    .p-datatable-tbody .p-autocomplete {
+        width: 100%;
+        min-width: 0;
+        max-width: 100%;
     }
 
     .p-datatable-tbody > tr:hover > td {
@@ -219,5 +247,47 @@
 
     .p-datatable-loading-overlay {
         background: rgb(255 255 255 / 72%);
+    }
+}
+
+/* Фильтры всех типов не растягивают колонки и наследуют светлую тему. */
+:host ::ng-deep .argent-table__typed-filter {
+    display: inline-flex;
+    width: 100%;
+    min-width: 100px;
+    max-width: 180px;
+    min-height: 35px;
+    border: 1px solid #dce4ed;
+    border-radius: 9px;
+    background: #fff;
+    font-size: .83rem;
+
+    .p-select-label {
+        padding: .5rem .7rem;
+        color: #334155;
+    }
+}
+
+.argent-table__filter-input {
+    width: 100%;
+    min-width: 0;
+    height: 35px;
+    padding: .4rem .55rem;
+    font-size: .8rem;
+    border-radius: 9px;
+    color: #334155;
+    background: #fff;
+}
+
+/* Селект в шапке не увеличивает ширину таблицы. */
+:host ::ng-deep .argent-table__typed-filter {
+    min-width: 0;
+    max-width: 100%;
+
+    .p-select-label {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 }

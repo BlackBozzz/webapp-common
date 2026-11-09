@@ -1,3 +1,44 @@
-:host { display: inline-block; }
-.argent-table-file-cell { display: inline-flex; gap: .4rem; align-items: center; color: #435266; }
-.argent-table-file-cell .pi { color: #929cab; }
+:host {
+    display: inline-flex;
+    align-items: center;
+    max-width: 100%;
+    vertical-align: middle;
+}
+
+.argent-table-file-cell__button {
+    display: inline-grid;
+    place-items: center;
+    flex: 0 0 auto;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 1px solid #dce7ee;
+    border-radius: 11px;
+    background: #f7fbfd;
+    color: #35849b;
+    cursor: pointer;
+    transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease;
+
+    .pi {
+        font-size: 1rem;
+    }
+
+    &:hover {
+        border-color: #a8d2dc;
+        background: #eaf7fa;
+        color: #166b82;
+    }
+
+    &:focus-visible {
+        outline: 2px solid #30a8bd;
+        outline-offset: 3px;
+    }
+
+    &:active {
+        background: #d7edf3;
+    }
+}
+
+.argent-table-file-cell__empty {
+    color: #94a3b8;
+}

@@ -57,14 +57,22 @@
 
 .argent-catalog__card {
     display: grid;
-    gap: .85rem;
-    min-height: 8.2rem;
+    grid-template-rows: auto minmax(4rem, 1fr) auto;
+    gap: .75rem;
+    min-height: 11rem;
+    height: 100%;
 }
 
 .argent-catalog__card h2 {
-    font-size: 1.14rem;
-    font-weight: 680;
+    align-self: center;
+    justify-self: center;
     margin: 0;
+    font-size: 1.16rem;
+    font-weight: 700;
+    line-height: 1.35;
+    letter-spacing: -.02em;
+    text-align: center;
+    overflow-wrap: anywhere;
 }
 
 .argent-catalog__code {
@@ -103,4 +111,23 @@
     transform: translateY(-2px);
     border-color: #d9e6ef;
     box-shadow: 0 20px 46px rgb(15 23 42 / 8%);
+}
+
+/* Карточка PrimeNG растягивает контент, чтобы средний ряд
+   с названием действительно занимал свободную высоту. */
+:host ::ng-deep .p-card-body {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+:host ::ng-deep .p-card-content {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+}
+
+:host ::ng-deep .argent-catalog__card {
+    width: 100%;
+    flex: 1;
 }

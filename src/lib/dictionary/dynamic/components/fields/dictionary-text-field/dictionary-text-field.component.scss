@@ -1,2 +1,11 @@
 :host { display: block; min-width: 0; }
 .argent-field__control { display: block; width: 100%; }
+
+.argent-field__uuid-hint {
+    display: block;
+    margin-top: .4rem;
+    font-size: .76rem;
+    line-height: 1.45;
+    color: var(--argent-muted, #718096);
+    overflow-wrap: anywhere;
+}

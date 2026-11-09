@@ -134,6 +134,12 @@ export class AdminUsersPage implements OnInit {
 
     // ---- Роли ----
 
+    /** Полные названия ролей видны при наведении даже на узкой таблице. */
+    protected roleTooltip(codes: readonly string[]): string {
+        const names = new Map(this.roleOptions().map(role => [role.value, role.label]));
+        return codes.map(code => names.get(code) ?? code).join(' • ');
+    }
+
     protected changeRoles(user: UserDto, roleCodes: string[] | null): void {
         this.roleDrafts.set(user.id, roleCodes ?? []);
     }

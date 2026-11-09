@@ -1,16 +1,22 @@
-<p-autocomplete
-    class="argent-reference-field"
+<p-autocomplete class="argent-reference-field"
     optionLabel="label"
+    appendTo="body"
+    [fluid]="true"
     [dropdown]="true"
     [forceSelection]="true"
-    [disabled]="field.readOnly || loading"
+    [showEmptyMessage]="true"
+    [emptyMessage]="emptyMessage()"
+    [disabled]="field.readOnly || loading()"
     [placeholder]="field.placeholder || 'Найдите запись справочника'"
-    [suggestions]="suggestions"
-    [ngModel]="selected"
+    [suggestions]="suggestions()"
+    [ngModel]="selected()"
     [ngModelOptions]="{ standalone: true }"
-    appendTo="body"
     (completeMethod)="search($event)"
     (ngModelChange)="choose($event)"
 ></p-autocomplete>
-@if (loading) { <small>Загрузка выбранной записи…</small> }
-@if (error) { <small class="argent-reference-field__error">{{ error }}</small> }
+@if (loading()) {
+    <small class="argent-reference-field__hint">Загрузка выбранной записи…</small>
+}
+@if (error()) {
+    <small class="argent-reference-field__error">{{ error() }}</small>
+}

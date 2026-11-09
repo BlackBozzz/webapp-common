@@ -45,6 +45,8 @@ export interface DynamicFieldDefinition {
   maximum: string | null;
   pattern: string | null;
   enumValues: string[];
+  /** Русские (или другие) подписи enum из поля/getLabel() в Java. */
+  enumLabels?: Readonly<Record<string, string>> | null;
   reference: DynamicReferenceDefinition | null;
   fields: DynamicFieldDefinition[];
   validation: DynamicValidationRule[];

@@ -21,3 +21,37 @@
 .argent-users__heading { margin-bottom: .1rem; }
 .argent-users__heading h1 { font-size: 1.55rem; font-weight: 680; letter-spacing: -.035em; color: var(--argent-text, #252b36); }
 .argent-users__eyebrow { text-transform: uppercase; letter-spacing: .08em; font-size: .69rem; color: var(--argent-muted, #89919d); }
+
+/* В компактной таблице роль остаётся читаемой, даже если их много. */
+:host ::ng-deep .argent-users__role-select {
+    display: inline-flex;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    min-height: 2.55rem;
+    border-radius: 10px;
+    background: #fff;
+
+    .p-multiselect-label-container {
+        min-width: 0;
+        flex: 1;
+    }
+
+    .p-multiselect-label {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .p-chip {
+        max-width: 100%;
+        background: #eef6fb;
+        color: #31546a;
+    }
+
+    .p-chip-label {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+}

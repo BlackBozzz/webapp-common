@@ -27,12 +27,23 @@ export class ArgentTableFormatService {
             case 'relation-list': return Array.isArray(value)
                 ? value.map(item => this.reference(item, column)).join(column.separator ?? ', ')
                 : this.reference(value, column);
-            case 'file': return this.reference(value, { ...column, displayField: column.displayField ?? 'fileName' });
+            case 'file': return this.binaryDescription(value, column);
             default:
                 if (Array.isArray(value)) return value.map(item => this.reference(item, column)).join(column.separator ?? ', ');
                 if (typeof value === 'object') return this.reference(value, column);
                 return String(value);
         }
+    }
+
+    /** Не выводим Base64 и массивы байтов: их длина может достигать мегабайт. */
+    private binaryDescription(value: unknown, column: ArgentTableColumnDefinition): string {
+        if (value === null || value === undefined || value === '') return column.emptyValue ?? '—';
+        if (typeof value === 'object' && !Array.isArray(value)) {
+            const obj = value as Record<string, unknown>;
+            const name = obj['fileName'] ?? obj['name'];
+            if (typeof name === 'string' && name) return name;
+        }
+        return 'Файл';
     }
 
     private reference(value: unknown, column: ArgentTableColumnDefinition): string {

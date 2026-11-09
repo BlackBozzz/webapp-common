@@ -1,2 +1,17 @@
-:host { display: block; min-width: 0; }
-.argent-field__control { display: block; width: 100%; }
+:host {
+    display: block;
+    min-width: 0;
+}
+
+.argent-field__control {
+    display: block;
+    width: 100%;
+}
+
+.argent-number-field__hint {
+    display: block;
+    margin-top: .35rem;
+    font-size: .75rem;
+    line-height: 1.4;
+    color: var(--argent-muted, #7b8798);
+}

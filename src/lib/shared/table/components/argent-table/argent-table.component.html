@@ -32,6 +32,7 @@
     }
 
     <p-table [value]="displayedRows"
+        [tableStyle]="{ width: '100%', minWidth: tableMinWidth, tableLayout: 'fixed' }"
         [paginator]="true"
         [lazy]="lazy"
         [lazyLoadOnInit]="false"
@@ -80,12 +81,43 @@
                     @for (column of visibleColumns; track $index) {
                         <th>
                             @if (column.filterable) {
-                                <input pInputText
-                                    type="search"
-                                    [attr.aria-label]="'Фильтр: ' + (column.header || column.field)"
-                                    [value]="filters[column.field] ?? ''"
-                                    (input)="changeFilter(column.field, $event)"
-                                />
+                                @if (column.type === 'boolean' || column.type === 'file') {
+                                    <p-select class="argent-table__typed-filter"
+                                        appendTo="body"
+                                        optionLabel="label"
+                                        optionValue="value"
+                                        placeholder="Все"
+                                        [options]="column.type === 'boolean' ? booleanFilterOptions : fileFilterOptions"
+                                        [showClear]="true"
+                                        [fluid]="true"
+                                        [attr.aria-label]="'Фильтр: ' + (column.header || column.field)"
+                                        [ngModel]="booleanFilterValue(filters[column.field])"
+                                        (ngModelChange)="changeTypedFilter(column, $event)"
+                                    ></p-select>
+                                } @else if (filterOptionsFor(column).length) {
+                                    <p-select class="argent-table__typed-filter"
+                                        appendTo="body"
+                                        optionLabel="label"
+                                        optionValue="value"
+                                        placeholder="Все"
+                                        [options]="filterOptionsFor(column)"
+                                        [showClear]="true"
+                                        [fluid]="true"
+                                        [attr.aria-label]="'Фильтр: ' + (column.header || column.field)"
+                                        [ngModel]="filters[column.field] ?? null"
+                                        (ngModelChange)="changeTypedFilter(column, $event)"
+                                    ></p-select>
+                                } @else {
+                                    <input pInputText
+                                        class="argent-table__filter-input"
+                                        [type]="filterInputType(column)"
+                                        [attr.step]="filterInputType(column) === 'time' || filterInputType(column) === 'datetime-local' ? '1' : null"
+                                        [attr.placeholder]="filterPlaceholder(column)"
+                                        [attr.aria-label]="'Фильтр: ' + (column.header || column.field)"
+                                        [value]="filterInputValue(column)"
+                                        (input)="changeInputFilter(column, $event)"
+                                    />
+                                }
                             }
                         </th>
                     }
@@ -106,6 +138,7 @@
                         <argent-table-cell [row]="row"
                             [column]="column.definition"
                             [customTemplate]="column.cell?.template"
+                            (binaryPreviewRequested)="openBinaryPreview($event)"
                         ></argent-table-cell>
                     </td>
                 }
@@ -119,6 +152,12 @@
             </tr>
         </ng-template>
     </p-table>
+    <argent-table-binary-preview
+        [value]="binaryPreviewValue"
+        [visible]="binaryDialogVisible"
+        (visibleChange)="closeBinaryPreview($event)"
+    ></argent-table-binary-preview>
+
     <!-- Декларативные определения колонок должны оставаться в дереве контента. -->
     <div class="argent-table__definitions" aria-hidden="true">
         <ng-content></ng-content>

@@ -47,6 +47,7 @@ export class DictionaryRecordsPage implements OnDestroy {
     private readonly auth = inject(AuthStore);
     private readonly destroyRef = inject(DestroyRef);
     private readonly filtersChanged = new Subject<void>();
+    private readonly enumOptionsCache = new WeakMap<DynamicFieldDefinition, { label: string; value: string }[]>();
     private dataRequest?: Subscription;
     private schemaRequest?: Subscription;
 
@@ -141,8 +142,9 @@ export class DictionaryRecordsPage implements OnDestroy {
         this.pageIndex.set(query.page);
         this.pageSize.set(query.size);
         this.searchText.set(query.search);
-        this.filters.set(Object.fromEntries(Object.entries(query.filters).map(([field, value]) =>
-            [field, value === null ? '' : String(value)])));
+        this.filters.set(Object.fromEntries(Object.entries(query.filters)
+            .filter(([, value]) => value !== null && value !== '' && value !== undefined)
+            .map(([field, value]) => [field, String(value)])));
         this.sort.set(query.sort ? `${query.sort.field},${query.sort.direction}`
             : `${this.schema()?.idField || 'id'},asc`);
         this.loadRecords();
@@ -167,7 +169,7 @@ export class DictionaryRecordsPage implements OnDestroy {
             case 'boolean': return 'boolean';
             case 'date': return 'date';
             case 'time': return 'time';
-            case 'datetime': case 'instant': case 'offsetdatetime': return 'datetime';
+            case 'datetime': case 'instant': case 'offsetdatetime': case 'zoneddatetime': return 'datetime';
             case 'number': case 'integer': case 'long': case 'short': case 'byte': return 'number';
             case 'decimal': case 'bigdecimal': case 'float': case 'double': return 'decimal';
             case 'uuid': return 'uuid';
@@ -183,8 +185,27 @@ export class DictionaryRecordsPage implements OnDestroy {
         return !field.reference && !['object', 'array', 'binary', 'bytes'].includes(field.type);
     }
 
+    /** Сервер разрешает только скалярные фильтры DTO, а не связанные коллекции и файлы. */
     filterableColumn(field: DynamicFieldDefinition): boolean {
-        return this.sortableColumn(field) && field.type !== 'boolean';
+        return !field.reference && [
+            'string', 'boolean', 'enum', 'uuid', 'date', 'time', 'datetime',
+            'instant', 'offsetdatetime', 'zoneddatetime',
+            'integer', 'number', 'decimal', 'long', 'short', 'byte',
+            'float', 'double', 'bigdecimal', 'biginteger',
+        ].includes(field.type);
+    }
+
+    /** Серверные enum-фильтры отправляют константу, а пользователю показывают label. */
+    enumFilterOptions(field: DynamicFieldDefinition): { label: string; value: string }[] {
+        if (field.type !== 'enum') return [];
+        const previous = this.enumOptionsCache.get(field);
+        if (previous) return previous;
+        const options = (field.enumValues ?? []).map(value => ({
+            value,
+            label: field.enumLabels?.[value] ?? value,
+        }));
+        this.enumOptionsCache.set(field, options);
+        return options;
     }
 
     add(): void {

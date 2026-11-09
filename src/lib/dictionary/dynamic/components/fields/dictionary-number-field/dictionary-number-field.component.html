@@ -6,3 +6,14 @@
     [readonly]="field.readOnly"
     [formControl]="control"
 />
+@if (field.minimum !== null || field.maximum !== null) {
+    <small class="argent-number-field__hint">
+        @if (field.minimum !== null && field.maximum !== null) {
+            От {{ field.minimum }} до {{ field.maximum }}
+        } @else if (field.minimum !== null) {
+            Не меньше {{ field.minimum }}
+        } @else {
+            Не больше {{ field.maximum }}
+        }
+    </small>
+}

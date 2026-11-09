@@ -1,3 +1,47 @@
-:host { display: block; }
-.argent-reference-field { display: block; width: 100%; }
-.argent-reference-field__error { display: block; color: #b42318; margin-top: .3rem; }
+:host {
+    display: block;
+    width: 100%;
+    min-width: 0;
+}
+
+/* Внутренние input и кнопка открытия списка должны располагаться в одной строке. */
+.argent-reference-field {
+    display: inline-flex;
+    align-items: stretch;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    vertical-align: middle;
+}
+
+:host ::ng-deep {
+    .argent-reference-field .p-autocomplete-input {
+        flex: 1 1 auto;
+        width: 100%;
+        min-width: 0;
+    }
+
+    .argent-reference-field .p-autocomplete-dropdown {
+        flex: 0 0 2.75rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        align-self: stretch;
+        height: auto;
+    }
+}
+
+.argent-reference-field__hint,
+.argent-reference-field__error {
+    display: block;
+    margin-top: .4rem;
+    font-size: .8rem;
+}
+
+.argent-reference-field__hint {
+    color: var(--argent-muted, #64748b);
+}
+
+.argent-reference-field__error {
+    color: #b42318;
+}

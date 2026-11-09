@@ -29,14 +29,19 @@
         </ng-template>
         <argent-table-column field="code"
             header="Код"
-            width="180px"
+            width="225px"
+            minWidth="210px"
             [sortable]="true"
         >
             <ng-template argentTableCell let-role>
-                <span class="argent-roles__code">{{ role.code }}</span>
-                @if (role.system) {
-                    <p-tag severity="info" value="Системная"></p-tag>
-                }
+                <span class="argent-roles__code-cell">
+                    <span class="argent-roles__code">{{ role.code }}</span>
+                    @if (role.system) {
+                        <p-tag severity="info"
+                            value="Системная"
+                        ></p-tag>
+                    }
+                </span>
             </ng-template>
         </argent-table-column>
         <argent-table-column field="name"

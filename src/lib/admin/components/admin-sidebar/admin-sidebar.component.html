@@ -1,15 +1,38 @@
+@if (!mobileOpen) {
+    <button class="argent-admin-sidebar__mobile-opener"
+        type="button"
+        aria-label="Открыть боковое меню"
+        (click)="toggleMobile.emit()"
+    ><i class="pi pi-bars" aria-hidden="true"></i></button>
+}
+
 <aside class="argent-admin-sidebar"
     [class.argent-admin-sidebar--collapsed]="collapsed"
     [class.argent-admin-sidebar--mobile-open]="mobileOpen"
 >
     <div class="argent-admin-sidebar__brand">
         <span class="argent-admin-sidebar__brand-mark" aria-hidden="true">A</span>
-        <span class="argent-admin-sidebar__brand-name">Argent</span>
+        @if (!collapsed || mobileOpen) {
+            <span class="argent-admin-sidebar__brand-name">Argent</span>
+        }
+        <button class="argent-admin-sidebar__collapse"
+            type="button"
+            [attr.aria-label]="collapsed ? 'Развернуть меню' : 'Свернуть меню'"
+            [attr.aria-expanded]="!collapsed"
+            (click)="toggleCollapsed.emit()"
+        ><i class="pi" aria-hidden="true"
+            [class.pi-angle-double-right]="collapsed"
+            [class.pi-angle-double-left]="!collapsed"
+        ></i></button>
+        <button class="argent-admin-sidebar__mobile-close"
+            type="button"
+            aria-label="Закрыть боковое меню"
+            (click)="toggleMobile.emit()"
+        ><i class="pi pi-times" aria-hidden="true"></i></button>
     </div>
 
     <nav class="argent-admin-sidebar__navigation" aria-label="Администрирование">
         <p class="argent-admin-sidebar__caption">Управление</p>
-
         @for (item of navigation(); track item.id) {
             <argent-admin-nav-item
                 [item]="item"

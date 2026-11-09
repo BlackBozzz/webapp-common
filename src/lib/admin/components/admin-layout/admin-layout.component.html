@@ -6,6 +6,8 @@
         [collapsed]="collapsed"
         [mobileOpen]="mobileOpen"
         (navigated)="closeMobile()"
+        (toggleCollapsed)="toggleCollapsed()"
+        (toggleMobile)="toggleMobile()"
     ></argent-admin-sidebar>
 
     @if (mobileOpen) {
@@ -17,11 +19,7 @@
     }
 
     <div class="argent-admin-layout__workspace">
-        <argent-admin-header
-            [collapsed]="collapsed"
-            (toggleCollapsed)="toggleCollapsed()"
-            (toggleMobile)="toggleMobile()"
-        ></argent-admin-header>
+        <argent-admin-header></argent-admin-header>
 
         <main class="argent-admin-layout__content" id="argent-admin-content">
             <router-outlet></router-outlet>

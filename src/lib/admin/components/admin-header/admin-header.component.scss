@@ -22,19 +22,6 @@
         gap: .95rem;
     }
 
-    &__toggle {
-        display: grid;
-        place-items: center;
-        width: 2.4rem;
-        height: 2.4rem;
-        border-radius: 12px;
-        font-size: .95rem;
-    }
-
-    &__toggle--mobile {
-        display: none;
-    }
-
     &__heading {
         display: grid;
         gap: .18rem;
@@ -73,19 +60,15 @@
     }
 }
 
-@media (max-width: 880px) {
-    .argent-admin-header__toggle--desktop {
-        display: none;
-    }
-
-    .argent-admin-header__toggle--mobile {
-        display: grid;
-    }
-}
-
 @media (max-width: 520px) {
     .argent-admin-header__eyebrow,
     .argent-admin-header__account-caption {
         display: none;
+    }
+}
+
+@media (max-width: 880px) {
+    .argent-admin-header {
+        padding-left: 4.8rem;
     }
 }

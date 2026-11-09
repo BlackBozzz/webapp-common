@@ -2,7 +2,12 @@
     class="argent-field__control"
     type="text"
     [attr.maxlength]="field.maxLength"
-    [attr.placeholder]="field.placeholder || field.label"
+    [attr.placeholder]="field.placeholder || (field.type === 'uuid' ? '550e8400-e29b-41d4-a716-446655440000' : field.label)"
+    [attr.inputmode]="field.type === 'uuid' ? 'text' : null"
+    [attr.spellcheck]="field.type === 'uuid' ? 'false' : null"
     [readonly]="field.readOnly"
     [formControl]="control"
 />
+@if (field.type === 'uuid') {
+    <small class="argent-field__uuid-hint">Формат UUID: 8-4-4-4-12 символов, например 550e8400-e29b-41d4-a716-446655440000.</small>
+}

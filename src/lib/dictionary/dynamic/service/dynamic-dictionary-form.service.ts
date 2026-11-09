@@ -75,18 +75,18 @@ export class DynamicDictionaryFormService {
                         : this.parseScalar(item))
                     : [];
             } else if (field.type === 'integer') {
-                dto[field.name] = original === '' || original === null ? null
-                    : Number.isSafeInteger(Number(original)) ? Number(original) : String(original);
+                dto[field.name] = this.serializeInteger(original);
             } else if (field.type === 'decimal' || field.type === 'number') {
                 // Строкой передаём BigDecimal без потери точности JavaScript Number.
-                dto[field.name] = original === '' || original === null ? null : String(original);
+                dto[field.name] = this.serializeDecimal(original);
             } else if (field.type === 'boolean') {
                 dto[field.name] = original === null ? null : Boolean(original);
+            } else if (['instant', 'offsetdatetime', 'zoneddatetime'].includes(field.type)) {
+                dto[field.name] = this.serializeZonedDateTime(original);
             } else if (field.type === 'datetime') {
-                dto[field.name] = original;
+                dto[field.name] = original === '' ? null : original;
             } else {
-                dto[field.name] = original === '' && field.type !== 'string' && field.type !== 'uuid'
-                    ? null : original;
+                dto[field.name] = original === '' && field.type !== 'string' ? null : original;
             }
         }
 
@@ -97,8 +97,11 @@ export class DynamicDictionaryFormService {
         if (value === undefined || value === null) {
             return null;
         }
-        if (field.type === 'datetime' && typeof value === 'string') {
-            return value.replace(/Z$/, '');
+        if (['instant', 'offsetdatetime', 'zoneddatetime'].includes(field.type)
+                && typeof value === 'string') {
+            // datetime-local показывает локальное время браузера; UTC и смещения обрабатываем отдельно.
+            const date = new Date(value);
+            return Number.isNaN(date.getTime()) ? value : this.localDateTime(date);
         }
         return value;
     }
@@ -115,6 +118,10 @@ export class DynamicDictionaryFormService {
         if (field.minLength !== null) result.push(Validators.minLength(field.minLength));
         if (field.maxLength !== null) result.push(Validators.maxLength(field.maxLength));
         if (field.pattern) result.push(Validators.pattern(field.pattern));
+        if (field.type === 'uuid') {
+            // UUID вводится в каноническом формате, без фигурных скобок.
+            result.push(Validators.pattern(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/));
+        }
 
         if (['number', 'integer', 'decimal'].includes(field.type)) {
             result.push(this.numericValidator(field));
@@ -136,21 +143,84 @@ export class DynamicDictionaryFormService {
         return validators;
     }
 
+    /** Для Instant/OffsetDateTime передаём время с часовым поясом (UTC). */
+    private serializeZonedDateTime(value: unknown): string | null {
+        if (value === null || value === undefined || value === '') return null;
+        const date = new Date(String(value));
+        return Number.isNaN(date.getTime()) ? String(value) : date.toISOString();
+    }
+
+    private localDateTime(date: Date): string {
+        const pad = (value: number) => String(value).padStart(2, '0');
+        return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`
+            + `T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+    }
+
+    /** Проверяет точность и границы без преобразования больших чисел в Number. */
     private numericValidator(field: DynamicFieldDefinition): ValidatorFn {
         return (control: AbstractControl): ValidationErrors | null => {
             const raw = control.value;
             if (raw === null || raw === undefined || raw === '') return null;
-            const text = String(raw);
-            if (!/^-?\d+(?:\.\d+)?$/.test(text)
-                || (field.type === 'integer' && !/^-?\d+$/.test(text))) {
-                return { number: true };
+
+            const text = this.normalizeNumericText(raw);
+            if (!text) return null;
+            const integer = field.type === 'integer';
+            const pattern = integer ? /^[+-]?\d+$/ : /^[+-]?\d+(?:\.\d+)?$/;
+            if (!pattern.test(text)) return { number: true };
+
+            // Учитываем границы, полученные из Java-типа и Jakarta Validation.
+            // BigInt позволяет сравнивать Long и BigInteger без потери точности.
+            if (field.minimum !== null &&
+                    this.compareDecimal(text, field.minimum) < 0) {
+                return { min: { min: field.minimum, actual: text } };
             }
-            const value = Number(text);
-            if (!Number.isFinite(value)) return { number: true };
-            if (field.minimum !== null && value < Number(field.minimum)) return { min: true };
-            if (field.maximum !== null && value > Number(field.maximum)) return { max: true };
+            if (field.maximum !== null &&
+                    this.compareDecimal(text, field.maximum) > 0) {
+                return { max: { max: field.maximum, actual: text } };
+            }
             return null;
         };
+    }
+
+    /** Превращает пустое числовое поле в null, а не в пустую строку. */
+    private serializeInteger(value: unknown): number | string | null {
+        if (value === null || value === undefined) return null;
+        const text = this.normalizeNumericText(value);
+        if (!text) return null;
+        // Некорректное значение не должно доходить до этого метода: форма должна быть валидной.
+        if (!/^[+-]?\d+$/.test(text)) return text;
+        const integer = BigInt(text);
+        const maxSafe = BigInt(Number.MAX_SAFE_INTEGER);
+        return integer >= -maxSafe && integer <= maxSafe ? Number(integer) : integer.toString();
+    }
+
+    private serializeDecimal(value: unknown): string | null {
+        if (value === null || value === undefined) return null;
+        const text = this.normalizeNumericText(value);
+        return text || null;
+    }
+
+    private normalizeNumericText(value: unknown): string {
+        return String(value).trim().replace(',', '.');
+    }
+
+    /** Точное сравнение обычных десятичных чисел, в том числе больших и дробных. */
+    private compareDecimal(left: string, right: string): number {
+        const [leftDigits, leftScale] = this.decimalParts(left);
+        const [rightDigits, rightScale] = this.decimalParts(right);
+        const scale = Math.max(leftScale, rightScale);
+        const first = leftDigits * 10n ** BigInt(scale - leftScale);
+        const second = rightDigits * 10n ** BigInt(scale - rightScale);
+        return first < second ? -1 : first > second ? 1 : 0;
+    }
+
+    private decimalParts(value: string): [bigint, number] {
+        const text = this.normalizeNumericText(value);
+        const negative = text.startsWith('-');
+        const unsigned = text.replace(/^[+-]/, '');
+        const [whole, fraction = ''] = unsigned.split('.');
+        const digits = BigInt(whole + fraction);
+        return [negative ? -digits : digits, fraction.length];
     }
 
     private parseScalar(value: unknown): unknown {

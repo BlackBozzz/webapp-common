@@ -91,3 +91,92 @@
         }
     }
 }
+
+/* Переключатель меню находится в самой боковой панели, а не в верхней шапке. */
+.argent-admin-sidebar__collapse,
+.argent-admin-sidebar__mobile-close,
+.argent-admin-sidebar__mobile-opener {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 2.25rem;
+    height: 2.25rem;
+    padding: 0;
+    border: 1px solid rgb(255 255 255 / 12%);
+    border-radius: 10px;
+    background: rgb(255 255 255 / 6%);
+    color: #dde7ee;
+    cursor: pointer;
+    transition: background-color 150ms ease, border-color 150ms ease;
+
+    &:hover {
+        background: rgb(255 255 255 / 14%);
+        border-color: rgb(255 255 255 / 24%);
+        color: #fff;
+    }
+
+    &:focus-visible {
+        outline: 2px solid #72d0e0;
+        outline-offset: 2px;
+    }
+}
+
+.argent-admin-sidebar__brand {
+    gap: .65rem;
+}
+
+.argent-admin-sidebar__brand-name {
+    flex: 1;
+}
+
+.argent-admin-sidebar__mobile-close,
+.argent-admin-sidebar__mobile-opener {
+    display: none;
+}
+
+.argent-admin-sidebar--collapsed:not(.argent-admin-sidebar--mobile-open) {
+    .argent-admin-sidebar__brand {
+        flex-direction: column;
+        gap: .9rem;
+    }
+}
+
+@media (max-width: 880px) {
+    .argent-admin-sidebar {
+        width: 100%;
+        transform: translateX(-105%);
+        transition: transform 180ms ease;
+        box-shadow: 0 12px 36px rgb(15 23 42 / 16%);
+    }
+
+    .argent-admin-sidebar--mobile-open {
+        transform: translateX(0);
+    }
+
+    .argent-admin-sidebar__collapse {
+        display: none;
+    }
+
+    .argent-admin-sidebar__mobile-close {
+        display: inline-flex;
+    }
+
+    .argent-admin-sidebar__mobile-opener {
+        display: inline-flex;
+        pointer-events: auto;
+        position: fixed;
+        top: 1.05rem;
+        left: .75rem;
+        z-index: 40;
+        border-color: #dce6ee;
+        background: #fff;
+        color: #334155;
+        box-shadow: 0 4px 12px rgb(15 23 42 / 7%);
+
+        &:hover {
+            background: #f2f7fa;
+            color: #167f94;
+        }
+    }
+}

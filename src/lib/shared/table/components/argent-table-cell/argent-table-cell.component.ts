@@ -1,5 +1,5 @@
 import { NgTemplateOutlet } from '@angular/common';
-import { ChangeDetectionStrategy, Component, Input, TemplateRef, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, TemplateRef, inject } from '@angular/core';
 import { ArgentTableColumnDefinition } from '../../dto/argent-table.dto';
 import { ArgentTableFormatService } from '../../service/argent-table-format.service';
 import { ArgentTableFileCellComponent } from '../argent-table-file-cell/argent-table-file-cell.component';
@@ -18,6 +18,8 @@ export class ArgentTableCellComponent {
     @Input() row: unknown;
     @Input({ required: true }) column!: ArgentTableColumnDefinition;
     @Input() customTemplate?: TemplateRef<{$implicit: unknown}>;
+
+    @Output() binaryPreviewRequested = new EventEmitter<unknown>();
 
     private readonly format = inject(ArgentTableFormatService);
 

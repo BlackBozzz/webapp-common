@@ -13,4 +13,11 @@ import { DynamicFieldDefinition } from '../../../dto/dynamic-dictionary.dto';
 export class DictionaryEnumFieldComponent {
     @Input({ required: true }) field!: DynamicFieldDefinition;
     @Input({ required: true }) control!: FormControl;
+
+    get options(): { label: string; value: string }[] {
+        return (this.field.enumValues ?? []).map(value => ({
+            label: this.field.enumLabels?.[value] || value,
+            value,
+        }));
+    }
 }

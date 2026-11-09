@@ -67,7 +67,7 @@ export class DictionaryDynamicFormComponent {
         control.markAsDirty();
     }
 
-    message(control: AbstractControl): string {
+    message(control: AbstractControl, field: DynamicFieldDefinition): string {
         if (!(control.invalid && (control.touched || control.dirty))) return '';
         const errors = control.errors;
         if (!errors) return '';
@@ -75,10 +75,12 @@ export class DictionaryDynamicFormComponent {
         if (errors['required']) return 'Поле обязательно для заполнения.';
         if (errors['minlength']) return 'Слишком короткое значение.';
         if (errors['maxlength']) return 'Превышена допустимая длина.';
-        if (errors['pattern']) return 'Значение не соответствует формату.';
+        if (errors['pattern']) return field.type === 'uuid'
+            ? 'Введите UUID в формате 8-4-4-4-12 (цифры 0–9 и буквы A–F).'
+            : 'Значение не соответствует требуемому формату.';
         if (errors['number']) return 'Введите корректное число.';
-        if (errors['min']) return 'Значение меньше допустимого.';
-        if (errors['max']) return 'Значение больше допустимого.';
+        if (errors['min']) return `Минимальное значение: ${errors['min'].min}.`;
+        if (errors['max']) return `Максимальное значение: ${errors['max'].max}.`;
         return 'Некорректное значение.';
     }
 

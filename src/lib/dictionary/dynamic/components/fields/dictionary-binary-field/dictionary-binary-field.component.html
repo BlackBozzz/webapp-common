@@ -1,20 +1,48 @@
 <div class="argent-binary-field">
-    <input
-        type="file"
-        [disabled]="field.readOnly"
-        (change)="onFileChange($event)"
-    />
-    @if (fileName) {
-        <span>{{ fileName }}</span>
-    } @else if (control.value) {
-        <span>Файл загружен</span>
+    <label class="argent-binary-field__picker"
+        [class.argent-binary-field__picker--disabled]="field.readOnly || reading()"
+    >
+        <i class="pi pi-paperclip" aria-hidden="true"></i>
+        <span>Выбрать файл</span>
+        <input #fileInput
+            class="argent-binary-field__input"
+            type="file"
+            [disabled]="field.readOnly || reading()"
+            (change)="onFileChange($event)"
+        />
+    </label>
+
+    @if (hasFile) {
+        <div class="argent-binary-field__details" aria-live="polite">
+            <i class="pi pi-file argent-binary-field__icon" aria-hidden="true"></i>
+            <div class="argent-binary-field__file-info">
+                <span class="argent-binary-field__name" [title]="displayName">{{ displayName }}</span>
+                @if (selectedSize() !== null) {
+                    <small class="argent-binary-field__size">{{ (selectedSize()! / 1024).toFixed(1) }} КБ</small>
+                } @else if (!storedFileName) {
+                    <small class="argent-binary-field__size">Имя ранее сохранённого файла недоступно</small>
+                }
+            </div>
+        </div>
+    } @else {
+        <span class="argent-binary-field__empty">Файл не выбран</span>
     }
-    @if (control.value && !field.readOnly) {
+
+    @if (reading()) {
+        <small class="argent-binary-field__hint">Чтение файла…</small>
+    }
+
+    @if (hasFile && !field.readOnly) {
         <button pButton
             type="button"
             severity="secondary"
+            size="small"
+            [outlined]="true"
             (click)="clear()"
         >Очистить</button>
     }
-    @if (error) { <small class="argent-binary-field__error">{{ error }}</small> }
+
+    @if (error()) {
+        <small class="argent-binary-field__error" role="alert">{{ error() }}</small>
+    }
 </div>

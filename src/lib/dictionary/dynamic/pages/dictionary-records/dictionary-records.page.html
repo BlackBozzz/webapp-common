@@ -74,6 +74,9 @@
                     [sortable]="sortableColumn(field)"
                     [filterable]="filterableColumn(field)"
                     [displayField]="field.reference?.displayField ?? undefined"
+                    [labelMap]="field.enumLabels ?? undefined"
+                    [filterType]="field.type"
+                    [filterOptions]="enumFilterOptions(field)"
                 ></argent-table-column>
             }
         </argent-table>

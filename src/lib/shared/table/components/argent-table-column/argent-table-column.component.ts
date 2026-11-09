@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, ContentChild, Input } from '@angular/core';
 import { ArgentTableCellDirective } from '../../directive/argent-table-cell.directive';
-import { ArgentTableAlign, ArgentTableColumnDefinition, ArgentTableColumnType } from '../../dto/argent-table.dto';
+import { ArgentTableAlign, ArgentTableColumnDefinition, ArgentTableColumnType, ArgentTableFilterOption } from '../../dto/argent-table.dto';
 
 /** Декларативная колонка: её описание считывает родительская таблица. */
 @Component({
@@ -30,6 +30,8 @@ export class ArgentTableColumnComponent {
     @Input() displayField?: string;
     @Input() separator = ', ';
     @Input() labelMap?: Readonly<Record<string, string>>;
+    @Input() filterOptions?: readonly ArgentTableFilterOption[];
+    @Input() filterType?: string;
     @Input() severityMap?: ArgentTableColumnDefinition['severityMap'];
 
     @ContentChild(ArgentTableCellDirective) cell?: ArgentTableCellDirective;
@@ -43,6 +45,7 @@ export class ArgentTableColumnComponent {
             format: this.format, currency: this.currency, locale: this.locale,
             decimalPlaces: this.decimalPlaces, displayField: this.displayField,
             separator: this.separator, labelMap: this.labelMap, severityMap: this.severityMap,
+            filterOptions: this.filterOptions, filterType: this.filterType,
         };
     }
 }

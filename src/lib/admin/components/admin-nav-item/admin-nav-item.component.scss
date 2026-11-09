@@ -49,3 +49,17 @@
         text-overflow: ellipsis;
     }
 }
+
+.argent-admin-nav-item__glyph {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 1.3rem;
+    font-size: 1.03rem;
+    color: #aebccc;
+}
+
+.argent-admin-nav-item--active .argent-admin-nav-item__glyph {
+    color: #7bd3df;
+}

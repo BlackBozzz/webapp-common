@@ -1,4 +1,13 @@
-<span class="argent-table-file-cell">
-    <i class="pi pi-paperclip" aria-hidden="true"></i>
-    <span>{{ label }}</span>
-</span>
+@if (hasFile) {
+    <button class="argent-table-file-cell__button"
+        type="button"
+        title="Просмотреть вложение"
+        aria-label="Просмотреть вложение"
+        (click)="$event.stopPropagation(); previewRequested.emit(value)"
+        (dblclick)="$event.stopPropagation()"
+    >
+        <i class="pi pi-eye" aria-hidden="true"></i>
+    </button>
+} @else {
+    <span class="argent-table-file-cell__empty">—</span>
+}

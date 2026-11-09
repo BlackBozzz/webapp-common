@@ -5,8 +5,23 @@
 .argent-roles__eyebrow { font-size: .77rem; color: var(--p-text-muted-color); }
 .argent-roles__actions { display: flex; gap: .5rem; flex-wrap: wrap; }
 .argent-roles__error { padding: 1rem; background: var(--p-red-50); color: var(--p-red-700); border-radius: .6rem; }
-.argent-roles__code { font-weight: 600; white-space: nowrap; }
-.argent-roles__code p-tag { margin-left: .4rem; }
+.argent-roles__code-cell {
+    display: inline-flex;
+    align-items: center;
+    gap: .65rem;
+    flex-wrap: wrap;
+    min-width: 0;
+    max-width: 100%;
+    vertical-align: middle;
+}
+.argent-roles__code {
+    font-weight: 650;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+}
+.argent-roles__code-cell p-tag {
+    flex: 0 0 auto;
+}
 .argent-roles__description { font-size: .82rem; color: var(--p-text-muted-color); }
 .argent-roles__count { font-variant-numeric: tabular-nums; }
 .argent-roles__row-actions-col { text-align: right; }

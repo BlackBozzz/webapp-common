@@ -78,7 +78,8 @@
                     [control]="scalar(child(parent, field))"
                 ></argent-dictionary-boolean-field>
             } @else if (field.control === 'date' || field.control === 'time' || field.control === 'datetime'
-                || field.type === 'date' || field.type === 'time' || field.type === 'datetime') {
+                || field.type === 'date' || field.type === 'time' || field.type === 'datetime'
+                || field.type === 'instant' || field.type === 'offsetdatetime' || field.type === 'zoneddatetime') {
                 <argent-dictionary-date-field
                     [field]="field"
                     [control]="scalar(child(parent, field))"
@@ -109,7 +110,7 @@
             @if (field.help || field.description) {
                 <small class="argent-dynamic-form__help">{{ field.help || field.description }}</small>
             }
-            @if (message(child(parent, field)); as error) {
+            @if (message(child(parent, field), field); as error) {
                 <small class="argent-dynamic-form__error">{{ error }}</small>
             }
         </div>

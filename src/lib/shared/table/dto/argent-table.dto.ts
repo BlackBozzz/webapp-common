@@ -9,6 +9,13 @@ export type ArgentTableExportFormat = 'xlsx' | 'csv';
 export type ArgentTableExportScope = 'filtered' | 'selected' | 'page';
 export type ArgentTableFilterValue = string | number | boolean | null | readonly (string | number)[];
 
+/** Доступный вариант выбора фильтра по перечислению или статусу. */
+export interface ArgentTableFilterOption {
+    label: string;
+    value: string | number | boolean;
+}
+
+
 /** Конфигурация колонки: доступна как для ручной разметки, так и для динамической схемы. */
 export interface ArgentTableColumnDefinition {
     field: string;
@@ -30,6 +37,10 @@ export interface ArgentTableColumnDefinition {
     displayField?: string;
     separator?: string;
     labelMap?: Readonly<Record<string, string>>;
+    /** Список вариантов выпадающего фильтра; значения передаются в API без преобразования. */
+    filterOptions?: readonly ArgentTableFilterOption[];
+    /** Исходный тип из DTO (например, instant или offsetdatetime). */
+    filterType?: string;
     severityMap?: Readonly<Record<string, 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast'>>;
 }
 

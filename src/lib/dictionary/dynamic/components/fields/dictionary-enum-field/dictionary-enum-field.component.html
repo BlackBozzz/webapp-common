@@ -1,8 +1,10 @@
-<p-select
-    class="argent-field__control"
-    [options]="field.enumValues"
+<p-select class="argent-enum-field"
+    appendTo="body"
+    [fluid]="true"
+    optionLabel="label"
+    optionValue="value"
+    [options]="options"
     [placeholder]="field.placeholder || 'Выберите значение'"
     [showClear]="!field.required"
-    appendTo="body"
     [formControl]="control"
 ></p-select>

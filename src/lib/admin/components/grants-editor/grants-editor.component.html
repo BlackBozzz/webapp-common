@@ -8,7 +8,7 @@
             [outlined]="!jsonMode()"
             [attr.aria-pressed]="jsonMode()"
             (click)="toggleJson()"
-        >JSON</button>
+        >{{ jsonMode() ? 'Интерфейс' : 'JSON' }}</button>
     </div>
 
     @if (jsonMode()) {

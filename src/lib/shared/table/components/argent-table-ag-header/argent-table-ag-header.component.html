@@ -1,0 +1,53 @@
+<div class="argent-ag-header" [class.argent-ag-header--with-filter]="showFilterRow">
+    @if (sortable) {
+        <button class="argent-ag-header__title argent-ag-header__title--sortable"
+            type="button"
+            [attr.title]="sortHint"
+            [attr.aria-label]="title + '. ' + sortHint"
+            (click)="sortColumn($event)"
+        >
+            <span class="argent-ag-header__name" [title]="title">{{ title }}</span>
+            <i class="pi argent-ag-header__sort"
+                [class.pi-sort-alt]="!sortDirection"
+                [class.pi-sort-amount-up-alt]="sortDirection === 'asc'"
+                [class.pi-sort-amount-down]="sortDirection === 'desc'"
+                [class.argent-ag-header__sort--active]="sortDirection !== null"
+                aria-hidden="true"
+            ></i>
+        </button>
+    } @else {
+        <span class="argent-ag-header__title" [title]="title">
+            <span class="argent-ag-header__name">{{ title }}</span>
+        </span>
+    }
+
+    @if (showFilter) {
+        @if (options.length) {
+            <p-select class="argent-ag-header__select"
+                appendTo="body"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Все"
+                [options]="options"
+                [showClear]="true"
+                [fluid]="true"
+                [ngModel]="selectedValue"
+                (ngModelChange)="changeSelect($event)"
+                (keydown)="$event.stopPropagation()"
+            ></p-select>
+        } @else {
+            <input pInputText
+                class="argent-ag-header__input"
+                [type]="inputType"
+                [attr.step]="inputType === 'time' || inputType === 'datetime-local' ? '1' : null"
+                [attr.placeholder]="placeholder"
+                [attr.aria-label]="'Фильтр: ' + title"
+                [value]="inputValue"
+                (input)="changeInput($event)"
+                (keydown)="$event.stopPropagation()"
+            />
+        }
+    } @else if (showFilterRow) {
+        <span class="argent-ag-header__filter-placeholder" aria-hidden="true"></span>
+    }
+</div>

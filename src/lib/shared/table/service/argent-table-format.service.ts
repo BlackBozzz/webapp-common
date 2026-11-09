@@ -4,6 +4,9 @@ import { ArgentTableColumnDefinition } from '../dto/argent-table.dto';
 /** Отображение табличных значений без изменения исходного DTO. */
 @Injectable({ providedIn: 'root' })
 export class ArgentTableFormatService {
+    // Intl.NumberFormat дорог в создании: переиспользуем настройки между ячейками.
+    private readonly numberFormatters = new Map<string, Intl.NumberFormat>();
+
     value(row: unknown, field: string): unknown {
         return field.split('.').reduce<unknown>((current, part) => {
             if (current === null || typeof current !== 'object') return undefined;
@@ -64,9 +67,17 @@ export class ArgentTableFormatService {
         const numeric = Number(raw);
         if (!Number.isFinite(numeric)) return raw;
         try {
-            return new Intl.NumberFormat(column.locale ?? 'ru-RU', currency
-                ? { style: 'currency', currency: column.currency ?? 'RUB', minimumFractionDigits: digits, maximumFractionDigits: digits }
-                : { minimumFractionDigits: digits, maximumFractionDigits: digits }).format(numeric);
+            const locale = column.locale ?? 'ru-RU';
+            const currencyCode = currency ? column.currency ?? 'RUB' : '';
+            const key = `${locale}|${currencyCode}|${digits}`;
+            let formatter = this.numberFormatters.get(key);
+            if (!formatter) {
+                formatter = new Intl.NumberFormat(locale, currency
+                    ? { style: 'currency', currency: currencyCode, minimumFractionDigits: digits, maximumFractionDigits: digits }
+                    : { minimumFractionDigits: digits, maximumFractionDigits: digits });
+                this.numberFormatters.set(key, formatter);
+            }
+            return formatter.format(numeric);
         } catch { return raw; }
     }
 

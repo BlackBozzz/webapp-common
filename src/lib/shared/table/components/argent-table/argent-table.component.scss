@@ -1,10 +1,10 @@
-
 :host {
     display: block;
     min-width: 0;
 }
 
 .argent-table {
+    min-width: 0;
     overflow: hidden;
     border: 1px solid var(--argent-border, #e6ebf2);
     border-radius: var(--argent-radius-lg, 18px);
@@ -15,279 +15,174 @@
         display: flex;
         align-items: center;
         gap: .85rem;
-        padding: 1rem 1.35rem;
-        border-bottom: 1px solid var(--argent-border, #e6ebf2);
-        color: var(--argent-muted, #94a3b8);
-        background: linear-gradient(180deg, #fff 0%, #fcfdff 100%);
+        padding: .9rem 1.25rem;
+        color: #8996a8;
+        border-bottom: 1px solid #edf1f5;
 
         input {
             width: 100%;
             max-width: 28rem;
-            padding: 0;
+            padding: .3rem .1rem;
             border: 0;
             box-shadow: none;
             background: transparent;
-            font-size: .93rem;
-            color: var(--argent-text, #0f172a);
+            color: #162033;
+            font-size: .9rem;
         }
 
         input:focus {
-            outline: none;
+            outline: 0;
         }
     }
 
     &__error {
-        margin: .9rem 1.35rem 0;
-        padding: .9rem 1rem;
+        margin: .9rem 1.25rem;
         color: #b42318;
-        font-size: .86rem;
-        border: 1px solid #f3d0d5;
-        border-radius: 12px;
-        background: #fff7f8;
+        font-size: .85rem;
     }
 
-    &__sort {
-        font-size: .72rem;
-        margin-left: .35rem;
-        color: #b0b8c5;
-    }
-
-    &__filters input {
+    &__grid {
+        display: block;
         width: 100%;
-        padding: .62rem .72rem;
-        font-size: .8rem;
-        border-radius: 10px;
+        min-width: 0;
+        /* Высота задаётся Input height, а AG Grid прокручивает строки внутри. */
+        background: #fff;
+    }
+
+    &__footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: .5rem;
+        padding: .8rem 1.25rem;
+        border-top: 1px solid #edf1f5;
+        color: #8592a4;
+        font-size: .77rem;
+        background: #fff;
     }
 
     &__definitions {
         display: none;
     }
-
-    &__frozen {
-        position: sticky;
-        z-index: 2;
-        background: #fff;
-    }
 }
 
 :host ::ng-deep {
-    .p-inputtext,
-    .p-select,
-    .p-multiselect,
-    .p-autocomplete-input,
-    .p-datepicker-input {
-        border-color: #d9e1ea;
-        box-shadow: none;
+    .ag-root-wrapper {
+        border: none;
+        border-radius: 0;
     }
 
-    .p-inputtext:enabled:focus,
-    .p-select:not(.p-disabled).p-focus,
-    .p-multiselect:not(.p-disabled).p-focus,
-    .p-autocomplete-input:enabled:focus,
-    .p-datepicker-input:enabled:focus {
-        border-color: #bfd4e7;
-        box-shadow: 0 0 0 3px rgb(39 153 181 / 10%);
+    .ag-header-cell {
+        padding-right: 10px;
+        padding-left: 10px;
     }
 
-    .p-datatable {
-        display: block;
-        min-width: 0;
-        max-width: 100%;
-        border: 0;
-        background: #fff;
-    }
-
-    .p-datatable-table-container {
-        width: 100%;
-        max-width: 100%;
-        overflow-x: auto;
-        overflow-y: hidden;
-    }
-
-    .p-datatable-table {
-        table-layout: fixed;
-        width: 100%;
-        font-size: .89rem;
-        color: var(--argent-text, #0f172a);
-    }
-
-    .p-datatable-thead > tr > th {
-        padding: 1rem 1rem;
-        border-color: #eef2f6;
-        background: #fbfcfe;
-        color: #64748b;
-        font-size: .78rem;
-        font-weight: 700;
-        letter-spacing: .01em;
-        white-space: nowrap;
+    .ag-cell {
+        display: flex;
+        align-items: center;
         overflow: hidden;
-        text-overflow: ellipsis;
+        border-color: #eff2f6;
+        color: #1e293b;
+        line-height: 1.4;
     }
 
-    .p-datatable-thead > tr:nth-child(2) > th {
-        padding-top: .8rem;
-        padding-bottom: .9rem;
-        background: #fff;
+    .ag-row-hover .ag-cell {
+        background: #f7fbfd;
     }
 
-    .p-datatable-tbody > tr {
-        background: #fff;
-        transition: background-color 140ms ease;
-    }
-
-    .p-datatable-tbody > tr > td {
-        padding: .95rem 1rem;
-        color: var(--argent-text, #1e293b);
-        border-color: #eef2f6;
-        vertical-align: middle;
-        overflow: hidden;
-        background: #fff;
-    }
-
-    .p-datatable-tbody > tr > td > * {
-        min-width: 0;
-        max-width: 100%;
-    }
-
-    .p-datatable-tbody .p-multiselect,
-    .p-datatable-tbody .p-select,
-    .p-datatable-tbody .p-autocomplete {
-        width: 100%;
-        min-width: 0;
-        max-width: 100%;
-    }
-
-    .p-datatable-tbody > tr:hover > td {
-        background: #f8fbfd;
-    }
-
-    .p-datatable-tbody > tr.p-datatable-row-selected > td {
+    .ag-row-selected .ag-cell {
         background: #eef8fb;
     }
 
-    .p-datatable-tbody > tr.p-datatable-row-selected:hover > td {
-        background: #e8f4f8;
+    .ag-body-viewport,
+    .ag-center-cols-viewport {
+        min-height: 0;
     }
 
-    .p-paginator {
-        padding: .8rem 1rem;
-        border-top: 1px solid #eef2f6;
-        background: #fff;
-        color: #64748b;
-        justify-content: flex-end;
-        gap: .45rem;
-    }
-
-    .p-paginator .p-paginator-pages .p-paginator-page,
-    .p-paginator .p-paginator-first,
-    .p-paginator .p-paginator-prev,
-    .p-paginator .p-paginator-next,
-    .p-paginator .p-paginator-last {
-        min-width: 2.25rem;
-        height: 2.25rem;
-        color: #64748b;
-        border-radius: 999px;
-    }
-
-    .p-paginator .p-paginator-pages .p-paginator-page.p-highlight {
-        color: #16748a;
-        background: #e8f6f8;
-    }
-
-    .p-paginator .p-select {
-        min-width: 5.75rem;
-        border-radius: 12px;
-        background: #fff;
-    }
-
-    .p-select-overlay,
-    .p-multiselect-overlay,
-    .p-autocomplete-overlay,
-    .p-datepicker-panel,
-    .p-menu {
-        border: 1px solid #dfe7ef;
-        border-radius: 14px;
-        background: #fff;
-        box-shadow: 0 20px 44px rgb(15 23 42 / 12%);
-        color: #0f172a;
-    }
-
-    .p-select-option,
-    .p-multiselect-option,
-    .p-autocomplete-option {
-        color: #0f172a;
-    }
-
-    .p-select-option:hover,
-    .p-multiselect-option:hover,
-    .p-autocomplete-option:hover,
-    .p-menu-item-content:hover {
-        background: #f5f8fb;
-    }
-
-    .p-select-option.p-select-option-selected,
-    .p-multiselect-option.p-multiselect-option-selected,
-    .p-autocomplete-option-selected {
-        background: #e8f6f8;
-        color: #11677a;
-    }
-
-    .p-select-list-container,
-    .p-multiselect-list-container {
-        padding: .35rem;
-    }
-
-    .p-menu-list {
-        padding: .35rem;
-    }
-
-    .p-menu-item-link {
-        border-radius: 10px;
-    }
-
-    .p-datatable-loading-overlay {
-        background: rgb(255 255 255 / 72%);
-    }
-}
-
-/* Фильтры всех типов не растягивают колонки и наследуют светлую тему. */
-:host ::ng-deep .argent-table__typed-filter {
-    display: inline-flex;
-    width: 100%;
-    min-width: 100px;
-    max-width: 180px;
-    min-height: 35px;
-    border: 1px solid #dce4ed;
-    border-radius: 9px;
-    background: #fff;
-    font-size: .83rem;
-
-    .p-select-label {
-        padding: .5rem .7rem;
-        color: #334155;
-    }
-}
-
-.argent-table__filter-input {
-    width: 100%;
-    min-width: 0;
-    height: 35px;
-    padding: .4rem .55rem;
-    font-size: .8rem;
-    border-radius: 9px;
-    color: #334155;
-    background: #fff;
-}
-
-/* Селект в шапке не увеличивает ширину таблицы. */
-:host ::ng-deep .argent-table__typed-filter {
-    min-width: 0;
-    max-width: 100%;
-
-    .p-select-label {
+    .ag-cell-wrapper,
+    .ag-cell-value {
         min-width: 0;
+        max-width: 100%;
+        overflow: hidden;
+    }
+
+    // Нативные renderer-ы не создают Angular/PrimeNG-компонентов при горизонтальном скролле.
+    .argent-grid-status {
+        display: inline-flex;
+        align-items: center;
+        max-width: 100%;
+        padding: 4px 9px;
+        border-radius: 6px;
+        background: #f1f5f9;
+        color: #475569;
+        font-size: .75rem;
+        font-weight: 600;
+        line-height: 1.25;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+
+        &--success { background: #dcfce7; color: #166534; }
+        &--info { background: #dbeafe; color: #1d4ed8; }
+        &--warn { background: #fef3c7; color: #92400e; }
+        &--danger { background: #fee2e2; color: #b91c1c; }
+        &--contrast { background: #1e293b; color: #fff; }
+    }
+
+    .argent-grid-relations {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        min-width: 0;
+        max-width: 100%;
+        overflow: hidden;
+        white-space: nowrap;
+
+        &__chip, &__more {
+            display: inline-flex;
+            flex: 0 1 auto;
+            min-width: 0;
+            padding: 3px 8px;
+            border-radius: 999px;
+            background: #f2f5f8;
+            color: #465262;
+            font-size: .75rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        &__more { flex: 0 0 auto; color: #0f7691; }
+    }
+
+    .argent-grid-file-button {
+        display: inline-grid;
+        place-items: center;
+        flex: 0 0 auto;
+        width: 36px;
+        height: 36px;
+        padding: 0;
+        border: 1px solid #dce7ee;
+        border-radius: 11px;
+        background: #f7fbfd;
+        color: #35849b;
+        cursor: pointer;
+        transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease;
+
+        &:hover { border-color: #a8d2dc; background: #eaf7fa; color: #166b82; }
+        &:focus-visible { outline: 2px solid #30a8bd; outline-offset: 3px; }
+        .pi { font-size: 1rem; }
+    }
+
+    .p-multiselect,
+    .p-select,
+    .p-autocomplete {
+        min-width: 0;
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 760px) {
+    .argent-table__footer span:last-child {
+        display: none;
     }
 }

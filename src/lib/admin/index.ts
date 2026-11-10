@@ -7,3 +7,5 @@ export * from './dto/admin-roles.dto';
 export * from './service/admin-users-api.service';
 export * from './service/admin-roles-api.service';
 export * from './components/grants-editor/grants-editor.component';
+export * from './dto/admin-queues.dto';
+export * from './service/admin-queues-api.service';

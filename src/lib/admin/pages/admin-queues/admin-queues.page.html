@@ -1,0 +1,158 @@
+<section class="argent-queues">
+    <header class="argent-queues__heading">
+        <div>
+            <span class="argent-queues__eyebrow">ARGENT / ADMIN</span>
+            <h1>Очереди задач</h1>
+            <p>Фоновые операции, повторные попытки и история ошибок.</p>
+        </div>
+        <button class="argent-queues__button" type="button" (click)="refresh()">
+            <i class="pi pi-refresh" aria-hidden="true"></i> Обновить
+        </button>
+    </header>
+
+    <div class="argent-queues__stats">
+        <div><strong>{{ waiting() }}</strong><span>Ожидают</span></div>
+        <div><strong>{{ running() }}</strong><span>Работают</span></div>
+        <div><strong class="argent-queues__stat-error">{{ failing() }}</strong><span>С ошибками</span></div>
+    </div>
+
+    @if (error()) { <p class="argent-queues__error" role="alert">{{ error() }}</p> }
+    @if (notice()) { <p class="argent-queues__notice" role="status">{{ notice() }}</p> }
+
+    <section class="argent-queues__groups" aria-label="Список очередей">
+        <div class="argent-queues__caption">Очереди</div>
+        <div class="argent-queues__group-head"><span>Название очереди</span><span>Ожидают</span><span>Ошибок</span><span>Состояние</span></div>
+        @for (queue of queues(); track queue.id) {
+            <button class="argent-queues__group" type="button"
+                [class.argent-queues__group--selected]="selectedQueueId() === queue.id"
+                [attr.aria-pressed]="selectedQueueId() === queue.id"
+                (click)="selectQueue(queue)"
+            >
+                <span class="argent-queues__group-name"><i class="pi pi-list-check" aria-hidden="true"></i>{{ queue.name }}</span>
+                <span>{{ queue.pending }}</span>
+                <span [class.argent-queues__group-error]="queue.retryWait > 0">{{ queue.retryWait }}</span>
+                <span>{{ queue.paused ? 'Пауза' : 'Активна' }}</span>
+            </button>
+        } @empty {
+            <div class="argent-queues__empty">Очередей пока нет. Они появятся после постановки первой задачи.</div>
+        }
+    </section>
+
+    @if (selectedQueue(); as queue) {
+        <section class="argent-queues__tasks" aria-label="Задачи выбранной очереди">
+            <header class="argent-queues__tasks-head">
+                <div>
+                    <h2>{{ queue.name }}</h2>
+                    <p>{{ queue.allowSkip ? 'Любые готовые задачи · приоритет включён' : 'Строгий порядок добавления · пропуск запрещён' }}</p>
+                </div>
+                @if (canManage()) {
+                    <div class="argent-queues__actions">
+                        <button class="argent-queues__button" type="button"
+                            [disabled]="saving() || queue.paused" (click)="runNow()"
+                        ><i class="pi pi-play" aria-hidden="true"></i> Запустить сейчас</button>
+                        <button class="argent-queues__button" type="button"
+                            [disabled]="saving()" (click)="pauseOrResume()"
+                        ><i class="pi" aria-hidden="true"
+                            [class.pi-pause]="!queue.paused" [class.pi-play]="queue.paused"></i>
+                            {{ queue.paused ? 'Возобновить' : 'Пауза' }}</button>
+                        <button class="argent-queues__button argent-queues__button--quiet" type="button"
+                            [disabled]="saving()" (click)="toggleSkip()"
+                        >{{ queue.allowSkip ? 'Запретить пропуск' : 'Разрешить пропуск' }}</button>
+                    </div>
+                }
+            </header>
+
+            <argent-table title="Задачи"
+                [rows]="page()?.items ?? []"
+                [rowKey]="'id'"
+                [loading]="loading()"
+                [lazy]="true"
+                [pageIndex]="pageIndex()"
+                [pageSize]="pageSize()"
+                [totalRecords]="page()?.totalElements ?? 0"
+                [selected]="selectedTask()"
+                [showSearch]="false"
+                [showExport]="false"
+                [showImport]="false"
+                [showFilters]="false"
+                [showRefresh]="false"
+                height="460px"
+                (queryChange)="onQuery($event)"
+                (selectionChange)="selectTask($event)"
+                (rowDoubleClick)="selectTask($event)"
+            >
+                <argent-table-column field="handlerKey" header="Обработчик" width="230px"></argent-table-column>
+                <argent-table-column field="status" header="Статус" type="status" width="190px"
+                    [labelMap]="{ PENDING: 'Ожидает', RUNNING: 'Работает', RETRY_WAIT: 'Повтор', SUCCESS: 'Успешно', PAUSED: 'Пауза', CANCELLED: 'Отменена' }"
+                    [severityMap]="{ PENDING: 'info', RUNNING: 'info', RETRY_WAIT: 'warn', SUCCESS: 'success', PAUSED: 'secondary', CANCELLED: 'secondary' }"
+                ></argent-table-column>
+                <argent-table-column field="priority" header="Приоритет" type="number" width="130px"></argent-table-column>
+                <argent-table-column field="attemptCount" header="Попыток" type="number" width="115px"></argent-table-column>
+                <argent-table-column field="nextRunAt" header="Следующий запуск" type="datetime" width="210px"></argent-table-column>
+                <argent-table-column field="createdAt" header="Создана" type="datetime" width="210px"></argent-table-column>
+                <argent-table-column field="lastError" header="Последняя ошибка" width="300px"></argent-table-column>
+            </argent-table>
+        </section>
+    }
+
+    @if (selectedTask()) {
+        <div class="argent-queues__drawer-shade" (click)="closeDetails()" aria-hidden="true"></div>
+        <aside class="argent-queues__drawer" role="dialog" aria-modal="true" aria-label="Подробности задачи">
+            <div class="argent-queues__drawer-head">
+                <div><span>Задача</span><h2>{{ selectedTask()?.handlerKey }}</h2></div>
+                <button type="button" class="argent-queues__close" aria-label="Закрыть подробности"
+                    (click)="closeDetails()"><i class="pi pi-times" aria-hidden="true"></i></button>
+            </div>
+            @if (details(); as detail) {
+                <div class="argent-queues__drawer-content">
+                    <div class="argent-queues__fact"><span>ID</span><code>{{ detail.task.id }}</code></div>
+                    <div class="argent-queues__fact"><span>Статус</span><strong>{{ statusLabel(detail.task.status) }}</strong></div>
+                    <div class="argent-queues__fact"><span>Попыток</span><strong>{{ detail.task.attemptCount }}</strong></div>
+                    <div class="argent-queues__fact"><span>Следующий запуск</span><strong>{{ detail.task.nextRunAt | date:'dd.MM.yyyy HH:mm:ss' }}</strong></div>
+                    @if (canManage()) {
+                        <div class="argent-queues__priority">
+                            <label for="argent-queue-priority">Приоритет (выше число — раньше задача)</label>
+                            <div><input id="argent-queue-priority" type="number"
+                                [ngModel]="editedPriority()" (ngModelChange)="editedPriority.set($event)" />
+                                <button class="argent-queues__button" type="button" [disabled]="saving() || detail.task.status === 'RUNNING' || detail.task.status === 'SUCCESS' || detail.task.status === 'CANCELLED'"
+                                    (click)="savePriority()">Сохранить</button></div>
+                        </div>
+                        <div class="argent-queues__actions">
+                            <button class="argent-queues__button" type="button"
+                                [disabled]="saving() || detail.task.status !== 'RETRY_WAIT'" (click)="retry()"
+                            >Повторить задачу</button>
+                            <button class="argent-queues__button argent-queues__button--danger" type="button"
+                                [disabled]="saving() || detail.task.status === 'RUNNING' || detail.task.status === 'SUCCESS' || detail.task.status === 'CANCELLED'"
+                                (click)="cancel()">Отменить</button>
+                        </div>
+                    }
+                    @if (detail.task.lastError) {
+                        <div class="argent-queues__error-box"><strong>Последняя ошибка</strong><p>{{ detail.task.lastError }}</p></div>
+                    }
+                    @if (detail.payloadJson) {
+                        <h3>Параметры задачи</h3>
+                        <pre>{{ detail.payloadJson }}</pre>
+                    }
+                    <h3>История попыток (до 100 последних)</h3>
+                    @for (attempt of detail.attempts; track attempt.id) {
+                        <div class="argent-queues__attempt">
+                            <div class="argent-queues__attempt-head">
+                                <strong>Попытка #{{ attempt.attemptNo }}</strong>
+                                <span>{{ attempt.result === 'SUCCESS' ? 'Успех' : attempt.result === 'FAILED' ? 'Ошибка' : 'В работе' }}</span>
+                            </div>
+                            <div class="argent-queues__attempt-date">{{ attempt.startedAt | date:'dd.MM.yyyy HH:mm:ss' }}</div>
+                            @if (attempt.errorMessage) {
+                                <p>{{ attempt.errorType }}: {{ attempt.errorMessage }}</p>
+                                @if (attempt.stackTrace) { <pre>{{ attempt.stackTrace }}</pre> }
+                            }
+                        </div>
+                    } @empty {
+                        <p class="argent-queues__empty">Попыток пока не было.</p>
+                    }
+                </div>
+            } @else {
+                <p class="argent-queues__empty">Загрузка подробностей…</p>
+            }
+        </aside>
+    }
+</section>

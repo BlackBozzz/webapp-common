@@ -21,6 +21,13 @@ export const ARGENT_ADMIN_ROUTES: Routes = [
                     .then(m => m.ARGENT_DYNAMIC_DICTIONARY_ROUTES),
             },
             {
+                path: 'queues',
+                title: 'Очереди задач',
+                canActivate: [actionGuard('queue.read')],
+                loadComponent: () => import('../pages/admin-queues/admin-queues.page')
+                    .then(m => m.AdminQueuesPage),
+            },
+            {
                 path: 'users',
                 title: 'Пользователи',
                 canActivate: [actionGuard('admin')],

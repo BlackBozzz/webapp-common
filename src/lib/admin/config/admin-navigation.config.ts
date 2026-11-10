@@ -22,6 +22,15 @@ export const ADMIN_NAVIGATION: readonly AdminNavigationItem[] = [
         enabled: true,
     },
     {
+        id: 'queues',
+        title: 'Очереди задач',
+        description: 'Фоновые операции, ошибки и повторы',
+        path: 'queues',
+        glyph: 'pi pi-list-check',
+        enabled: true,
+        action: 'queue.read',
+    },
+    {
         id: 'users',
         title: 'Пользователи',
         description: 'Управление учётными записями',

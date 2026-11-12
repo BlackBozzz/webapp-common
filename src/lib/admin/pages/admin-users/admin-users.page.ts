@@ -76,11 +76,18 @@ export class AdminUsersPage implements OnInit {
     protected readonly createForm = new FormGroup({
         login: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.maxLength(100)] }),
         displayName: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.maxLength(200)] }),
+        email: new FormControl('', { nonNullable: true, validators: [Validators.email, Validators.maxLength(254)] }),
         // Необязателен; если введён — 6–72 символа (minLength/maxLength пропускают пустое значение).
         password: new FormControl('', {
             nonNullable: true,
             validators: [Validators.minLength(PASSWORD_MIN), Validators.maxLength(PASSWORD_MAX)],
         }),
+    });
+
+    protected readonly emailUser = signal<UserDto | null>(null);
+    protected readonly savingEmail = signal(false);
+    protected readonly emailForm = new FormGroup({
+        email: new FormControl('', { nonNullable: true, validators: [Validators.email, Validators.maxLength(254)] }),
     });
 
     protected readonly passwordUser = signal<UserDto | null>(null);
@@ -183,10 +190,11 @@ export class AdminUsersPage implements OnInit {
             this.createForm.markAllAsTouched();
             return;
         }
-        const { login, displayName, password } = this.createForm.getRawValue();
+        const { login, displayName, password, email } = this.createForm.getRawValue();
         const request: CreateUserRequest = { login: login.trim(), displayName: displayName.trim() };
         // Пустой пароль не отправляем: backend считает «без пароля» только отсутствующее поле (null).
         if (password) request.password = password;
+        if (email.trim()) request.email = email.trim();
         this.creating.set(true);
         this.usersApi.create(request).pipe(
             finalize(() => this.creating.set(false)),
@@ -200,6 +208,43 @@ export class AdminUsersPage implements OnInit {
             error: error => {
                 if (!applyServerErrors(this.createForm, error)) {
                     this.notifyError(error, 'Пользователь не создан');
+                }
+            },
+        });
+    }
+
+    // ---- Email ----
+
+    protected openEmail(user: UserDto): void {
+        this.emailForm.setValue({ email: user.email ?? '' });
+        this.emailUser.set(user);
+    }
+
+    protected closeEmail(): void {
+        if (!this.savingEmail()) this.emailUser.set(null);
+    }
+
+    protected saveEmail(): void {
+        const user = this.emailUser();
+        if (!user) return;
+        if (this.emailForm.invalid) {
+            this.emailForm.markAllAsTouched();
+            return;
+        }
+        this.savingEmail.set(true);
+        const email = this.emailForm.getRawValue().email.trim();
+        this.usersApi.update(user.id, { displayName: user.displayName, enabled: user.enabled, email }).pipe(
+            finalize(() => this.savingEmail.set(false)),
+            takeUntilDestroyed(this.destroyRef),
+        ).subscribe({
+            next: saved => {
+                this.emailUser.set(null);
+                this.replaceUser(saved);
+                this.messages.add({ severity: 'success', summary: 'Email сохранён', detail: saved.login });
+            },
+            error: error => {
+                if (!applyServerErrors(this.emailForm, error)) {
+                    this.notifyError(error, 'Email не сохранён');
                 }
             },
         });

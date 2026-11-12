@@ -3,6 +3,7 @@ export interface UserDto {
     id: string;
     login: string;
     displayName: string;
+    email: string | null;
     enabled: boolean;
     /** Задан ли пароль (сам пароль не передаётся). */
     hasPassword: boolean;
@@ -24,12 +25,14 @@ export interface CreateUserRequest {
     login: string;
     displayName: string;
     password?: string;
+    email?: string;
 }
 
-/** Изменение имени и активности пользователя. */
+/** Изменение имени и активности пользователя, опционально email (пустая строка удаляет адрес). */
 export interface UpdateUserRequest {
     displayName: string;
     enabled: boolean;
+    email?: string | null;
 }
 
 /** Установка пароля пользователю администратором. */

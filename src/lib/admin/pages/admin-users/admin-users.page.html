@@ -38,6 +38,10 @@
         <argent-table-column field="displayName"
             header="Имя"
         ></argent-table-column>
+        <argent-table-column field="email"
+            header="Email"
+            minWidth="200px"
+        ></argent-table-column>
         <argent-table-column field="roles"
             header="Роли"
             type="custom"
@@ -110,6 +114,14 @@
                         severity="secondary"
                         [outlined]="true"
                         [disabled]="isBusy(user)"
+                        (click)="openEmail(user)"
+                    >Email</button>
+                    <button pButton
+                        type="button"
+                        size="small"
+                        severity="secondary"
+                        [outlined]="true"
+                        [disabled]="isBusy(user)"
                         (click)="openPassword(user)"
                     >Задать пароль</button>
                     <button pButton
@@ -148,6 +160,16 @@
                 <argent-field-error [control]="createForm.controls.displayName" />
             </div>
             <div class="argent-users__field">
+                <label for="argent-user-email">Email <span class="argent-users__hint">(необязательно)</span></label>
+                <input pInputText formControlName="email"
+                    id="argent-user-email"
+                    type="email"
+                    autocomplete="email"
+                    [fluid]="true"
+                />
+                <argent-field-error [control]="createForm.controls.email" />
+            </div>
+            <div class="argent-users__field">
                 <label for="argent-user-password">Пароль <span class="argent-users__hint">(необязательно)</span></label>
                 <input pInputText id="argent-user-password" type="password" formControlName="password"
                     autocomplete="new-password" [fluid]="true" />
@@ -166,6 +188,48 @@
                 form="argent-user-create-form"
                 [loading]="creating()"
             >Создать</button>
+        </ng-template>
+    </p-dialog>
+
+    <p-dialog
+        header="Email пользователя"
+        [modal]="true"
+        [closable]="!savingEmail()"
+        [draggable]="false"
+        [resizable]="false"
+        [style]="{ width: 'min(420px, 96vw)' }"
+        [visible]="emailUser() !== null"
+        (visibleChange)="!$event && closeEmail()"
+    >
+        <form
+            class="argent-users__form"
+            id="argent-user-email-form"
+            [formGroup]="emailForm"
+            (ngSubmit)="saveEmail()"
+        >
+            <div class="argent-users__field">
+                <label for="argent-user-edit-email">Email (пустое поле удалит адрес)</label>
+                <input pInputText formControlName="email"
+                    id="argent-user-edit-email"
+                    type="email"
+                    autocomplete="email"
+                    [fluid]="true"
+                />
+                <argent-field-error [control]="emailForm.controls.email" />
+            </div>
+        </form>
+        <ng-template #footer>
+            <button pButton
+                type="button"
+                severity="secondary"
+                [disabled]="savingEmail()"
+                (click)="closeEmail()"
+            >Отмена</button>
+            <button pButton
+                type="submit"
+                form="argent-user-email-form"
+                [loading]="savingEmail()"
+            >Сохранить</button>
         </ng-template>
     </p-dialog>
 

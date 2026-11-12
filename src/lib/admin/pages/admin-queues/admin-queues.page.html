@@ -5,9 +5,15 @@
             <h1>Очереди задач</h1>
             <p>Фоновые операции, повторные попытки и история ошибок.</p>
         </div>
-        <button class="argent-queues__button" type="button" (click)="refresh()">
-            <i class="pi pi-refresh" aria-hidden="true"></i> Обновить
-        </button>
+        <div class="argent-queues__header-actions">
+            <span class="argent-queues__live" [class.argent-queues__live--on]="liveConnected()">
+                <span class="argent-queues__live-dot" aria-hidden="true"></span>
+                {{ liveConnected() ? 'WebSocket подключён' : 'Резервное обновление каждые 15 сек.' }}
+            </span>
+            <button class="argent-queues__button" type="button" (click)="refresh()">
+                <i class="pi pi-refresh" aria-hidden="true"></i> Обновить
+            </button>
+        </div>
     </header>
 
     <div class="argent-queues__stats">
@@ -44,6 +50,16 @@
                 <div>
                     <h2>{{ queue.name }}</h2>
                     <p>{{ queue.allowSkip ? 'Любые готовые задачи · приоритет включён' : 'Строгий порядок добавления · пропуск запрещён' }}</p>
+                </div>
+                <div class="argent-queues__actions">
+                    @if (refreshedAt(); as updated) {
+                        <span class="argent-queues__updated">Обновлено: {{ updated | date:'HH:mm:ss' }}</span>
+                    }
+                    <button class="argent-queues__button argent-queues__button--quiet"
+                        type="button"
+                        [disabled]="loading()"
+                        (click)="refresh()"
+                    ><i class="pi pi-refresh" aria-hidden="true"></i> Обновить состав</button>
                 </div>
                 @if (canManage()) {
                     <div class="argent-queues__actions">

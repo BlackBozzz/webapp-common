@@ -66,3 +66,13 @@
         &__stats { gap: .45rem; > div { padding: .75rem; } }
     }
 }
+
+.argent-queues {
+    &__header-actions { display: flex; align-items: center; gap: .8rem; flex-wrap: wrap; }
+    &__live { display: inline-flex; gap: .45rem; align-items: center; color: #8c6870; font-size: .75rem;
+        &--on { color: #287b60; }
+    }
+    &__live-dot { width: .5rem; height: .5rem; border-radius: 50%; background: #d79c7e; }
+    &__live--on &__live-dot { background: #37aa80; }
+    &__updated { color: #8592a2; font-size: .73rem; align-self: center; }
+}

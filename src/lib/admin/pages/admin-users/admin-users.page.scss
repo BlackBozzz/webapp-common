@@ -22,36 +22,17 @@
 .argent-users__heading h1 { font-size: 1.55rem; font-weight: 680; letter-spacing: -.035em; color: var(--argent-text, #252b36); }
 .argent-users__eyebrow { text-transform: uppercase; letter-spacing: .08em; font-size: .69rem; color: var(--argent-muted, #89919d); }
 
-/* В компактной таблице роль остаётся читаемой, даже если их много. */
-:host ::ng-deep .argent-users__role-select {
-    display: inline-flex;
-    width: 100%;
-    min-width: 0;
-    max-width: 100%;
-    min-height: 2.55rem;
-    border-radius: 10px;
-    background: #fff;
+/* В таблице отображаются реальные имена ролей, без асинхронного состояния MultiSelect. */
+.argent-users__roles { display: flex; flex-wrap: nowrap; align-items: center; gap: .35rem; min-width: 0; overflow: hidden; }
+.argent-users__role-chip { padding: .25rem .5rem; border-radius: .5rem; background: #eef6fb; color: #31546a; font-size: .79rem; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; max-width: 100%; flex-shrink: 1; }
+.argent-users__roles-empty { font-size: .85rem; color: var(--p-text-muted-color); }
+.argent-users__actions-dialog { display: grid; gap: 1.2rem; }
+.argent-users__details { display: grid; gap: .5rem; margin: 0; }
+.argent-users__details > div { display: grid; grid-template-columns: 7rem minmax(0, 1fr); gap: .7rem; }
+.argent-users__details dt { font-size: .85rem; color: var(--p-text-muted-color); }
+.argent-users__details dd { margin: 0; overflow-wrap: anywhere; }
+.argent-users__action-buttons { display: flex; gap: .5rem; flex-wrap: wrap; }
+.argent-users__actions-dialog .argent-users__field { gap: .65rem; }
 
-    .p-multiselect-label-container {
-        min-width: 0;
-        flex: 1;
-    }
-
-    .p-multiselect-label {
-        min-width: 0;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    .p-chip {
-        max-width: 100%;
-        background: #eef6fb;
-        color: #31546a;
-    }
-
-    .p-chip-label {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-}
+/* Кнопка создания находится внутри form, а не во внешнем футере PrimeNG Dialog. */
+.argent-users__form-actions { display: flex; align-items: center; justify-content: flex-end; gap: .6rem; padding-top: .35rem; }

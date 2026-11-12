@@ -4,7 +4,17 @@
             <span class="argent-audit__eyebrow">Администрирование</span>
             <h1>Журнал изменений</h1>
         </div>
-
+        <div class="argent-audit__live-controls">
+            <span class="argent-audit__live-state" [class.argent-audit__live-state--on]="liveConnected()">
+                {{ liveConnected() ? 'WebSocket подключён' : 'Резервное обновление каждые 15 сек.' }}
+            </span>
+            @if (refreshedAt(); as updated) {
+                <span class="argent-audit__live-state">Обновлено: {{ updated | date:'HH:mm:ss' }}</span>
+            }
+            <button pButton severity="secondary" type="button" [outlined]="true" [disabled]="loading()" (click)="refresh()">
+                <i class="pi pi-refresh" aria-hidden="true"></i> Обновить
+            </button>
+        </div>
     </div>
 
     <form class="argent-audit__filters" (ngSubmit)="apply()">

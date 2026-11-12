@@ -1,0 +1,51 @@
+<p-dialog
+    [header]="report.current()?.title ?? 'Просмотр отчёта'"
+    [modal]="true"
+    [draggable]="false"
+    [resizable]="true"
+    [style]="{ width: 'min(1050px, 98vw)' }"
+    [contentStyle]="{ padding: '0', overflow: 'hidden' }"
+    [visible]="report.visible()"
+    (visibleChange)="!$event && report.close()"
+>
+    <div class="argent-report-viewer">
+        @if (report.previewLoading()) {
+            <p class="argent-report-viewer__state" role="status">Формируем PDF…</p>
+        } @else if (safeUrl(); as url) {
+            <iframe
+                class="argent-report-viewer__frame"
+                title="Предпросмотр PDF-отчёта"
+                [src]="url"
+            ></iframe>
+        } @else if (report.error()) {
+            <p class="argent-report-viewer__state argent-report-viewer__error" role="alert">{{ report.error() }}</p>
+        }
+        <div class="argent-report-viewer__toolbar">
+            <span>Скачать отчёт:</span>
+            <button pButton
+                type="button"
+                size="small"
+                severity="secondary"
+                [disabled]="report.previewLoading() || report.downloading() || !report.previewUrl()"
+                (click)="download('pdf')"
+            >PDF</button>
+            <button pButton
+                type="button"
+                size="small"
+                severity="secondary"
+                [disabled]="report.downloading()"
+                (click)="download('xlsx')"
+            >Excel</button>
+            <button pButton
+                type="button"
+                size="small"
+                severity="secondary"
+                [disabled]="report.downloading()"
+                (click)="download('docx')"
+            >Word</button>
+        </div>
+        @if (report.error()) {
+            <div class="argent-report-viewer__download-error" role="alert">{{ report.error() }}</div>
+        }
+    </div>
+</p-dialog>

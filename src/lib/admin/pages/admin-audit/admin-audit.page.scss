@@ -15,3 +15,10 @@
 .argent-audit__heading { margin-bottom: .1rem; }
 .argent-audit__heading h1 { font-size: 1.55rem; font-weight: 680; letter-spacing: -.035em; color: var(--argent-text, #252b36); }
 .argent-audit__eyebrow { text-transform: uppercase; letter-spacing: .08em; font-size: .69rem; color: var(--argent-muted, #89919d); }
+
+.argent-audit {
+    &__live-controls { display: flex; align-items: center; flex-wrap: wrap; gap: .7rem; }
+    &__live-state { color: #8c6870; font-size: .75rem;
+        &--on { color: #287b60; }
+    }
+}

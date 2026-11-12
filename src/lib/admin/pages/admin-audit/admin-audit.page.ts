@@ -1,4 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
+import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
@@ -7,7 +8,8 @@ import { ButtonDirective } from 'primeng/button';
 import { DatePicker } from 'primeng/datepicker';
 import { InputText } from 'primeng/inputtext';
 import { Select } from 'primeng/select';
-import { Subscription, finalize } from 'rxjs';
+import { Subject, Subscription, auditTime, finalize, timer } from 'rxjs';
+import { ArgentAdminLiveService } from '../../service/argent-admin-live.service';
 import { AuditPageRequest, AuditTableComponent } from '../../../audit/components/audit-table/audit-table.component';
 import { AUDIT_ACTION_LABELS, AUDIT_ACTIONS, AuditEntryDto } from '../../../audit/dto/audit.dto';
 import { AuditApiService } from '../../../audit/service/audit-api.service';
@@ -31,13 +33,15 @@ const ERROR_FALLBACK = 'Не удалось загрузить журнал';
 @Component({
     selector: 'argent-admin-audit-page',
     standalone: true,
-    imports: [FormsModule, ButtonDirective, DatePicker, InputText, Select, AuditTableComponent],
+    imports: [DatePipe, FormsModule, ButtonDirective, DatePicker, InputText, Select, AuditTableComponent],
     templateUrl: './admin-audit.page.html',
     styleUrl: './admin-audit.page.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AdminAuditPage implements OnInit {
     private readonly auditApi = inject(AuditApiService);
+    private readonly live = inject(ArgentAdminLiveService);
+    private readonly auditRefreshEvent = new Subject<void>();
     private readonly dictionaryApi = inject(DynamicDictionaryApiService);
     private readonly messages = inject(MessageService);
     private readonly destroyRef = inject(DestroyRef);
@@ -62,6 +66,8 @@ export class AdminAuditPage implements OnInit {
 
     protected readonly page = signal<DynamicPage<AuditEntryDto> | null>(null);
     protected readonly loading = signal(false);
+    protected readonly liveConnected = signal(false);
+    protected readonly refreshedAt = signal<Date | null>(null);
     protected readonly error = signal('');
     private readonly pageIndex = signal(0);
     private readonly pageSize = signal(PAGE_SIZE);
@@ -78,6 +84,19 @@ export class AdminAuditPage implements OnInit {
             error: error => this.notifyError(error, 'Не удалось загрузить список таблиц'),
         });
         this.load();
+        this.live.connect().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(event => {
+            if (event.type === 'connected') this.liveConnected.set(true);
+            if (event.type === 'disconnected') this.liveConnected.set(false);
+            if (event.type === 'audit.changed') this.auditRefreshEvent.next();
+        });
+        this.auditRefreshEvent.pipe(auditTime(600), takeUntilDestroyed(this.destroyRef))
+            .subscribe(() => this.refresh());
+        timer(15_000, 15_000).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+            if (!this.liveConnected()) this.refresh();
+        });
+        timer(60_000, 60_000).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+            if (this.liveConnected()) this.refresh();
+        });
     }
 
     /** Применяет фильтры с первой страницы. */
@@ -124,7 +143,10 @@ export class AdminAuditPage implements OnInit {
         }).pipe(
             finalize(() => this.loading.set(false)),
         ).subscribe({
-            next: page => this.page.set(page),
+            next: page => {
+                this.page.set(page);
+                this.refreshedAt.set(new Date());
+            },
             error: error => {
                 this.error.set(problemMessage(error, ERROR_FALLBACK));
                 this.notifyError(error, 'Журнал');

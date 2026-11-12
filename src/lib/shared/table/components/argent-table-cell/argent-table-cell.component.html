@@ -1,4 +1,4 @@
-@if (customTemplate) {
+@if (customTemplate && row != null) {
     <ng-container *ngTemplateOutlet="customTemplate; context: { $implicit: row }"></ng-container>
 } @else {
     @switch (column.type) {

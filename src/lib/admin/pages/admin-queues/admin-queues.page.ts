@@ -3,7 +3,8 @@ import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnIni
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Subscription } from 'rxjs';
+import { Subject, Subscription, auditTime, timer } from 'rxjs';
+import { ArgentAdminLiveService } from '../../service/argent-admin-live.service';
 import { AuthStore } from '../../../auth/service/auth.store';
 import { ArgentTableComponent } from '../../../shared/table/components/argent-table/argent-table.component';
 import { ArgentTableColumnComponent } from '../../../shared/table/components/argent-table-column/argent-table-column.component';
@@ -25,10 +26,12 @@ import { AdminQueuesApiService } from '../../service/admin-queues-api.service';
 })
 export class AdminQueuesPage implements OnInit {
     private readonly api = inject(AdminQueuesApiService);
+    private readonly live = inject(ArgentAdminLiveService);
     private readonly auth = inject(AuthStore);
     private readonly destroyRef = inject(DestroyRef);
     private pageRequest?: Subscription;
     private detailsRequest?: Subscription;
+    private readonly queueRefreshEvent = new Subject<void>();
 
     readonly queues = signal<ArgentQueueDto[]>([]);
     readonly selectedQueueId = signal<string | null>(null);
@@ -42,6 +45,8 @@ export class AdminQueuesPage implements OnInit {
     readonly pageIndex = signal(0);
     readonly pageSize = signal(20);
     readonly editedPriority = signal(0);
+    readonly liveConnected = signal(false);
+    readonly refreshedAt = signal<Date | null>(null);
 
     readonly canManage = computed(() => {
         this.auth.user();
@@ -59,7 +64,24 @@ export class AdminQueuesPage implements OnInit {
         });
     }
 
-    ngOnInit(): void { this.refreshQueues(); }
+    ngOnInit(): void {
+        this.refreshQueues();
+        this.live.connect().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(event => {
+            if (event.type === 'connected') this.liveConnected.set(true);
+            if (event.type === 'disconnected') this.liveConnected.set(false);
+            if (event.type === 'queues.changed') this.queueRefreshEvent.next();
+        });
+        // Coalesce bursts of queue changes before querying the REST API.
+        this.queueRefreshEvent.pipe(auditTime(500), takeUntilDestroyed(this.destroyRef))
+            .subscribe(() => this.refresh());
+        // Safety net for lost events, cross-JVM workers, or servers with live updates disabled.
+        timer(15_000, 15_000).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+            if (!this.liveConnected()) this.refresh();
+        });
+        timer(60_000, 60_000).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+            if (this.liveConnected()) this.refresh();
+        });
+    }
 
     refreshQueues(): void {
         this.error.set('');
@@ -95,7 +117,7 @@ export class AdminQueuesPage implements OnInit {
     refresh(): void {
         this.refreshQueues();
         this.loadPage();
-        if (this.selectedTask()) this.openTask(this.selectedTask());
+        this.reloadDetails();
     }
 
     selectTask(row: unknown): void {
@@ -114,6 +136,20 @@ export class AdminQueuesPage implements OnInit {
             next: value => {
                 this.details.set(value);
                 this.editedPriority.set(value.task.priority);
+            },
+            error: error => this.fail(error),
+        });
+    }
+
+    /** Refresh drawer data without interrupting priority editing. */
+    private reloadDetails(): void {
+        const task = this.selectedTask();
+        if (!task) return;
+        this.detailsRequest?.unsubscribe();
+        this.detailsRequest = this.api.details(task.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+            next: value => {
+                this.details.set(value);
+                this.selectedTask.set(value.task);
             },
             error: error => this.fail(error),
         });
@@ -182,6 +218,7 @@ export class AdminQueuesPage implements OnInit {
             .subscribe({
                 next: page => {
                     this.page.set(page);
+                    this.refreshedAt.set(new Date());
                     this.loading.set(false);
                 },
                 error: error => {

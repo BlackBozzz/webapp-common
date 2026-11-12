@@ -1,5 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, ViewChild, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ConfirmationService, MessageService } from 'primeng/api';
@@ -8,11 +8,10 @@ import { ConfirmDialog } from 'primeng/confirmdialog';
 import { Dialog } from 'primeng/dialog';
 import { InputText } from 'primeng/inputtext';
 import { MultiSelect } from 'primeng/multiselect';
-import { ArgentTableComponent, ArgentTableColumnComponent, ArgentTableCellDirective, ArgentTableToolbarEndDirective, ArgentTableQuery } from '../../../shared/table';
+import { ArgentTableComponent, ArgentTableColumnComponent, ArgentTableCellDirective, ArgentTableQuery, ArgentTableToolbarEndDirective } from '../../../shared/table';
 import { Tag } from 'primeng/tag';
 import { Toast } from 'primeng/toast';
 import { ToggleSwitch } from 'primeng/toggleswitch';
-import { Tooltip } from 'primeng/tooltip';
 import { Observable, Subject, Subscription, debounceTime, finalize } from 'rxjs';
 import { DynamicPage } from '../../../dictionary/dynamic/dto/dynamic-dictionary.dto';
 import { FieldErrorComponent } from '../../../errors/field-error/field-error.component';
@@ -41,7 +40,7 @@ interface RoleOption {
     standalone: true,
     imports: [
         FormsModule, ReactiveFormsModule, ArgentTableComponent, ArgentTableColumnComponent, ArgentTableCellDirective, ArgentTableToolbarEndDirective, ButtonDirective, InputText, MultiSelect,
-        ToggleSwitch, Tag, Tooltip, Dialog, ConfirmDialog, Toast, FieldErrorComponent,
+        ToggleSwitch, Tag, Dialog, ConfirmDialog, Toast, FieldErrorComponent,
     ],
     providers: [ConfirmationService, MessageService],
     templateUrl: './admin-users.page.html',
@@ -49,6 +48,7 @@ interface RoleOption {
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AdminUsersPage implements OnInit {
+    @ViewChild(ArgentTableComponent) private usersTable?: ArgentTableComponent;
     private readonly usersApi = inject(AdminUsersApiService);
     private readonly rolesApi = inject(AdminRolesApiService);
     private readonly confirm = inject(ConfirmationService);
@@ -66,16 +66,18 @@ export class AdminUsersPage implements OnInit {
     protected readonly roles = signal<RoleDto[]>([]);
     protected readonly roleOptions = computed<RoleOption[]>(() =>
         this.roles().map(role => ({ label: `${role.name} (${role.code})`, value: role.code })));
-    /** Несохранённые изменения ролей по id пользователя; сохраняются при закрытии панели. */
-    private readonly roleDrafts = new Map<string, string[]>();
+    /** Роли редактируются в отдельном диалоге, не внутри виртуализированной ячейки AG Grid. */
+    protected readonly actionUser = signal<UserDto | null>(null);
+    protected readonly actionRoles = signal<string[]>([]);
+    protected readonly roleNames = computed(() => new Map(this.roles().map(role => [role.code, role.name])));
     /** Пользователи, по которым сейчас выполняется запрос (блокирует элементы строки). */
     protected readonly busyIds = signal<ReadonlySet<string>>(new Set());
 
     protected readonly createVisible = signal(false);
     protected readonly creating = signal(false);
     protected readonly createForm = new FormGroup({
-        login: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.maxLength(100)] }),
-        displayName: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.maxLength(200)] }),
+        login: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.pattern(/\S/), Validators.maxLength(100)] }),
+        displayName: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.pattern(/\S/), Validators.maxLength(200)] }),
         email: new FormControl('', { nonNullable: true, validators: [Validators.email, Validators.maxLength(254)] }),
         // Необязателен; если введён — 6–72 символа (minLength/maxLength пропускают пустое значение).
         password: new FormControl('', {
@@ -141,24 +143,55 @@ export class AdminUsersPage implements OnInit {
 
     // ---- Роли ----
 
-    /** Полные названия ролей видны при наведении даже на узкой таблице. */
-    protected roleTooltip(codes: readonly string[]): string {
-        const names = new Map(this.roleOptions().map(role => [role.value, role.label]));
-        return codes.map(code => names.get(code) ?? code).join(' • ');
+    protected roleLabel(code: string): string {
+        return this.roleNames().get(code) ?? code;
     }
 
-    protected changeRoles(user: UserDto, roleCodes: string[] | null): void {
-        this.roleDrafts.set(user.id, roleCodes ?? []);
+    /** AG Grid может отрисовать ячейку без data, а старые ответы API могут не содержать roles. */
+    protected rolesOf(user: UserDto | null | undefined): string[] {
+        return Array.isArray(user?.roles) ? user.roles : [];
     }
 
-    /** Закрытие панели multiselect: сохраняем роли, если набор изменился. */
-    protected saveRoles(user: UserDto): void {
-        const draft = this.roleDrafts.get(user.id);
-        this.roleDrafts.delete(user.id);
-        if (!draft || sameCodes(draft, user.roles)) return;
-        this.runForUser(user, this.usersApi.setRoles(user.id, draft), 'Роли не сохранены', saved => {
+    protected openActions(user: UserDto | null | undefined): void {
+        if (!user) return;
+        const normalized = this.normalizeUser(user);
+        this.actionRoles.set([...normalized.roles]);
+        this.actionUser.set(normalized);
+    }
+
+    protected closeActions(): void {
+        if (this.actionUser() && !this.isBusy(this.actionUser()!)) this.actionUser.set(null);
+    }
+
+    protected hasRoleChanges(user: UserDto): boolean {
+        return !sameCodes(this.actionRoles(), this.rolesOf(user));
+    }
+
+    protected saveActionRoles(): void {
+        const user = this.actionUser();
+        if (!user || !this.hasRoleChanges(user) || this.isBusy(user)) return;
+        const codes = [...this.actionRoles()];
+        this.runForUser(user, this.usersApi.setRoles(user.id, codes), 'Роли не сохранены', saved => {
+            this.actionUser.set(this.normalizeUser(saved));
+            this.actionRoles.set(this.rolesOf(saved));
+            this.usersTable?.requestRefresh();
             this.messages.add({ severity: 'success', summary: 'Роли сохранены', detail: saved.login });
         });
+    }
+
+    protected emailFromActions(user: UserDto): void {
+        this.actionUser.set(null);
+        this.openEmail(user);
+    }
+
+    protected passwordFromActions(user: UserDto): void {
+        this.actionUser.set(null);
+        this.openPassword(user);
+    }
+
+    protected revokeFromActions(user: UserDto): void {
+        this.actionUser.set(null);
+        this.confirmRevoke(user);
     }
 
     // ---- Активность ----
@@ -166,6 +199,7 @@ export class AdminUsersPage implements OnInit {
     protected toggleEnabled(user: UserDto, enabled: boolean): void {
         const request = this.usersApi.update(user.id, { displayName: user.displayName, enabled });
         this.runForUser(user, request, 'Не удалось изменить активность', saved => {
+            if (this.actionUser()?.id === saved.id) this.actionUser.set(saved);
             this.messages.add({
                 severity: 'success',
                 summary: saved.enabled ? 'Пользователь активирован' : 'Пользователь заблокирован',
@@ -186,6 +220,7 @@ export class AdminUsersPage implements OnInit {
     }
 
     protected create(): void {
+        if (this.creating()) return;
         if (this.createForm.invalid) {
             this.createForm.markAllAsTouched();
             return;
@@ -324,7 +359,10 @@ export class AdminUsersPage implements OnInit {
             size: this.pageSize(),
         }).subscribe({
             next: page => {
-                this.page.set(page);
+                this.page.set({
+                    ...page,
+                    items: (page.items ?? []).filter((user): user is UserDto => !!user).map(user => this.normalizeUser(user)),
+                });
                 this.loading.set(false);
             },
             error: error => {
@@ -351,8 +389,9 @@ export class AdminUsersPage implements OnInit {
             takeUntilDestroyed(this.destroyRef),
         ).subscribe({
             next: saved => {
-                this.replaceUser(saved);
-                done(saved);
+                const normalized = this.normalizeUser(saved);
+                this.replaceUser(normalized);
+                done(normalized);
             },
             error: error => {
                 this.replaceUser({ ...user });
@@ -361,10 +400,15 @@ export class AdminUsersPage implements OnInit {
         });
     }
 
+    private normalizeUser(user: UserDto): UserDto {
+        return { ...user, roles: this.rolesOf(user) };
+    }
+
     private replaceUser(user: UserDto): void {
+        const normalized = this.normalizeUser(user);
         this.page.update(page => page && {
             ...page,
-            items: page.items.map(item => item.id === user.id ? user : item),
+            items: page.items.map(item => item.id === normalized.id ? normalized : item),
         });
     }
 

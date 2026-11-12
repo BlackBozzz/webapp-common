@@ -4,7 +4,6 @@
             <span class="argent-users__eyebrow">Администрирование</span>
             <h1>Пользователи</h1>
         </div>
-
     </div>
 
     @if (error()) {
@@ -45,31 +44,17 @@
         <argent-table-column field="roles"
             header="Роли"
             type="custom"
-            minWidth="355px"
-            width="355px"
+            minWidth="210px"
+            width="240px"
         >
             <ng-template argentTableCell let-user>
-                <p-multiselect appendTo="body"
-                    class="argent-users__role-select"
-                    display="chip"
-                    placeholder="Без ролей"
-                    tooltipPosition="top"
-                    [pTooltip]="roleTooltip(user.roles)"
-                    [tooltipDisabled]="!user.roles.length"
-                    [maxSelectedLabels]="2"
-                    selectedItemsLabel="Выбрано ролей: {0}"
-                    optionLabel="label"
-                    optionValue="value"
-                    [options]="roleOptions()"
-                    [ngModel]="user.roles"
-                    [filter]="roleOptions().length > 7"
-                    [showToggleAll]="false"
-                    [disabled]="isBusy(user)"
-                    [fluid]="true"
-                    [attr.aria-label]="'Роли пользователя ' + user.login"
-                    (ngModelChange)="changeRoles(user, $event)"
-                    (onPanelHide)="saveRoles(user)"
-                ></p-multiselect>
+                <div class="argent-users__roles">
+                    @for (code of rolesOf(user); track code) {
+                        <span class="argent-users__role-chip" [title]="code">{{ roleLabel(code) }}</span>
+                    } @empty {
+                        <span class="argent-users__roles-empty">Без ролей</span>
+                    }
+                </div>
             </ng-template>
         </argent-table-column>
         <argent-table-column field="enabled"
@@ -104,40 +89,100 @@
         <argent-table-column field="id"
             header="Действия"
             type="actions"
-            minWidth="275px"
+            width="115px"
+            minWidth="115px"
         >
             <ng-template argentTableCell let-user>
-                <div class="argent-users__row-actions">
-                    <button pButton
-                        type="button"
-                        size="small"
-                        severity="secondary"
-                        [outlined]="true"
-                        [disabled]="isBusy(user)"
-                        (click)="openEmail(user)"
-                    >Email</button>
-                    <button pButton
-                        type="button"
-                        size="small"
-                        severity="secondary"
-                        [outlined]="true"
-                        [disabled]="isBusy(user)"
-                        (click)="openPassword(user)"
-                    >Задать пароль</button>
-                    <button pButton
-                        pTooltip="Завершить все сессии пользователя"
-                        type="button"
-                        size="small"
-                        severity="danger"
-                        tooltipPosition="top"
-                        [outlined]="true"
-                        [disabled]="isBusy(user)"
-                        (click)="confirmRevoke(user)"
-                    >Отозвать сессии</button>
-                </div>
+                <button pButton
+                    type="button"
+                    size="small"
+                    severity="secondary"
+                    icon="pi pi-cog"
+                    [outlined]="true"
+                    [disabled]="isBusy(user)"
+                    (click)="openActions(user)"
+                >Открыть</button>
             </ng-template>
         </argent-table-column>
     </argent-table>
+
+    <p-dialog
+        [header]="'Пользователь: ' + (actionUser()?.login ?? '')"
+        [modal]="true"
+        [draggable]="false"
+        [resizable]="false"
+        [style]="{ width: 'min(540px, 96vw)' }"
+        [visible]="actionUser() !== null"
+        (visibleChange)="!$event && closeActions()"
+    >
+        @if (actionUser(); as user) {
+            <div class="argent-users__actions-dialog">
+                <dl class="argent-users__details">
+                    <div><dt>Логин</dt><dd>{{ user.login }}</dd></div>
+                    <div><dt>Имя</dt><dd>{{ user.displayName }}</dd></div>
+                    <div><dt>Email</dt><dd>{{ user.email || 'Не указан' }}</dd></div>
+                    <div><dt>Пароль</dt><dd>{{ user.hasPassword ? 'Задан' : 'Не задан' }}</dd></div>
+                    <div><dt>Статус</dt><dd>{{ user.enabled ? 'Активен' : 'Заблокирован' }}</dd></div>
+                    <div><dt>Создан</dt><dd>{{ user.createdAt }}</dd></div>
+                    <div><dt>ID</dt><dd>{{ user.id }}</dd></div>
+                </dl>
+                <div class="argent-users__field">
+                    <label for="argent-user-action-roles">Роли пользователя</label>
+                    <p-multiselect
+                        appendTo="body"
+                        inputId="argent-user-action-roles"
+                        display="chip"
+                        placeholder="Без ролей"
+                        optionLabel="label"
+                        optionValue="value"
+                        [options]="roleOptions()"
+                        [ngModel]="actionRoles()"
+                        [filter]="roleOptions().length > 7"
+                        [showToggleAll]="false"
+                        [disabled]="isBusy(user)"
+                        [fluid]="true"
+                        (ngModelChange)="actionRoles.set($event ?? [])"
+                    ></p-multiselect>
+                    <button pButton
+                        type="button"
+                        severity="secondary"
+                        [disabled]="isBusy(user) || !hasRoleChanges(user)"
+                        (click)="saveActionRoles()"
+                    >Сохранить роли</button>
+                </div>
+                <div class="argent-users__action-buttons">
+                    <button pButton
+                        type="button"
+                        severity="secondary"
+                        [outlined]="true"
+                        [disabled]="isBusy(user)"
+                        (click)="toggleEnabled(user, !user.enabled)"
+                    >{{ user.enabled ? 'Заблокировать' : 'Активировать' }}</button>
+                    <button pButton
+                        type="button"
+                        severity="secondary"
+                        [outlined]="true"
+                        [disabled]="isBusy(user)"
+                        (click)="emailFromActions(user)"
+                    >Изменить Email</button>
+                    <button pButton
+                        type="button"
+                        severity="secondary"
+                        [outlined]="true"
+                        [disabled]="isBusy(user)"
+                        (click)="passwordFromActions(user)"
+                    >Задать пароль</button>
+                    <button pButton
+                        type="button"
+                        severity="danger"
+                        [outlined]="true"
+                        [disabled]="isBusy(user)"
+                        (click)="revokeFromActions(user)"
+                    >Отозвать сессии</button>
+                </div>
+            </div>
+        }
+    </p-dialog>
 
     <p-dialog header="Новый пользователь"
         [modal]="true"
@@ -148,7 +193,13 @@
         [visible]="createVisible()"
         (visibleChange)="!$event && closeCreate()"
     >
-        <form class="argent-users__form" id="argent-user-create-form" [formGroup]="createForm" (ngSubmit)="create()" novalidate>
+        <form
+            class="argent-users__form"
+            id="argent-user-create-form"
+            novalidate
+            [formGroup]="createForm"
+            (ngSubmit)="create()"
+        >
             <div class="argent-users__field">
                 <label for="argent-user-login">Логин</label>
                 <input pInputText id="argent-user-login" formControlName="login" autocomplete="off" [fluid]="true" />
@@ -175,20 +226,19 @@
                     autocomplete="new-password" [fluid]="true" />
                 <argent-field-error [control]="createForm.controls.password" />
             </div>
+            <div class="argent-users__form-actions">
+                <button pButton
+                    type="button"
+                    severity="secondary"
+                    [disabled]="creating()"
+                    (click)="closeCreate()"
+                >Отмена</button>
+                <button pButton
+                    type="submit"
+                    [loading]="creating()"
+                >Создать</button>
+            </div>
         </form>
-        <ng-template #footer>
-            <button pButton
-                type="button"
-                severity="secondary"
-                [disabled]="creating()"
-                (click)="closeCreate()"
-            >Отмена</button>
-            <button pButton
-                type="submit"
-                form="argent-user-create-form"
-                [loading]="creating()"
-            >Создать</button>
-        </ng-template>
     </p-dialog>
 
     <p-dialog

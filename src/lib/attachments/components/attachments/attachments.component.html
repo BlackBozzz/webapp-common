@@ -27,6 +27,7 @@
             <div class="argent-attachments__error" role="alert">{{ error() }}</div>
         }
 
+        <div class="argent-attachments__table-scroll">
         <p-table
             dataKey="id"
             [value]="items()"
@@ -39,45 +40,138 @@
                     <th>Размер</th>
                     <th>Загрузил</th>
                     <th>Когда</th>
-                    @if (canWrite()) {
-                        <th class="argent-attachments__actions-col"></th>
-                    }
+                    <th class="argent-attachments__actions-col">Действия</th>
                 </tr>
             </ng-template>
             <ng-template #body let-item>
                 <tr>
                     <td>
                         <button pButton
-                            type="button"
+                            pTooltip="Просмотреть или скачать"
                             class="argent-attachments__name p-button-link"
-                            pTooltip="Скачать"
-                            (click)="download(item)"
+                            type="button"
+                            (click)="canPreview(item) ? showPreview(item) : download(item)"
                         >{{ item.fileName }}</button>
                     </td>
                     <td class="argent-attachments__size">{{ formatSize(item.sizeBytes) }}</td>
                     <td>{{ item.uploadedLogin ?? '—' }}</td>
                     <td class="argent-attachments__date">{{ item.createdAt | date: 'dd.MM.yyyy HH:mm' }}</td>
-                    @if (canWrite()) {
-                        <td class="argent-attachments__actions-col">
+                    <td class="argent-attachments__actions-col">
+                        <div class="argent-attachments__actions">
+                            <span pTooltip="Предпросмотр доступен для PDF, изображений, текста, аудио и видео"
+                                tooltipPosition="top"
+                            >
+                                <button pButton
+                                    class="argent-attachments__preview"
+                                    type="button"
+                                    size="small"
+                                    severity="secondary"
+                                    icon="pi pi-eye"
+                                    [outlined]="true"
+                                    [disabled]="!canPreview(item)"
+                                    [attr.aria-label]="canPreview(item) ? 'Просмотр ' + item.fileName : 'Просмотр недоступен: ' + item.fileName"
+                                    (click)="showPreview(item)"
+                                >Просмотр</button>
+                            </span>
                             <button pButton
+                                class="argent-attachments__download"
                                 type="button"
-                                class="argent-attachments__delete"
                                 size="small"
-                                severity="danger"
+                                severity="secondary"
+                                icon="pi pi-download"
                                 [outlined]="true"
-                                [loading]="isDeleting(item)"
-                                (click)="confirmDelete(item)"
-                            >Удалить</button>
-                        </td>
-                    }
+                                (click)="download(item)"
+                            >Скачать</button>
+                            @if (canWrite()) {
+                                <button pButton
+                                    class="argent-attachments__delete"
+                                    type="button"
+                                    size="small"
+                                    severity="danger"
+                                    [outlined]="true"
+                                    [loading]="isDeleting(item)"
+                                    (click)="confirmDelete(item)"
+                                >Удалить</button>
+                            }
+                        </div>
+                    </td>
                 </tr>
             </ng-template>
             <ng-template #emptymessage>
                 <tr>
-                    <td class="argent-attachments__empty" [attr.colspan]="canWrite() ? 5 : 4">Файлов пока нет.</td>
+                    <td class="argent-attachments__empty" colspan="5">Файлов пока нет.</td>
                 </tr>
             </ng-template>
         </p-table>
+        </div>
+
+        <p-dialog
+            [header]="previewItem()?.fileName ?? 'Просмотр файла'"
+            [modal]="true"
+            [draggable]="false"
+            [resizable]="true"
+            [maximizable]="true"
+            [style]="{ width: 'min(1440px, 98vw)', maxHeight: '96dvh' }"
+            [contentStyle]="{ padding: '0', overflow: 'hidden' }"
+            [visible]="previewItem() !== null"
+            (visibleChange)="!$event && closePreview()"
+        >
+            <div class="argent-attachments__viewer">
+                @if (previewLoading()) {
+                    <p class="argent-attachments__viewer-state" role="status">Загружаем файл…</p>
+                } @else if (previewError()) {
+                    <p class="argent-attachments__viewer-state argent-attachments__viewer-error" role="alert">{{ previewError() }}</p>
+                } @else {
+                    @switch (previewKind()) {
+                        @case ('pdf') {
+                            @if (previewSafePdfUrl(); as url) {
+                                <iframe
+                                    class="argent-attachments__viewer-frame"
+                                    title="Предпросмотр PDF"
+                                    sandbox="allow-scripts"
+                                    [src]="url"
+                                ></iframe>
+                            }
+                        }
+                        @case ('image') {
+                            @if (previewUrl(); as url) {
+                                <img
+                                    class="argent-attachments__viewer-image"
+                                    alt="Предпросмотр прикреплённого изображения"
+                                    [src]="url"
+                                />
+                            }
+                        }
+                        @case ('text') {
+                            <pre class="argent-attachments__viewer-text">{{ previewText() }}</pre>
+                        }
+                        @case ('audio') {
+                            @if (previewUrl(); as url) {
+                                <audio class="argent-attachments__viewer-media" controls [src]="url"></audio>
+                            }
+                        }
+                        @case ('video') {
+                            @if (previewUrl(); as url) {
+                                <video class="argent-attachments__viewer-video" controls [src]="url"></video>
+                            }
+                        }
+                    }
+                }
+            </div>
+            <ng-template #footer>
+                <button pButton
+                    type="button"
+                    severity="secondary"
+                    [outlined]="true"
+                    (click)="closePreview()"
+                >Закрыть</button>
+                <button pButton
+                    type="button"
+                    icon="pi pi-download"
+                    (click)="downloadPreview()"
+                >Скачать</button>
+            </ng-template>
+        </p-dialog>
 
         <p-confirmdialog></p-confirmdialog>
     }

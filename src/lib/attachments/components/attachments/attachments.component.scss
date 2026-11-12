@@ -8,3 +8,39 @@
 .argent-attachments__size,
 .argent-attachments__date { font-variant-numeric: tabular-nums; white-space: nowrap; }
 .argent-attachments__actions-col { text-align: right; }
+
+.argent-attachments__actions { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: .35rem; }
+.argent-attachments__actions-col { min-width: 12rem; }
+.argent-attachments__viewer { min-height: 12rem; display: grid; place-items: center; background: var(--p-surface-50); overflow: auto; }
+.argent-attachments__viewer-state { padding: 2.5rem 1rem; text-align: center; color: var(--p-text-muted-color); }
+.argent-attachments__viewer-error { color: var(--p-red-700); }
+.argent-attachments__viewer-frame { display: block; width: 100%; height: min(70vh, 800px); border: 0; background: white; }
+.argent-attachments__viewer-image { display: block; max-width: 100%; max-height: 70vh; object-fit: contain; }
+.argent-attachments__viewer-text { box-sizing: border-box; width: 100%; max-height: 70vh; margin: 0; overflow: auto; padding: 1rem; white-space: pre-wrap; overflow-wrap: anywhere; font: .85rem/1.5 ui-monospace, monospace; }
+.argent-attachments__viewer-media { display: block; width: min(600px, 90%); margin: 2rem auto; }
+.argent-attachments__viewer-video { display: block; max-width: 100%; max-height: 70vh; }
+
+/* Таблица не растягивает страницу вширь: горизонтальная прокрутка только внутри списка. */
+.argent-attachments__table-scroll {
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+/* Большой, но ограниченный высотой экрана просмотрщик. */
+.argent-attachments__viewer {
+    box-sizing: border-box;
+    width: 100%;
+    height: min(78dvh, 940px);
+    min-height: min(22rem, 70dvh);
+    min-width: 0;
+    overflow: auto;
+}
+.argent-attachments__viewer-frame { height: 100%; min-height: 0; }
+.argent-attachments__viewer-image { max-height: 100%; }
+.argent-attachments__viewer-text { max-height: 100%; }
+.argent-attachments__viewer-video { max-height: 100%; }
+@media (max-width: 600px) {
+    .argent-attachments__viewer { height: min(70dvh, 740px); }
+}

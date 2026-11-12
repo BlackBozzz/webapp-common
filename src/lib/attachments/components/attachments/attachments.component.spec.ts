@@ -265,7 +265,7 @@ describe('AttachmentsComponent', () => {
         const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => undefined);
 
         try {
-            element(fixture).querySelector<HTMLButtonElement>('.argent-attachments__name')!.click();
+            element(fixture).querySelector<HTMLButtonElement>('.argent-attachments__download')!.click();
             const request = http.expectOne('/api/attachments/a1');
             expect(request.request.responseType).toBe('blob');
             request.flush(new Blob(['pdf']));
@@ -296,4 +296,65 @@ describe('AttachmentsComponent', () => {
             key: 'argent', severity: 'error', summary: 'Вложения', detail: 'Сломалось',
         }));
     });
+    it('offers preview only for safe formats, excluding SVG and HTML', () => {
+        grant(['read']);
+        const fixture = create();
+        loadList(fixture);
+        expect(fixture.componentInstance.canPreview(ITEMS[0])).toBe(true);
+        expect(fixture.componentInstance.canPreview(ITEMS[1])).toBe(true);
+        expect(fixture.componentInstance.canPreview({ ...ITEMS[0], fileName: 'page.html', contentType: 'text/html' })).toBe(false);
+        expect(fixture.componentInstance.canPreview({ ...ITEMS[0], fileName: 'image.svg', contentType: 'image/svg+xml' })).toBe(false);
+        expect(fixture.componentInstance.canPreview({ ...ITEMS[0], fileName: 'report.docx', contentType: 'application/octet-stream' })).toBe(false);
+        expect(element(fixture).querySelectorAll('.argent-attachments__preview').length).toBe(2);
+        expect(element(fixture).querySelector<HTMLButtonElement>('.argent-attachments__preview')!.disabled).toBe(false);
+        expect(element(fixture).querySelectorAll('.argent-attachments__download').length).toBe(2);
+    });
+
+    it('keeps the preview button visible but disabled for unsupported formats', () => {
+        grant(['read']);
+        const fixture = create();
+        http.expectOne(LIST_URL).flush([{ ...ITEMS[0], fileName: 'document.docx', contentType: 'application/octet-stream' }]);
+        fixture.detectChanges();
+        const preview = element(fixture).querySelector<HTMLButtonElement>('.argent-attachments__preview')!;
+        const download = element(fixture).querySelector<HTMLButtonElement>('.argent-attachments__download')!;
+        expect(preview).toBeTruthy();
+        expect(preview.disabled).toBe(true);
+        expect(download.disabled).toBe(false);
+    });
+
+    it('loads text for preview through authenticated attachment API', async () => {
+        grant(['read']);
+        const fixture = create();
+        loadList(fixture);
+        const textFile = { ...ITEMS[0], fileName: 'notes.txt', contentType: 'text/plain' };
+        fixture.componentInstance.showPreview(textFile);
+        expect(fixture.componentInstance.previewLoading()).toBe(true);
+        const request = http.expectOne('/api/attachments/a1');
+        expect(request.request.responseType).toBe('blob');
+        request.flush(new Blob(['Пример текста'], { type: 'text/plain' }));
+        await Promise.resolve();
+        expect(fixture.componentInstance.previewText()).toBe('Пример текста');
+        expect(fixture.componentInstance.previewLoading()).toBe(false);
+        fixture.componentInstance.closePreview();
+        expect(fixture.componentInstance.previewItem()).toBe(null);
+    });
+
+    it('invalidates an in-progress preview when dialog closes', () => {
+        grant(['read']);
+        const fixture = create();
+        loadList(fixture);
+        fixture.componentInstance.showPreview(ITEMS[0]);
+        const request = http.expectOne('/api/attachments/a1');
+        fixture.componentInstance.closePreview();
+        expect(request.cancelled).toBe(true);
+        expect(fixture.componentInstance.previewItem()).toBe(null);
+    });
+
+    it('disables preview for a file with mismatched MIME type', () => {
+        grant(['read']);
+        const fixture = create();
+        loadList(fixture);
+        expect(fixture.componentInstance.canPreview({ ...ITEMS[0], contentType: 'text/html' })).toBe(false);
+    });
+
 });

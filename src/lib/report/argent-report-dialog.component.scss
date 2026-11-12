@@ -1,0 +1,8 @@
+:host { display: contents; }
+.argent-report-viewer { min-width: 0; }
+.argent-report-viewer__frame { display: block; width: 100%; height: min(70vh, 830px); border: 0; background: #f8fafc; }
+.argent-report-viewer__state { display: grid; place-items: center; min-height: 40vh; padding: 1.5rem; color: var(--p-text-muted-color); }
+.argent-report-viewer__error, .argent-report-viewer__download-error { color: #b42318; }
+.argent-report-viewer__toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: .55rem; padding: .85rem 1rem; border-top: 1px solid var(--p-content-border-color, #e5e7eb); }
+.argent-report-viewer__toolbar span { margin-right: auto; }
+.argent-report-viewer__download-error { padding: .5rem 1rem; }

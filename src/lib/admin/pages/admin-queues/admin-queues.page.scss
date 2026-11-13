@@ -28,6 +28,13 @@
     &__group-error { color: #be4e55; font-weight: 700; }
     &__tasks { padding: 1.1rem; min-width: 0; }
     &__tasks-head { margin-bottom: 1.1rem; h2 { font-size: 1.07rem; margin: 0 0 .3rem; } p { color: #8490a1; font-size: .78rem; margin: 0; } }
+    &__filters { display: flex; align-items: center; gap: .45rem; flex-wrap: wrap; margin: .1rem 0 .6rem; }
+    &__filter { border: 1px solid #dce4ec; background: #fff; color: #556276; border-radius: 999px;
+        font: inherit; font-size: .8rem; padding: .48rem .9rem; cursor: pointer;
+        &:hover { background: #f0f7f9; }
+        &--active { background: #e6f6f8; color: #087e91; border-color: #6bbdca; font-weight: 700; }
+    }
+    &__sort-note { color: #7c8999; font-size: .74rem; line-height: 1.45; margin: 0 0 .8rem; }
     &__actions { display: flex; gap: .5rem; flex-wrap: wrap; }
     &__error, &__notice { padding: .75rem 1rem; border-radius: 8px; margin: 0 0 1rem; font-size: .85rem; }
     &__error { background: #fff0f0; color: #ab343f; }

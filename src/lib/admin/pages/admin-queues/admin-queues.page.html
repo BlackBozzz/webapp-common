@@ -78,6 +78,21 @@
                 }
             </header>
 
+            <nav class="argent-queues__filters" aria-label="Фильтр задач">
+                @for (filter of taskViews; track filter.key) {
+                    <button class="argent-queues__filter"
+                        type="button"
+                        [class.argent-queues__filter--active]="taskView() === filter.key"
+                        [attr.aria-pressed]="taskView() === filter.key"
+                        (click)="changeTaskView(filter.key)"
+                    >{{ filter.label }}</button>
+                }
+            </nav>
+            <p class="argent-queues__sort-note">
+                По умолчанию: незавершённые — в порядке обработки, выполненные — новые выше.
+                Для строгой FIFO-очереди приоритет не влияет на порядок. Доступны поиск и фильтры по столбцам.
+            </p>
+
             <argent-table title="Задачи"
                 [rows]="page()?.items ?? []"
                 [rowKey]="'id'"
@@ -87,26 +102,35 @@
                 [pageSize]="pageSize()"
                 [totalRecords]="page()?.totalElements ?? 0"
                 [selected]="selectedTask()"
-                [showSearch]="false"
+                [showSearch]="true"
                 [showExport]="false"
                 [showImport]="false"
-                [showFilters]="false"
+                [showFilters]="true"
                 [showRefresh]="false"
                 height="460px"
                 (queryChange)="onQuery($event)"
                 (selectionChange)="selectTask($event)"
                 (rowDoubleClick)="selectTask($event)"
             >
-                <argent-table-column field="handlerKey" header="Обработчик" width="230px"></argent-table-column>
+                <argent-table-column field="sequenceNo" header="№" type="number" width="105px"
+                    [sortable]="true" [filterable]="true"></argent-table-column>
+                <argent-table-column field="handlerKey" header="Обработчик" width="230px"
+                    [sortable]="true" [filterable]="true"></argent-table-column>
                 <argent-table-column field="status" header="Статус" type="status" width="190px"
+                    [sortable]="true" [filterable]="true"
                     [labelMap]="{ PENDING: 'Ожидает', RUNNING: 'Работает', RETRY_WAIT: 'Повтор', SUCCESS: 'Успешно', PAUSED: 'Пауза', CANCELLED: 'Отменена' }"
                     [severityMap]="{ PENDING: 'info', RUNNING: 'info', RETRY_WAIT: 'warn', SUCCESS: 'success', PAUSED: 'secondary', CANCELLED: 'secondary' }"
                 ></argent-table-column>
-                <argent-table-column field="priority" header="Приоритет" type="number" width="130px"></argent-table-column>
-                <argent-table-column field="attemptCount" header="Попыток" type="number" width="115px"></argent-table-column>
-                <argent-table-column field="nextRunAt" header="Следующий запуск" type="datetime" width="210px"></argent-table-column>
-                <argent-table-column field="createdAt" header="Создана" type="datetime" width="210px"></argent-table-column>
-                <argent-table-column field="lastError" header="Последняя ошибка" width="300px"></argent-table-column>
+                <argent-table-column field="priority" header="Приоритет" type="number" width="130px"
+                    [sortable]="true" [filterable]="true"></argent-table-column>
+                <argent-table-column field="attemptCount" header="Попыток" type="number" width="115px"
+                    [sortable]="true" [filterable]="true"></argent-table-column>
+                <argent-table-column field="nextRunAt" header="Следующий запуск" type="datetime" width="210px"
+                    [sortable]="true"></argent-table-column>
+                <argent-table-column field="createdAt" header="Создана" type="datetime" width="210px"
+                    [sortable]="true"></argent-table-column>
+                <argent-table-column field="lastError" header="Последняя ошибка" width="300px"
+                    [filterable]="true"></argent-table-column>
             </argent-table>
         </section>
     }
@@ -121,6 +145,7 @@
             </div>
             @if (details(); as detail) {
                 <div class="argent-queues__drawer-content">
+                    <div class="argent-queues__fact"><span>Номер в очереди</span><strong>{{ detail.task.sequenceNo }}</strong></div>
                     <div class="argent-queues__fact"><span>ID</span><code>{{ detail.task.id }}</code></div>
                     <div class="argent-queues__fact"><span>Статус</span><strong>{{ statusLabel(detail.task.status) }}</strong></div>
                     <div class="argent-queues__fact"><span>Попыток</span><strong>{{ detail.task.attemptCount }}</strong></div>

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit, signal, ViewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -11,7 +11,7 @@ import { ArgentTableColumnComponent } from '../../../shared/table/components/arg
 import { ArgentTableQuery } from '../../../shared/table/dto/argent-table.dto';
 import {
     ArgentQueueDto, ArgentQueuePage, ArgentQueueTaskDetailsDto, ArgentQueueTaskDto,
-    ArgentQueueTaskStatus,
+    ArgentQueueTaskStatus, ArgentQueueTaskView,
 } from '../../dto/admin-queues.dto';
 import { AdminQueuesApiService } from '../../service/admin-queues-api.service';
 
@@ -29,6 +29,8 @@ export class AdminQueuesPage implements OnInit {
     private readonly live = inject(ArgentAdminLiveService);
     private readonly auth = inject(AuthStore);
     private readonly destroyRef = inject(DestroyRef);
+    @ViewChild(ArgentTableComponent) private taskTable?: ArgentTableComponent;
+    private queuesRequest?: Subscription;
     private pageRequest?: Subscription;
     private detailsRequest?: Subscription;
     private readonly queueRefreshEvent = new Subject<void>();
@@ -42,6 +44,16 @@ export class AdminQueuesPage implements OnInit {
     readonly notice = signal('');
     readonly loading = signal(false);
     readonly saving = signal(false);
+    readonly taskViews: ReadonlyArray<{ key: ArgentQueueTaskView; label: string }> = [
+        { key: 'all', label: 'Все' },
+        { key: 'waiting', label: 'Ожидают' },
+        { key: 'done', label: 'Выполненные' },
+        { key: 'errors', label: 'С ошибками' },
+    ];
+    readonly taskView = signal<ArgentQueueTaskView>('all');
+    private readonly tableQuery = signal<ArgentTableQuery>({
+        page: 0, size: 20, search: '', sort: null, filters: {},
+    });
     readonly pageIndex = signal(0);
     readonly pageSize = signal(20);
     readonly editedPriority = signal(0);
@@ -59,6 +71,7 @@ export class AdminQueuesPage implements OnInit {
 
     constructor() {
         this.destroyRef.onDestroy(() => {
+            this.queuesRequest?.unsubscribe();
             this.pageRequest?.unsubscribe();
             this.detailsRequest?.unsubscribe();
         });
@@ -85,7 +98,8 @@ export class AdminQueuesPage implements OnInit {
 
     refreshQueues(): void {
         this.error.set('');
-        this.api.list().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+        this.queuesRequest?.unsubscribe();
+        this.queuesRequest = this.api.list().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
             next: queues => {
                 this.queues.set(queues);
                 if (!queues.some(queue => queue.id === this.selectedQueueId())) {
@@ -105,24 +119,37 @@ export class AdminQueuesPage implements OnInit {
         this.details.set(null);
         this.page.set(null);
         this.pageIndex.set(0);
-        if (queue) this.loadPage();
+        this.tableQuery.update(query => ({ ...query, page: 0 }));
+        // Начальную загрузку сделает gridReady, для уже открытой таблицы обновим datasource.
+        if (queue) this.taskTable?.refreshRows();
     }
 
     onQuery(query: ArgentTableQuery): void {
+        this.tableQuery.set(query);
         this.pageIndex.set(query.page);
         this.pageSize.set(query.size);
         this.loadPage();
     }
 
+    /** Не только перечитать REST-страницу, но и инвалидировать кэш Infinite Row Model. */
     refresh(): void {
         this.refreshQueues();
-        this.loadPage();
+        this.taskTable?.refreshRows();
         this.reloadDetails();
+    }
+
+    changeTaskView(view: ArgentQueueTaskView): void {
+        if (view === this.taskView()) return;
+        this.taskView.set(view);
+        this.pageIndex.set(0);
+        this.page.set(null);
+        this.taskTable?.refreshRows();
     }
 
     selectTask(row: unknown): void {
         const task = row as ArgentQueueTaskDto | null;
-        if (task?.id === this.selectedTask()?.id) return;
+        // Сброс выделения при сбросе кэша AG Grid не должен закрывать панель подробностей.
+        if (!task || task.id === this.selectedTask()?.id) return;
         this.openTask(task);
     }
 
@@ -213,7 +240,8 @@ export class AdminQueuesPage implements OnInit {
         if (!id) return;
         this.pageRequest?.unsubscribe();
         this.loading.set(true);
-        this.pageRequest = this.api.tasks(id, this.pageIndex(), this.pageSize())
+        this.pageRequest = this.api.tasks(
+            id, this.pageIndex(), this.pageSize(), this.taskView(), this.tableQuery())
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe({
                 next: page => {
@@ -235,10 +263,7 @@ export class AdminQueuesPage implements OnInit {
             next: () => {
                 this.saving.set(false);
                 this.notice.set(message);
-                const task = this.selectedTask();
-                this.refreshQueues();
-                this.loadPage();
-                if (task) this.openTask(task);
+                this.refresh();
             },
             error: error => {
                 this.saving.set(false);

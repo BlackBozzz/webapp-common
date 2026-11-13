@@ -1,8 +1,9 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { ArgentTableQuery } from '../../shared/table/dto/argent-table.dto';
 import {
-    ArgentQueueDto, ArgentQueuePage, ArgentQueueTaskDetailsDto, ArgentQueueTaskDto,
+    ArgentQueueDto, ArgentQueuePage, ArgentQueueTaskDetailsDto, ArgentQueueTaskDto, ArgentQueueTaskView,
 } from '../dto/admin-queues.dto';
 
 /** REST-клиент Argent Queue; права дополнительно проверяются Spring Security на сервере. */
@@ -15,10 +16,21 @@ export class AdminQueuesApiService {
         return this.http.get<ArgentQueueDto[]>(this.url);
     }
 
-    tasks(queueId: string, page: number, size: number): Observable<ArgentQueuePage<ArgentQueueTaskDto>> {
-        return this.http.get<ArgentQueuePage<ArgentQueueTaskDto>>(`${this.url}/${queueId}/tasks`, {
-            params: new HttpParams().set('page', page).set('size', size),
-        });
+    /** Фильтрация, поиск и сортировка на стороне БД, до применения пагинации. */
+    tasks(queueId: string, page: number, size: number,
+          view: ArgentQueueTaskView = 'all', query?: ArgentTableQuery): Observable<ArgentQueuePage<ArgentQueueTaskDto>> {
+        let params = new HttpParams().set('page', page).set('size', size).set('view', view);
+        if (query?.search.trim()) params = params.set('search', query.search.trim());
+        if (query?.sort) {
+            params = params.set('sortField', query.sort.field).set('sortDirection', query.sort.direction);
+        }
+        for (const field of ['status', 'handlerKey', 'priority', 'attemptCount', 'sequenceNo', 'lastError'] as const) {
+            const value = query?.filters[field];
+            if (value !== undefined && value !== null && value !== '' && !Array.isArray(value)) {
+                params = params.set(field, String(value));
+            }
+        }
+        return this.http.get<ArgentQueuePage<ArgentQueueTaskDto>>(`${this.url}/${queueId}/tasks`, { params });
     }
 
     details(taskId: string): Observable<ArgentQueueTaskDetailsDto> {

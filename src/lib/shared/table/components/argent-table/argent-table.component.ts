@@ -356,6 +356,14 @@ export class ArgentTableComponent implements AfterContentInit, OnChanges, OnDest
         if (!visible) this.binaryPreviewValue = null;
     }
 
+    /** Перечитать строки из backend (включая уже закэшированные AG Grid).
+     * При изменении серверной сортировки очищается весь Infinite Row Model cache.
+     */
+    refreshRows(): void {
+        if (this.lazy) this.reloadInfiniteRows();
+        else this.cachedSource = undefined;
+    }
+
     requestRefresh(): void {
         this.refreshRequested.emit();
         if (this.lazy) this.api?.refreshInfiniteCache();

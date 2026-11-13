@@ -11,10 +11,13 @@ export interface ArgentQueueDto {
     cancelled: number;
 }
 
+export type ArgentQueueTaskView = 'all' | 'done' | 'waiting' | 'errors';
+
 export type ArgentQueueTaskStatus = 'PENDING' | 'RUNNING' | 'RETRY_WAIT' | 'SUCCESS' | 'PAUSED' | 'CANCELLED';
 
 export interface ArgentQueueTaskDto {
     id: string;
+    sequenceNo: number;
     queueId: string;
     handlerKey: string;
     status: ArgentQueueTaskStatus;

@@ -1,0 +1,62 @@
+:host { display:block; min-width:0; max-width:100%; }
+.argent-docs { display:grid; gap:1rem; width:100%; min-width:0; max-width:100%; padding-bottom:1.4rem; }
+.argent-docs__head { display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:.8rem; }
+.argent-docs__head h1 { font-size:clamp(1.5rem,2vw,2rem); margin:.2rem 0 .5rem; }
+.argent-docs__head p { color:var(--p-text-muted-color); margin:0; }
+.argent-docs__eyebrow { color:var(--p-primary-color); letter-spacing:.08em; font-weight:700; font-size:.7rem; margin:0 0 .45rem; }
+.argent-docs__button { cursor:pointer; padding:.55rem .85rem; border-radius:.55rem; border:1px solid var(--p-content-border-color); background:var(--p-content-background); color:inherit; }
+.argent-docs__tabs { display:flex; gap:.4rem; flex-wrap:wrap; border-bottom:1px solid var(--p-content-border-color); padding-bottom:.5rem; }
+.argent-docs__tabs button { cursor:pointer; color:inherit; background:transparent; border:1px solid transparent; border-radius:.45rem; padding:.55rem .7rem; }
+.argent-docs__tabs button.active { border-color:var(--p-primary-color); background:var(--p-primary-100,#e7f5f7); }
+.argent-docs__filters { display:flex; flex-wrap:wrap; align-items:end; gap:.7rem; }
+.argent-docs__filters label { display:grid; gap:.3rem; font-size:.83rem; font-weight:600; flex:1 1 11rem; min-width:0; }
+.argent-docs__filters input,.argent-docs__filters select { min-width:0; width:100%; border:1px solid var(--p-content-border-color); border-radius:.5rem; padding:.54rem .7rem; background:var(--p-content-background); color:inherit; }
+.argent-docs__stack { display:grid; gap:.55rem; min-width:0; }
+.argent-docs__item { min-width:0; border:1px solid var(--p-content-border-color); border-radius:.65rem; background:var(--p-content-background); }
+.argent-docs__item summary { cursor:pointer; padding:.8rem; display:flex; align-items:center; flex-wrap:wrap; gap:.65rem; overflow-wrap:anywhere; }
+.argent-docs__summary-title { flex:1 1 18rem; min-width:0; font-weight:650; }
+.argent-docs__summary-title code { display:block; font-size:.76rem; color:var(--p-text-muted-color); font-weight:400; margin-top:.15rem; }
+.argent-docs__method { display:inline-block; border-radius:.3rem; padding:.2rem .4rem; font-size:.72rem; font-weight:750; background:#e2e8f0; color:#334155; }
+.argent-docs__method.method--get { background:#d9fbe8; color:#116d43; }
+.argent-docs__method.method--post { background:#deefff; color:#154d84; }
+.argent-docs__method.method--delete { background:#ffe4e6; color:#991b1b; }
+.argent-docs__detail { border-top:1px solid var(--p-content-border-color); padding:.7rem 1rem 1rem; min-width:0; }
+.argent-docs__detail p { overflow-wrap:anywhere; }
+.argent-docs__notes { white-space:pre-line; line-height:1.55; }
+.argent-docs h2 { margin:.2rem 0 .5rem; font-size:1.2rem; }
+.argent-docs h3 { margin:1.1rem 0 .45rem; font-size:1rem; }
+.argent-docs__labels { display:flex; align-items:center; flex-wrap:wrap; gap:.4rem; margin:.5rem 0; }
+.argent-docs__chip { display:inline-block; border:1px solid var(--p-content-border-color); border-radius:99px; font-size:.74rem; padding:.25rem .55rem; background:var(--p-content-hover-background); }
+.argent-docs__link-button { cursor:pointer; color:var(--p-primary-color); background:transparent; border:1px solid var(--p-content-border-color); border-radius:.4rem; padding:.2rem .5rem; font:inherit; max-width:100%; overflow-wrap:anywhere; }
+.argent-docs__link { color:var(--p-primary-color); font-weight:600; }
+.argent-docs__hint { font-size:.82rem; color:var(--p-text-muted-color); }
+.argent-docs__warning { color:#991b1b; background:#fff0f0; padding:.6rem; border-radius:.4rem; }
+.argent-docs__empty { color:var(--p-text-muted-color); padding:1.2rem; }
+.argent-docs__workspace { min-width:0; display:grid; grid-template-columns:minmax(230px,280px) minmax(0,1fr); gap:1rem; align-items:start; }
+.argent-docs__side { min-width:0; max-height:min(67vh,740px); overflow:auto; padding:.3rem; border:1px solid var(--p-content-border-color); border-radius:.7rem; }
+.argent-docs__side-group { font-weight:750; font-size:.8rem; color:var(--p-text-muted-color); padding:.7rem .55rem .35rem; }
+.argent-docs__entry { color:inherit; cursor:pointer; display:grid; text-align:left; width:100%; min-width:0; gap:.22rem; padding:.65rem .6rem; border:1px solid transparent; border-radius:.45rem; background:transparent; }
+.argent-docs__entry:hover { background:var(--p-content-hover-background); }
+.argent-docs__entry.is-active { border-color:var(--p-primary-color); background:var(--p-primary-100,#e7f5f7); }
+.argent-docs__entry strong { font-size:.9rem; overflow-wrap:anywhere; }
+.argent-docs__entry span { color:var(--p-text-muted-color); font-size:.75rem; overflow-wrap:anywhere; }
+.argent-docs__main { min-width:0; border:1px solid var(--p-content-border-color); border-radius:.75rem; background:var(--p-content-background); padding:1rem; overflow-wrap:anywhere; }
+.argent-docs__detail-head { display:flex; gap:.6rem; flex-wrap:wrap; }
+.argent-docs__detail-head p { margin:.2rem 0 .65rem; color:var(--p-text-muted-color); }
+.argent-docs__table-scroll { overflow-x:auto; max-width:100%; }
+.argent-docs__table { width:100%; border-collapse:collapse; font-size:.86rem; min-width:440px; }
+.argent-docs__table th { background:var(--p-content-hover-background); font-size:.75rem; text-align:left; }
+.argent-docs__table th,.argent-docs__table td { padding:.6rem .48rem; border-bottom:1px solid var(--p-content-border-color); vertical-align:top; }
+.argent-docs__table code { overflow-wrap:anywhere; }
+.argent-docs__subsection { margin:.75rem 0; padding:.7rem; border-radius:.6rem; border:1px solid var(--p-content-border-color); }
+.argent-docs__subsection summary { cursor:pointer; font-weight:650; }
+.argent-docs__json { background:var(--p-content-hover-background); padding:.7rem; border-radius:.45rem; max-height:360px; overflow:auto; font-size:.75rem; }
+.argent-docs__usage { display:flex; flex-wrap:wrap; align-items:center; gap:.45rem; padding:.3rem 0; }
+.argent-docs__deploy { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,19rem),1fr)); gap:.7rem; }
+.argent-docs__deploy article { min-width:0; border:1px solid var(--p-content-border-color); border-radius:.7rem; padding:1rem; }
+.argent-docs__deploy h2 { font-size:1rem; }
+@media (max-width:800px) {
+    .argent-docs__workspace { grid-template-columns:minmax(0,1fr); }
+    .argent-docs__side { max-height:240px; }
+    .argent-docs__main { padding:.65rem; }
+}

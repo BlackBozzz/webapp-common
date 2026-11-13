@@ -42,4 +42,38 @@ describe('DictionaryCatalogPage', () => {
         ).map(element => element.textContent?.trim());
         expect(codes).toEqual(['dict_a']);
     });
+    it('groups custom tables, and searches by group and title', () => {
+        TestBed.configureTestingModule({
+            imports: [DictionaryCatalogPage],
+            providers: [
+                provideRouter([]),
+                provideHttpClient(),
+                provideHttpClientTesting(),
+                {
+                    provide: DynamicDictionaryApiService,
+                    useValue: {
+                        getDictionaries: () => of([
+                            { code: 'dict_department', name: 'Отделы', kind: 'dictionary', group: 'План производства' },
+                            { code: 'app_document', name: 'Документы', kind: 'table', group: 'Управление документацией' },
+                        ]),
+                    },
+                },
+            ],
+        });
+        TestBed.inject(AuthStore).user.set({
+            id: '1', login: 'test', displayName: 'Test',
+            grants: { tables: { '*': ['read'] }, actions: [] },
+        });
+        const fixture = TestBed.createComponent(DictionaryCatalogPage);
+        fixture.detectChanges();
+        const page = fixture.componentInstance;
+
+        expect(page.grouped().map(group => [group.kind, group.label])).toEqual([
+            ['dictionary', 'План производства'], ['table', 'Управление документацией'],
+        ]);
+        page.searchText.set('документац');
+        fixture.detectChanges();
+        expect(page.grouped().map(group => group.items.map(x => x.code))).toEqual([['app_document']]);
+    });
+
 });

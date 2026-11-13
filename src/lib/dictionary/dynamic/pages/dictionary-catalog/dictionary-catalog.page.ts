@@ -8,7 +8,13 @@ import { DynamicDictionarySummary } from '../../dto/dynamic-dictionary.dto';
 import { DynamicDictionaryApiService } from '../../service/dynamic-dictionary-api.service';
 import { DynamicDictionaryErrorService } from '../../service/dynamic-dictionary-error.service';
 
-/** Каталог зарегистрированных справочников из backend. */
+interface CatalogGroup {
+    label: string;
+    kind: 'dictionary' | 'table';
+    items: DynamicDictionarySummary[];
+}
+
+/** Общий каталог: справочники и таблицы приложений с поиском и группировкой. */
 @Component({
     selector: 'argent-dictionary-catalog-page',
     standalone: true,
@@ -26,29 +32,41 @@ export class DictionaryCatalogPage {
     readonly dictionaries = signal<DynamicDictionarySummary[]>([]);
     readonly loading = signal(true);
     readonly error = signal('');
-    /** Справочники, на которые у пользователя есть грант `read` (фильтр только для UI, права проверяет backend). */
+    readonly searchText = signal('');
+
     readonly visibleDictionaries = computed(() => {
-        // Явно читаем пользователя, чтобы список пересчитывался после загрузки грантов.
         this.auth.user();
-        return this.dictionaries().filter(dictionary => this.auth.canTable(dictionary.code, 'read'));
+        const search = this.searchText().trim().toLocaleLowerCase('ru');
+        return this.dictionaries().filter(item => this.auth.canTable(item.code, 'read') &&
+            (!search || [item.name, item.code, item.group ?? '', item.kind ?? 'dictionary']
+                .some(value => value.toLocaleLowerCase('ru').includes(search))));
     });
 
-    constructor() {
-        this.refresh();
+    readonly grouped = computed<CatalogGroup[]>(() => {
+        const groups = new Map<string, CatalogGroup>();
+        for (const item of this.visibleDictionaries()) {
+            const kind = item.kind === 'table' ? 'table' : 'dictionary';
+            const label = item.group?.trim() || (kind === 'table' ? 'Таблицы' : 'Справочники');
+            const id = `${kind}:${label}`;
+            if (!groups.has(id)) groups.set(id, { kind, label, items: [] });
+            groups.get(id)!.items.push(item);
+        }
+        return [...groups.values()].sort((a, b) =>
+            (a.kind === b.kind ? a.label.localeCompare(b.label, 'ru') : a.kind === 'dictionary' ? -1 : 1));
+    });
+
+    constructor() { this.refresh(); }
+
+    search(event: Event): void {
+        this.searchText.set((event.target as HTMLInputElement).value);
     }
 
     refresh(): void {
         this.loading.set(true);
         this.error.set('');
         this.api.getDictionaries().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-            next: dictionaries => {
-                this.dictionaries.set(dictionaries);
-                this.loading.set(false);
-            },
-            error: error => {
-                this.loading.set(false);
-                this.error.set(this.errors.message(error));
-            },
+            next: rows => { this.dictionaries.set(rows); this.loading.set(false); },
+            error: error => { this.loading.set(false); this.error.set(this.errors.message(error)); },
         });
     }
 }

@@ -4,6 +4,9 @@ import type { FieldError, ProblemDetail } from '../../../errors/problem-detail';
 export interface DynamicDictionarySummary {
   code: string;
   name: string;
+  /** dictionary — автоматически регистрируемый справочник, table — таблица приложения. */
+  kind?: 'dictionary' | 'table';
+  group?: string;
 }
 
 /** Данные о справочнике, на который ссылается поле формы. */
@@ -60,6 +63,9 @@ export interface DynamicDictionarySchema {
   idField: string;
   displayField: string | null;
   fields: DynamicFieldDefinition[];
+  kind?: 'dictionary' | 'table';
+  group?: string;
+  editable?: boolean;
 }
 
 /** Вариант выбора существующей записи связанного справочника. */

@@ -63,7 +63,7 @@
     height: 100%;
 }
 
-.argent-catalog__card h2 {
+.argent-catalog__card h3 {
     align-self: center;
     justify-self: center;
     margin: 0;
@@ -131,3 +131,11 @@
     width: 100%;
     flex: 1;
 }
+
+.argent-catalog__search { display: grid; gap: .4rem; max-width: 32rem; font-size: .86rem; font-weight: 600; }
+.argent-catalog__input { width: 100%; padding: .7rem .85rem; background: var(--p-content-background, #fff); color: inherit; border: 1px solid var(--p-content-border-color, #ccd3dd); border-radius: .6rem; }
+.argent-catalog__input:focus-visible { outline: 2px solid var(--p-primary-color); outline-offset: 1px; }
+.argent-catalog__group { min-width: 0; display: grid; gap: .9rem; }
+.argent-catalog__group-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; border-bottom: 1px solid var(--p-content-border-color, #e4eaf1); padding-bottom: .5rem; }
+.argent-catalog__group-heading h2 { margin: 0; font-size: 1.25rem; }
+.argent-catalog__group-heading span { color: var(--p-text-muted-color); font-size: .8rem; }

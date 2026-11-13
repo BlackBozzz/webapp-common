@@ -15,11 +15,20 @@ export const ADMIN_NAVIGATION: readonly AdminNavigationItem[] = [
     },
     {
         id: 'dictionaries',
-        title: 'Справочники',
-        description: 'Данные и динамические формы',
+        title: 'Данные',
+        description: 'Справочники и таблицы приложений',
         path: 'dictionaries',
         glyph: 'pi pi-book',
         enabled: true,
+    },
+    {
+        id: 'api-docs',
+        title: 'API и схемы',
+        description: 'Swagger, DTO, структура БД, развертывание',
+        path: 'api-docs',
+        glyph: 'pi pi-sitemap',
+        enabled: true,
+        action: 'admin',
     },
     {
         id: 'queues',

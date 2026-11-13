@@ -10,7 +10,7 @@ export const ARGENT_DYNAMIC_DICTIONARY_ROUTES: Routes = [
             {
                 path: '',
                 pathMatch: 'full',
-                title: 'Справочники',
+                title: 'Данные',
                 loadComponent: () => import('../pages/dictionary-catalog/dictionary-catalog.page')
                     .then(m => m.DictionaryCatalogPage),
             },

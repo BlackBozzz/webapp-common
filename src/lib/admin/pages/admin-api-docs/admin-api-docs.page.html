@@ -1,0 +1,243 @@
+<section class="argent-docs">
+    <header class="argent-docs__head">
+        <div>
+            <span class="argent-docs__eyebrow">ARGENT / ДОКУМЕНТАЦИЯ</span>
+            <h1>API и структура данных</h1>
+            <p>Русские названия, технические идентификаторы, права доступа и реальные связи объектов.</p>
+        </div>
+        <button class="argent-docs__button" type="button" (click)="refresh()">Обновить данные</button>
+    </header>
+
+    <nav class="argent-docs__tabs" aria-label="Разделы документации">
+        <button type="button" [class.active]="activeTab() === 'endpoints'" (click)="select('endpoints')">API ({{ operations().length }})</button>
+        <button type="button" [class.active]="activeTab() === 'dto'" (click)="select('dto')">Модели данных ({{ models().length }})</button>
+        <button type="button" [class.active]="activeTab() === 'database'" (click)="select('database')">База данных ({{ tableCount() }})</button>
+        <button type="button" [class.active]="activeTab() === 'swagger'" (click)="select('swagger')">Swagger UI</button>
+        <button type="button" [class.active]="activeTab() === 'deploy'" (click)="select('deploy')">Развёртывание</button>
+    </nav>
+
+    @if (activeTab() === 'endpoints' || activeTab() === 'dto' || activeTab() === 'database') {
+        <div class="argent-docs__filters">
+            <label>Поиск
+                <input type="search" placeholder="Русское название, код, поле, описание…" [value]="search()" (input)="onSearch($event)" />
+            </label>
+            @if (activeTab() === 'endpoints') {
+                <label>HTTP-метод
+                    <select [value]="selectedMethod()" (change)="onMethod($event)">
+                        <option value="">Все методы</option>
+                        @for (method of ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']; track method) {
+                            <option [value]="method">{{ method }}</option>
+                        }
+                    </select>
+                </label>
+                <label>Раздел API
+                    <select [value]="selectedTag()" (change)="onTag($event)">
+                        <option value="">Все разделы</option>
+                        @for (tag of tags(); track tag) { <option [value]="tag">{{ tag }}</option> }
+                    </select>
+                </label>
+                <label>Роль
+                    <select [value]="selectedRole()" (change)="onRole($event)">
+                        <option value="">Все роли</option>
+                        @for (role of allRoles(); track role.code) { <option [value]="role.code">{{ role.name }} · {{ role.code }}</option> }
+                    </select>
+                </label>
+                <label>Действие
+                    <select [value]="selectedAction()" (change)="onAction($event)">
+                        <option value="">Все действия</option>
+                        @for (action of actions(); track action) { <option [value]="action">{{ action }}</option> }
+                    </select>
+                </label>
+            }
+            @if (activeTab() === 'dto') {
+                <label>Назначение модели
+                    <select [value]="selectedCategory()" (change)="onCategory($event)">
+                        <option value="">Все модели</option>
+                        @for (category of modelCategories; track category) { <option [value]="category">{{ category }}</option> }
+                    </select>
+                </label>
+            }
+            @if (activeTab() === 'database') {
+                <label>Группа таблиц
+                    <select [value]="selectedGroup()" (change)="onGroup($event)">
+                        <option value="">Все группы</option>
+                        @for (group of groups(); track group) { <option [value]="group">{{ group }}</option> }
+                    </select>
+                </label>
+            }
+        </div>
+    }
+
+    @if (activeTab() === 'endpoints') {
+        @if (apiError()) { <p class="argent-docs__warning" role="alert">{{ apiError() }}</p> }
+        <p class="argent-docs__hint">Роли вычисляются из текущих грантов. Дополнительные условия безопасности могут ограничивать фактический доступ.</p>
+        <div class="argent-docs__stack">
+            @for (op of visibleOperations(); track op.method + op.path) {
+                <details class="argent-docs__item">
+                    <summary>
+                        <span class="argent-docs__method" [class]="'argent-docs__method method--' + op.method.toLowerCase()">{{ op.method }}</span>
+                        <span class="argent-docs__summary-title">{{ op.summary || 'Метод без русского описания' }} <code>{{ op.path }}</code></span>
+                        @if (op.action) { <span class="argent-docs__chip">{{ op.action }}</span> }
+                    </summary>
+                    <div class="argent-docs__detail">
+                        <p class="argent-docs__notes">{{ op.description || 'Описание / notes пока не заполнено.' }}</p>
+                        <p><b>Разделы:</b> {{ op.tags.join(', ') || 'Не указаны' }}</p>
+                        <p><b>Требуемое действие:</b> <code>{{ op.action || 'Не задокументировано' }}</code></p>
+                        <div class="argent-docs__labels"><b>Роли с действием:</b>
+                            @for (role of op.roles; track role.code) { <span class="argent-docs__chip">{{ role.name }} · {{ role.code }}</span> }
+                            @if (!op.roles.length) { <span class="argent-docs__hint">Нет подходящих ролей или действие не указано</span> }
+                        </div>
+                        @if (op.parameters.length) {
+                            <h3>Входные параметры</h3>
+                            <div class="argent-docs__table-scroll"><table class="argent-docs__table">
+                                <thead><tr><th>Параметр</th><th>Где</th><th>Описание</th><th>Обязательный</th></tr></thead>
+                                <tbody>@for (param of op.parameters; track param.name) {
+                                    <tr><td><code>{{ param.name }}</code></td><td>{{ param.location }}</td><td>{{ param.description || '—' }}</td><td>{{ param.required ? 'Да' : 'Нет' }}</td></tr>
+                                }</tbody>
+                            </table></div>
+                        }
+                        @if (op.requestModels.length) {
+                            <div class="argent-docs__labels"><b>Входные модели:</b>
+                                @for (name of op.requestModels; track name) { <button class="argent-docs__link-button" type="button" (click)="selectModel(name)">{{ name }}</button> }
+                            </div>
+                        }
+                        <h3>Ответы</h3>
+                        @for (response of op.responses; track response.status) {
+                            <p><code>{{ response.status }}</code> {{ response.description }}
+                                @for (name of response.models; track name) { <button class="argent-docs__link-button" type="button" (click)="selectModel(name)">{{ name }}</button> }
+                            </p>
+                        } @empty { <p class="argent-docs__hint">Коды ответа не описаны.</p> }
+                    </div>
+                </details>
+            } @empty { <p class="argent-docs__empty">По выбранным фильтрам API-методов не найдено.</p> }
+        </div>
+    }
+
+    @if (activeTab() === 'dto') {
+        @if (apiError()) { <p class="argent-docs__warning" role="alert">{{ apiError() }}</p> }
+        @if (dtoError()) { <p class="argent-docs__warning" role="alert">{{ dtoError() }}</p> }
+        <p class="argent-docs__hint">Найдите модель слева, затем смотрите описание её полей, пример JSON и используемые методы. Вложенные модели раскрываются отдельно.</p>
+        <div class="argent-docs__workspace">
+            <aside class="argent-docs__side" aria-label="Список моделей">
+                @for (model of visibleModels(); track model.name) {
+                    <button class="argent-docs__entry" type="button" [class.is-active]="isSelectedModel(model.name)" (click)="selectedModelName.set(model.name)">
+                        <strong>{{ model.title }}</strong>
+                        <span>{{ model.name }} · {{ model.category }}</span>
+                    </button>
+                } @empty { <p class="argent-docs__hint">Модели не найдены.</p> }
+            </aside>
+            <div class="argent-docs__main">
+                @if (selectedModel(); as model) {
+                    <div class="argent-docs__detail-head">
+                        <div><p class="argent-docs__eyebrow">{{ model.category }}</p><h2>{{ model.title }}</h2>
+                            <p>{{ model.description || 'Описание модели не заполнено.' }}</p>
+                            <code>{{ model.name }}</code> <span class="argent-docs__hint">{{ model.source }}</span>
+                        </div>
+                    </div>
+                    @if (model.table) { <p>Таблица БД: <button class="argent-docs__link-button" type="button" (click)="selectTable(model.table)">{{ model.table }}</button></p> }
+                    @if (model.enumValues.length) {
+                        <h3>Допустимые значения</h3>
+                        <div class="argent-docs__labels">@for (value of model.enumValues; track value) { <code class="argent-docs__chip">{{ value }}</code> }</div>
+                    }
+                    <h3>Поля модели</h3>
+                    <div class="argent-docs__table-scroll"><table class="argent-docs__table">
+                        <thead><tr><th>Название</th><th>Техническое поле</th><th>Тип</th><th>Ограничения</th></tr></thead>
+                        <tbody>
+                            @for (field of model.fields; track field.name) {
+                                <tr><td><strong>{{ field.title }}</strong><div class="argent-docs__hint">{{ field.description }}</div></td>
+                                    <td><code>{{ field.name }}</code></td>
+                                    <td>@if (field.reference) { <button class="argent-docs__link-button" type="button" (click)="selectModel(field.reference)">{{ field.type }}</button> } @else { {{ field.type }} }</td>
+                                    <td>{{ field.required ? 'Обязательное' : '—' }}{{ field.readOnly ? ' · Только чтение' : '' }}</td></tr>
+                            } @empty { <tr><td colspan="4">Поля модели не опубликованы.</td></tr> }
+                        </tbody>
+                    </table></div>
+                    @if (model.linked.length) {
+                        <details class="argent-docs__subsection"><summary>Связанные модели ({{ model.linked.length }})</summary>
+                            <div class="argent-docs__labels">@for (name of model.linked; track name) {
+                                <button class="argent-docs__link-button" type="button" (click)="selectModel(name)">{{ name }}</button>
+                            }</div>
+                        </details>
+                    }
+                    <details class="argent-docs__subsection"><summary>Пример структуры JSON</summary>
+                        <p class="argent-docs__hint">Это пример полей, не реальные пользовательские данные. Значения-заглушки нужно заменить.</p>
+                        <pre class="argent-docs__json">{{ modelExample() }}</pre>
+                    </details>
+                    <h3>Где используется</h3>
+                    @for (op of modelUsage(); track op.method + op.path) {
+                        <p class="argent-docs__usage"><span class="argent-docs__method">{{ op.method }}</span> {{ op.summary || op.path }} <code>{{ op.path }}</code></p>
+                    } @empty { <p class="argent-docs__hint">Прямых ссылок в опубликованных endpoints нет.</p> }
+                } @else { <p class="argent-docs__empty">Выберите модель данных.</p> }
+            </div>
+        </div>
+    }
+
+    @if (activeTab() === 'database') {
+        @if (schemaError()) { <p class="argent-docs__warning" role="alert">{{ schemaError() }}</p> }
+        <p class="argent-docs__hint">Схема: {{ database()?.schema || 'не загружена' }}. Каталог показывает структуру, не содержимое таблиц.</p>
+        <div class="argent-docs__workspace">
+            <aside class="argent-docs__side" aria-label="Список таблиц по группам">
+                @for (group of tableGroups(); track group.name) {
+                    <div class="argent-docs__side-group">{{ group.name }}</div>
+                    @for (table of group.tables; track table.name) {
+                        <button class="argent-docs__entry" type="button" [class.is-active]="isSelectedTable(table.name)" (click)="selectedTableName.set(table.name)">
+                            <strong>{{ table.title }}</strong><span>{{ table.name }} · {{ table.columns.length }} полей</span>
+                        </button>
+                    }
+                } @empty { <p class="argent-docs__hint">Таблицы не найдены.</p> }
+            </aside>
+            <div class="argent-docs__main">
+                @if (selectedTable(); as table) {
+                    <div class="argent-docs__detail-head"><div>
+                        <p class="argent-docs__eyebrow">{{ table.group }}</p><h2>{{ table.title }}</h2>
+                        <p>{{ table.description || 'Назначение таблицы не описано.' }}</p>
+                        <code>{{ table.name }}</code>
+                    </div></div>
+                    <h3>Поля</h3>
+                    <div class="argent-docs__table-scroll"><table class="argent-docs__table">
+                        <thead><tr><th>Русское название</th><th>Техническое поле</th><th>Обязательность</th></tr></thead>
+                        <tbody>@for (column of table.columns; track column.name) {
+                            <tr><td><strong>{{ column.title }}</strong><div class="argent-docs__hint">{{ column.description }}</div></td>
+                                <td><code>{{ column.name }}</code></td><td>{{ column.primaryKey ? 'Ключ' : column.nullable ? 'Необязательно' : 'Обязательно' }}</td></tr>
+                        }</tbody>
+                    </table></div>
+                    <h3>Связанные таблицы</h3>
+                    <div class="argent-docs__labels">@for (relation of relatedTables(); track relation.name) {
+                        <button class="argent-docs__link-button" type="button" (click)="selectTable(relation.name)">{{ relation.title }} <small>({{ relation.direction }})</small></button>
+                    } @empty { <span class="argent-docs__hint">Внешние ключи не обнаружены.</span> }</div>
+                    @if (tableModels().length) {
+                        <h3>Модели данных</h3><div class="argent-docs__labels">@for (model of tableModels(); track model.name) {
+                            <button class="argent-docs__link-button" type="button" (click)="selectModel(model.name)">{{ model.title }}</button>
+                        }</div>
+                    }
+                    <details class="argent-docs__subsection"><summary>Техническая информация: типы SQL и внешние ключи</summary>
+                        <div class="argent-docs__table-scroll"><table class="argent-docs__table"><thead><tr><th>Колонка</th><th>Тип SQL</th><th>Ключ</th></tr></thead>
+                            <tbody>@for (column of table.columns; track column.name) {
+                                <tr><td><code>{{ column.name }}</code></td><td>{{ column.type }}</td><td>{{ column.primaryKey ? 'PK' : column.nullable ? 'NULL' : 'NOT NULL' }}</td></tr>
+                            }</tbody>
+                        </table></div>
+                        @for (fk of table.relations; track fk.fromColumn + fk.toTable) { <p><code>{{ fk.fromColumn }}</code> → <code>{{ fk.toTable }}.{{ fk.toColumn }}</code></p> }
+                    </details>
+                } @else { <p class="argent-docs__empty">Выберите таблицу.</p> }
+            </div>
+        </div>
+    }
+
+    @if (activeTab() === 'swagger') {
+        <div class="argent-docs__main"><h2>Swagger UI</h2>
+            <p>Интерактивная документация на OpenAPI 3. Русские названия, описания, примечания и вычисленные роли берутся из аннотаций и грантов.</p>
+            <a class="argent-docs__link" href="/swagger-ui/index.html" target="_blank" rel="noopener noreferrer">Открыть Swagger UI</a>
+            <p class="argent-docs__hint">Административный каталог ролей читает их из БД при каждом обновлении страницы. Swagger может кэшировать OpenAPI — для актуализации ролей там установите springdoc.cache.disabled=true.</p>
+            <p><a class="argent-docs__link" href="/v3/api-docs" target="_blank" rel="noopener noreferrer">Скачать OpenAPI JSON</a></p>
+        </div>
+    }
+    @if (activeTab() === 'deploy') {
+        <div class="argent-docs__deploy">
+            <article><h2>1. PostgreSQL и Flyway</h2><p>Создайте БД, настройте <code>spring.datasource.*</code> и миграции. Таблицы <code>@ArgentDataTable</code> создаёт только приложение; схема БД не должна меняться из страницы документации.</p></article>
+            <article><h2>2. Секреты</h2><p>Храните JWT-ключи, пароль администратора, SMTP и пароль PostgreSQL в переменных окружения или secret manager. Не добавляйте секреты в репозиторий.</p></article>
+            <article><h2>3. Безопасность</h2><p>Проверьте роли и гранты, HTTPS, CORS, WebSocket origins и Swagger. По умолчанию пути Swagger публичны в SecurityAutoConfiguration: ограничьте их перед production.</p></article>
+            <article><h2>4. Сборка и запуск</h2><p><code>service-common: mvnw clean install</code>, <code>webapp-common: npm run build</code>. Затем соберите main-backend и main-app.</p></article>
+            <article><h2>5. Приёмочные проверки</h2><p>Проверьте авторизацию, миграции, очереди, письма, QueryDSL, JasperReports и живые события. Отдельно проверьте <code>/v3/api-docs</code> и <code>/api/argent-docs/roles</code>.</p></article>
+            <article><h2>6. Для разработчика</h2><p>Полные инструкции по аннотациям, правам доступа, Swagger и каталогам находятся в <code>DEVELOPER_GUIDE/backend/13_openapi_docs.md</code> и <code>frontend/09_documentation.md</code>.</p></article>
+        </div>
+    }
+</section>

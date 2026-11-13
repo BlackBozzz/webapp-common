@@ -1,11 +1,11 @@
 <section class="argent-records">
     <div class="argent-records__back">
         <a routerLink="../"
-        >← Все справочники</a>
+        >← Все данные</a>
     </div>
     <div class="argent-records__heading">
         <div>
-            <span class="argent-records__eyebrow">Справочник · {{ code() }}</span>
+            <span class="argent-records__eyebrow">{{ schema()?.kind === 'table' ? 'Таблица' : 'Справочник' }} · {{ code() }}</span>
             <h1>{{ title() }}</h1>
         </div>
     </div>
@@ -58,7 +58,7 @@
                         [disabled]="!selected() || deleting() || loading()"
                         (click)="remove()"
                     >Удалить</button>
-                } @else if (canRead()) {
+                } @else if (schema()) {
                     <button pButton
                         type="button"
                         severity="secondary"

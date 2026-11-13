@@ -77,15 +77,15 @@ export class DictionaryRecordsPage implements OnDestroy {
     readonly canWrite = computed(() => {
         // Явно читаем пользователя, чтобы кнопки появлялись после загрузки грантов.
         this.auth.user();
-        return this.auth.canTable(this.code(), 'write');
+        return this.schema()?.editable !== false && this.auth.canTable(this.code(), 'write');
     });
     /** Экспорт доступен с грантом `read` на справочник. */
     readonly canRead = computed(() => {
         this.auth.user();
-        return this.auth.canTable(this.code(), 'read');
+        return this.schema()?.kind !== 'table' && this.auth.canTable(this.code(), 'read');
     });
     /** Импорт: действие `import` и грант `write` на справочник. */
-    readonly canImport = computed(() => this.canWrite() && this.auth.hasAction('import'));
+    readonly canImport = computed(() => this.schema()?.kind !== 'table' && this.canWrite() && this.auth.hasAction('import'));
     readonly exporting = signal(false);
     readonly importVisible = signal(false);
 

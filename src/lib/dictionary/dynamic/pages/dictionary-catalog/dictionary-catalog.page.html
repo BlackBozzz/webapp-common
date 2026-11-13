@@ -2,8 +2,8 @@
     <div class="argent-catalog__header">
         <div>
             <span class="argent-catalog__eyebrow">Управление данными</span>
-            <h1>Справочники</h1>
-            <p>Выберите справочник для просмотра и изменения его записей.</p>
+            <h1>Данные</h1>
+            <p>Справочники и таблицы приложений, сгруппированные по назначению.</p>
         </div>
         <button pButton
             type="button"
@@ -12,30 +12,47 @@
             (click)="refresh()"
         >Обновить список</button>
     </div>
+    <label class="argent-catalog__search">
+        <span>Поиск таблиц и групп</span>
+        <input class="argent-catalog__input"
+            type="search"
+            placeholder="Название, код или группа"
+            [value]="searchText()"
+            (input)="search($event)"
+        />
+    </label>
     @if (error()) {
         <div class="argent-catalog__error" role="alert">{{ error() }}</div>
     }
     @if (loading()) {
-        <p>Загрузка справочников…</p>
+        <p>Загрузка данных…</p>
     } @else if (!dictionaries().length) {
-        <p>Зарегистрированных справочников пока нет.</p>
-    } @else if (!visibleDictionaries().length) {
-        <p>Нет доступных справочников.</p>
+        <p>Зарегистрированных таблиц пока нет.</p>
+    } @else if (!grouped().length) {
+        <p>Нет доступных таблиц по текущему запросу.</p>
     } @else {
-        <div class="argent-catalog__grid">
-            @for (dictionary of visibleDictionaries(); track dictionary.code) {
-                <a class="argent-catalog__link"
-                    [routerLink]="[dictionary.code]"
-                >
-                    <p-card>
-                        <div class="argent-catalog__card">
-                            <span class="argent-catalog__code">{{ dictionary.code }}</span>
-                            <h2>{{ dictionary.name }}</h2>
-                            <span class="argent-catalog__open">Открыть →</span>
-                        </div>
-                    </p-card>
-                </a>
-            }
-        </div>
+        @for (group of grouped(); track group.kind + group.label) {
+            <section class="argent-catalog__group">
+                <div class="argent-catalog__group-heading">
+                    <h2>{{ group.label }}</h2>
+                    <span>{{ group.kind === 'table' ? 'Таблицы приложения' : 'Справочники' }} · {{ group.items.length }}</span>
+                </div>
+                <div class="argent-catalog__grid">
+                    @for (item of group.items; track item.code) {
+                        <a class="argent-catalog__link"
+                            [routerLink]="[item.code]"
+                        >
+                            <p-card>
+                                <div class="argent-catalog__card">
+                                    <span class="argent-catalog__code">{{ item.code }}</span>
+                                    <h3>{{ item.name }}</h3>
+                                    <span class="argent-catalog__open">Открыть →</span>
+                                </div>
+                            </p-card>
+                        </a>
+                    }
+                </div>
+            </section>
+        }
     }
 </section>

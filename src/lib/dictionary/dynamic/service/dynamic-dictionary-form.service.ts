@@ -4,6 +4,25 @@ import { DynamicDictionarySchema, DynamicFieldDefinition } from '../dto/dynamic-
 
 export type DictionaryRecord = Record<string, unknown>;
 
+/** Тип DTO для проверки совпадения полей схемы и TypeScript-класса. */
+export type DynamicDtoClass<T extends object> = new () => T;
+
+/**
+ * Типизированная оболочка над обычной Angular Reactive Form.
+ *
+ * Тип T действует во время компиляции TypeScript; сериализация следует серверной схеме.
+ * Передача класса с инициализированными полями позволяет дополнительно проверить
+ * их имена во время выполнения (но не заменяет валидацию значений).
+ */
+export interface ArgentTypedDynamicForm<T extends object> {
+    readonly schema: DynamicDictionarySchema;
+    readonly form: FormGroup;
+    /** Заполнить поля существующей формы; посторонние поля не отправляются. */
+    patch(record: Partial<T>): void;
+    /** Данные для собственного POST/PUT. Тип результата — T. */
+    toDto(): T;
+}
+
 /** Создание и сериализация вложенной реактивной формы по серверной схеме. */
 @Injectable({ providedIn: 'root' })
 export class DynamicDictionaryFormService {
@@ -11,14 +30,105 @@ export class DynamicDictionaryFormService {
         return this.group(schema.fields, record);
     }
 
+    /**
+     * Создаёт форму, результат которой типизирован интерфейсом или классом DTO.
+     *
+     * С интерфейсом: createTyped<RepairDto>(schema, existingRecord).
+     * С классом: createTyped(schema, RepairDto, existingRecord).
+     *
+     * С классом проверяются имена полей DTO и схемы. Чтобы TypeScript мог видеть
+     * поля класса в runtime, объявляйте их с инициализаторами (например, title = '').
+     */
+    createTyped<T extends object>(
+        schema: DynamicDictionarySchema,
+        dtoClass: DynamicDtoClass<T>,
+        record?: Partial<T>,
+    ): ArgentTypedDynamicForm<T>;
+    createTyped<T extends object>(
+        schema: DynamicDictionarySchema,
+        record?: Partial<T>,
+    ): ArgentTypedDynamicForm<T>;
+    createTyped<T extends object>(
+        schema: DynamicDictionarySchema,
+        dtoClassOrRecord?: DynamicDtoClass<T> | Partial<T>,
+        record?: Partial<T>,
+    ): ArgentTypedDynamicForm<T> {
+        const dtoClass = typeof dtoClassOrRecord === 'function' ? dtoClassOrRecord : null;
+        if (dtoClass) {
+            this.assertDtoShape(schema, dtoClass);
+        }
+        const initial = dtoClass ? record : dtoClassOrRecord as Partial<T> | undefined;
+        return this.bindTyped<T>(schema, this.create(schema, (initial ?? {}) as DictionaryRecord));
+    }
+
+    /** Использовать уже созданный FormGroup с типизированным DTO. */
+    bindTyped<T extends object>(schema: DynamicDictionarySchema, form: FormGroup): ArgentTypedDynamicForm<T> {
+        return {
+            schema,
+            form,
+            patch: value => form.patchValue(value as Record<string, unknown>),
+            toDto: () => this.toDto(schema, form) as T,
+        };
+    }
+
+    /** Удобный вызов без оболочки: forms.toTypedDto<MyDto>(schema, form). */
+    toTypedDto<T extends object>(schema: DynamicDictionarySchema, form: FormGroup): T {
+        return this.toDto(schema, form) as T;
+    }
+
+    /**
+     * Проверка имён полей в классе DTO (включая вложенные объекты с начальными значениями).
+     * При использовании только интерфейса TypeScript такие проверки в runtime невозможны.
+     */
+    /** Проверить модель DTO без создания редактора. Вызывается компонентом при [dtoClass]. */
+    validateDtoClass<T extends object>(schema: DynamicDictionarySchema, dtoClass: DynamicDtoClass<T>): void {
+        this.assertDtoShape(schema, dtoClass);
+    }
+
+    private assertDtoShape<T extends object>(schema: DynamicDictionarySchema, dtoClass: DynamicDtoClass<T>): void {
+        const dto = new dtoClass();
+        this.assertFieldNames(schema.fields, dto, dtoClass.name || 'DTO', new WeakSet<object>());
+    }
+
+    private assertFieldNames(
+        fields: DynamicFieldDefinition[],
+        value: object,
+        path: string,
+        visited: WeakSet<object>,
+    ): void {
+        if (visited.has(value)) return;
+        visited.add(value);
+
+        const expected = new Set(fields.map(field => field.name));
+        const actual = new Set(Object.keys(value));
+        const missing = [...expected].filter(name => !actual.has(name));
+        const extra = [...actual].filter(name => !expected.has(name));
+        if (missing.length || extra.length) {
+            const details = [
+                missing.length ? `отсутствуют в классе: ${missing.join(', ')}` : '',
+                extra.length ? `отсутствуют в схеме: ${extra.join(', ')}` : '',
+            ].filter(Boolean).join('; ');
+            throw new Error(`Несоответствие схемы и DTO ${path}: ${details}. `
+                + 'Инициализируйте все поля класса значениями (можно null).');
+        }
+
+        for (const field of fields) {
+            if (field.type !== 'object' || field.reference || field.entityRelation) continue;
+            const nested = (value as Record<string, unknown>)[field.name];
+            if (nested && typeof nested === 'object' && !Array.isArray(nested)) {
+                this.assertFieldNames(field.fields, nested, `${path}.${field.name}`, visited);
+            }
+        }
+    }
+
     group(fields: DynamicFieldDefinition[], record: DictionaryRecord = {}): FormGroup {
         const controls: Record<string, AbstractControl> = {};
 
         for (const field of fields) {
-            if (field.type === 'array' && !field.reference) {
+            if (field.type === 'array' && !field.reference && !field.entityRelation) {
                 const values = Array.isArray(record[field.name]) ? record[field.name] as unknown[] : [];
                 controls[field.name] = this.array(field, values);
-            } else if (field.type === 'object' && !field.reference) {
+            } else if (field.type === 'object' && !field.reference && !field.entityRelation) {
                 controls[field.name] = this.group(field.fields, this.asRecord(record[field.name]));
             } else {
                 controls[field.name] = new FormControl(
@@ -62,7 +172,10 @@ export class DynamicDictionaryFormService {
             }
 
             const original = value[field.name];
-            if (field.reference) {
+            if (field.entityRelation) {
+                // Произвольные REST-связи передают только идентификаторы.
+                dto[field.name] = original;
+            } else if (field.reference) {
                 // Связанный DTO передаётся целиком; связанная запись не изменяется.
                 dto[field.name] = original;
             } else if (field.type === 'object') {

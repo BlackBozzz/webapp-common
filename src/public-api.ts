@@ -9,3 +9,5 @@ export * from './lib/audit';
 export * from './lib/shared';
 export * from './lib/dictionary/dynamic';
 export * from './lib/report';
+
+export * from './lib/entity-select';

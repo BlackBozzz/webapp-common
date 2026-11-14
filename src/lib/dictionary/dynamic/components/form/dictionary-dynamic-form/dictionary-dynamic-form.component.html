@@ -1,8 +1,8 @@
-<form class="argent-dynamic-form" [formGroup]="form">
+<div class="argent-dynamic-form" [formGroup]="activeForm">
     @for (field of fields; track field.name) {
-        <ng-container *ngTemplateOutlet="fieldTemplate; context: { $implicit: field, parent: form }"></ng-container>
+        <ng-container *ngTemplateOutlet="fieldTemplate; context: { $implicit: field, parent: activeForm }"></ng-container>
     }
-</form>
+</div>
 
 <ng-template #fieldTemplate let-field let-parent="parent">
     @if (field.visible && field.control !== 'hidden') {
@@ -13,7 +13,21 @@
                 @if (field.readOnly) { <span class="argent-dynamic-form__readonly">Только чтение</span> }
             </label>
 
-            @if (field.reference) {
+            @if (field.entityRelation) {
+                <argent-entity-select
+                    [formControl]="scalar(child(parent, field))"
+                    [endpoint]="field.entityRelation.endpoint || ''"
+                    [valueField]="field.entityRelation.valueField"
+                    [labelField]="field.entityRelation.labelField"
+                    [multiple]="field.entityRelation.multiple ?? false"
+                    [searchParam]="field.entityRelation.searchParam || 'search'"
+                    [pageParam]="field.entityRelation.pageParam || 'page'"
+                    [sizeParam]="field.entityRelation.sizeParam || 'size'"
+                    [pageSize]="field.entityRelation.pageSize ?? 20"
+                    [resolveEndpoint]="field.entityRelation.resolveEndpoint"
+                    [placeholder]="field.placeholder || 'Найдите запись'"
+                />
+            } @else if (field.reference) {
                 @if (field.reference.multiple) {
                     <argent-dictionary-multi-reference-field
                         [field]="field"

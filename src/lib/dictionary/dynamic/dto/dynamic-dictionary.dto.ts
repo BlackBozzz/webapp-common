@@ -18,6 +18,24 @@ export interface DynamicReferenceDefinition {
 }
 
 /**
+ * Выбор по произвольному REST endpoint. Для него не требуется @ArgentDictionary.
+ * Значение поля DTO: ID или массив ID; связанные сущности не редактируются формой.
+ * При передаче схемы с backend важно проверять, что endpoint допустим в приложении.
+ */
+export interface DynamicEntityRelationDefinition {
+  endpoint: string;
+  valueField: string;
+  labelField: string;
+  multiple?: boolean;
+  searchParam?: string;
+  pageParam?: string;
+  sizeParam?: string;
+  pageSize?: number;
+  /** Шаблон GET одной записи: /api/employees/{id}. null отключает разрешение имени по ID. */
+  resolveEndpoint?: string | null;
+}
+
+/**
  * Ограничение, переданное сервером.
  * Структура расширяемая: разные Jakarta Validation аннотации
  * могут содержать разный набор атрибутов.
@@ -51,6 +69,8 @@ export interface DynamicFieldDefinition {
   /** Русские (или другие) подписи enum из поля/getLabel() в Java. */
   enumLabels?: Readonly<Record<string, string>> | null;
   reference: DynamicReferenceDefinition | null;
+  /** Необязательное дополнение схемы для связей с обычными REST-сущностями. */
+  entityRelation?: DynamicEntityRelationDefinition | null;
   fields: DynamicFieldDefinition[];
   validation: DynamicValidationRule[];
   elementValidation: DynamicValidationRule[];

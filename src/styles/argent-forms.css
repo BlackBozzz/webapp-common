@@ -1,0 +1,49 @@
+/* Единый каркас для вручную написанных форм и argent-dictionary-dynamic-form.
+   Подключается глобально: @import "@argent/webapp-common/styles/argent-forms.css"; */
+.argent-form {
+    display: grid;
+    gap: 1.25rem;
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+}
+.argent-form *, .argent-form *::before, .argent-form *::after { box-sizing: border-box; }
+.argent-form__section {
+    display: grid;
+    gap: 1rem;
+    padding: 1.25rem;
+    background: var(--p-content-background, #fff);
+    border: 1px solid var(--p-content-border-color, #dde4eb);
+    border-radius: .75rem;
+    min-width: 0;
+}
+.argent-form__section-title { margin: 0; font-size: 1.1rem; font-weight: 650; }
+.argent-form__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+    min-width: 0;
+}
+.argent-form__field { display: grid; gap: .4rem; min-width: 0; }
+.argent-form__field > label { font-weight: 600; font-size: .91rem; }
+.argent-form__field > :is(input, textarea, select, .p-inputtext, .p-select) {
+    width: 100%;
+    min-width: 0;
+}
+.argent-form__actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: .65rem;
+    min-width: 0;
+}
+.argent-form__error { color: var(--p-red-600, #b42318); font-size: .82rem; }
+/* Встроенная схема занимает ширину секции, а не раздвигает родительскую форму. */
+.argent-form argent-dictionary-dynamic-form { display: block; min-width: 0; max-width: 100%; }
+@media (max-width: 640px) {
+    .argent-form__grid { grid-template-columns: minmax(0, 1fr); }
+    .argent-form__section { padding: .85rem; }
+    .argent-form__actions { justify-content: stretch; }
+    .argent-form__actions > button { flex: 1 1 auto; }
+}

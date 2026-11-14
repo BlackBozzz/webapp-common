@@ -1,0 +1,36 @@
+@if (label) {
+    <label class="argent-entity-select__label">{{ label }}</label>
+}
+<p-autocomplete
+    class="argent-entity-select__input"
+    optionLabel="label"
+    dataKey="id"
+    appendTo="body"
+    [fluid]="true"
+    [dropdown]="true"
+    [completeOnFocus]="true"
+    [forceSelection]="true"
+    [showEmptyMessage]="true"
+    [multiple]="multiple"
+    [disabled]="isDisabled"
+    [placeholder]="placeholder"
+    [suggestions]="suggestions()"
+    [ngModel]="selected()"
+    [ngModelOptions]="{ standalone: true }"
+    (completeMethod)="search($event)"
+    (ngModelChange)="choose($event)"
+    (onBlur)="touch()"
+/>
+@if (hasMore()) {
+    <button
+        pButton
+        class="argent-entity-select__more"
+        type="button"
+        severity="secondary"
+        [disabled]="busy() || isDisabled"
+        (click)="loadMore()"
+    >Показать ещё</button>
+}
+@if (error()) {
+    <small class="argent-entity-select__error" role="alert">{{ error() }}</small>
+}
